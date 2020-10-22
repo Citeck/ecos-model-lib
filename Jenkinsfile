@@ -44,7 +44,6 @@ timestamps {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
           sh "mvn clean deploy"
         }
-        junit '**/target/surefire-reports/*.xml'
       }
     } catch (Exception e) {
       currentBuild.result = 'FAILURE'
