@@ -1,8 +1,9 @@
-package ru.citeck.ecos.model.lib.type.dto
+package ru.citeck.ecos.model.lib.attributes.dto
 
 enum class AttributeType {
     ASSOC,
     TEXT,
     NUMBER,
+    BOOLEAN,
     COMPUTED
 }

@@ -3,6 +3,9 @@ package ru.citeck.ecos.model.lib.type.dto
 import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
+import ru.citeck.ecos.model.lib.role.dto.RoleDef
+import ru.citeck.ecos.model.lib.status.dto.StatusDef
 import ru.citeck.ecos.records2.RecordRef
 import java.util.*
 
@@ -35,5 +38,7 @@ data class TypeDef(
 
     val createVariants: List<CreateVariant> = ArrayList<CreateVariant>(),
 
-    val attributes: ObjectData = ObjectData.create()
+    val roles: List<RoleDef> = emptyList(),
+    val statuses: List<StatusDef> = emptyList(),
+    val attributes: List<AttributeDef> = emptyList()
 )

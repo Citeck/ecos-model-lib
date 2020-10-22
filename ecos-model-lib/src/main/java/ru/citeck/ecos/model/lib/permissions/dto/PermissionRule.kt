@@ -5,12 +5,13 @@ import ru.citeck.ecos.records2.predicate.model.VoidPredicate
 
 data class PermissionRule(
 
-    val roles: List<String> = emptyList(),
-    val statuses: List<String> = emptyList(),
+    val roles: Set<String> = emptySet(),
+    val permissions: Set<String> = emptySet(),
 
+    // filters
+    val statuses: Set<String> = emptySet(),
     val condition: Predicate = VoidPredicate.INSTANCE,
-
-    val permission: String,
+    // /filters
 
     val allow: Boolean = true
 )
