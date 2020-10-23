@@ -9,12 +9,15 @@ data class PermissionsDef(
 
     companion object {
 
+        @JvmField
         val EMPTY = PermissionsDef(Matrix.EMPTY, emptyList())
 
+        @JvmStatic
         fun create() : Builder {
             return Builder()
         }
 
+        @JvmStatic
         fun create(builder: Builder.() -> Unit) : PermissionsDef {
             val builderObj = Builder()
             builder.invoke(builderObj)
@@ -68,6 +71,7 @@ data class PermissionsDef(
     class Matrix : HashMap<String, Map<String, PermissionLevel>>() {
 
         companion object {
+            @JvmField
             val EMPTY = Matrix()
         }
     }

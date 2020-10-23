@@ -2,7 +2,7 @@ package ru.citeck.ecos.model.lib.permissions.dto
 
 import ru.citeck.ecos.records2.RecordRef
 
-data class RecordPermissions(
+data class RecordPermsDef(
     val id: String,
     val typeRef: RecordRef,
     val permissions: PermissionsDef,
@@ -11,11 +11,13 @@ data class RecordPermissions(
 
     companion object {
 
+        @JvmStatic
         fun create() : Builder {
             return Builder()
         }
 
-        fun create(builder: Builder.() -> Unit) : RecordPermissions {
+        @JvmStatic
+        fun create(builder: Builder.() -> Unit) : RecordPermsDef {
             val builderObj = Builder()
             builder.invoke(builderObj)
             return builderObj.build()
@@ -26,7 +28,7 @@ data class RecordPermissions(
         return Builder(this)
     }
 
-    fun copy(builder: Builder.() -> Unit) : RecordPermissions {
+    fun copy(builder: Builder.() -> Unit) : RecordPermsDef {
         val builderObj = Builder(this)
         builder.invoke(builderObj)
         return builderObj.build()
@@ -34,13 +36,16 @@ data class RecordPermissions(
 
     class Builder() {
 
-        private lateinit var id: String
-        private var typeRef: RecordRef = RecordRef.EMPTY
+        lateinit var id: String
+            private set
+        var typeRef: RecordRef = RecordRef.EMPTY
+            private set
+        var permissions: PermissionsDef = PermissionsDef.EMPTY
+            private set
+        var attributes: Map<String, PermissionsDef> = emptyMap()
+            private set
 
-        private var permissions: PermissionsDef = PermissionsDef.EMPTY
-        private var attributes: Map<String, PermissionsDef> = emptyMap()
-
-        constructor(base: RecordPermissions) : this() {
+        constructor(base: RecordPermsDef) : this() {
             this.id = base.id
             this.typeRef = base.typeRef
             this.permissions = base.permissions
@@ -67,8 +72,8 @@ data class RecordPermissions(
             return this
         }
 
-        fun build() : RecordPermissions {
-            return RecordPermissions(id, typeRef, permissions, attributes)
+        fun build() : RecordPermsDef {
+            return RecordPermsDef(id, typeRef, permissions, attributes)
         }
     }
 }
