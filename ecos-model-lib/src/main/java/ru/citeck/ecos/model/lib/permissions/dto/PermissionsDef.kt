@@ -72,7 +72,7 @@ data class PermissionsDef(
     /**
      * <Role, <Status, PermissionType>>
      */
-    class Matrix : HashMap<String, Map<String, PermissionLevel>>() {
+    class Matrix : LinkedHashMap<String, Map<String, PermissionLevel>>() {
 
         companion object {
             @JvmField
