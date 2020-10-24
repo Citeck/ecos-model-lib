@@ -1,5 +1,6 @@
 package ru.citeck.ecos.model.lib.permissions.service.roles
 
+import ru.citeck.ecos.model.lib.permissions.dto.PermissionLevel
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionType
 
 object ReadWritePermissions : RolesPermissions {
@@ -18,5 +19,9 @@ object ReadWritePermissions : RolesPermissions {
 
     override fun isWriteAllowed(roles: Collection<String>): Boolean {
         return true
+    }
+
+    override fun getPermissions(roles: Collection<String>): Set<String> {
+        return PermissionLevel.WRITE.permissions.map { it.name }.toSet()
     }
 }

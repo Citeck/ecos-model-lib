@@ -11,4 +11,6 @@ interface RolesPermissions {
     fun isReadAllowed(roles: Collection<String>) : Boolean
 
     fun isWriteAllowed(roles: Collection<String>) : Boolean
+
+    fun getPermissions(roles: Collection<String>) : Set<String>
 }

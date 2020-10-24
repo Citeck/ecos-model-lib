@@ -28,7 +28,7 @@ class PermissionsMatrixTest {
         val permissionsService = services.permissionsService
 
         val permsDef = PermissionsDef.create {
-            setMatrix(mapOf(
+            withMatrix(mapOf(
                 Pair("initiator", mapOf(
                     Pair("draft", PermissionLevel.WRITE),
                     Pair("approve", PermissionLevel.READ),

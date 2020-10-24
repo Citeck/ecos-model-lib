@@ -1,7 +1,10 @@
 package ru.citeck.ecos.model.lib.permissions.dto
 
+import ecos.com.fasterxml.jackson210.annotation.JsonSetter
+import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.json.Json
 
+@JsonDeserialize(builder = PermissionsDef.Builder::class)
 data class PermissionsDef(
     val matrix: Matrix,
     val rules: List<PermissionRule>
@@ -45,17 +48,18 @@ data class PermissionsDef(
             this.rules = ArrayList(base.rules)
         }
 
-        fun setMatrix(matrix: Map<String, Map<String, PermissionLevel>>) : Builder {
+        fun withMatrix(matrix: Map<String, Map<String, PermissionLevel>>) : Builder {
             this.matrix = Json.mapper.convert(matrix, Matrix::class.java)!!
             return this
         }
 
-        fun setMatrix(matrix: Matrix) : Builder {
+        @JsonSetter
+        fun withMatrix(matrix: Matrix) : Builder {
             this.matrix = matrix
             return this
         }
 
-        fun setRules(rules: List<PermissionRule>) : Builder {
+        fun withRules(rules: List<PermissionRule>) : Builder {
             this.rules = rules
             return this
         }

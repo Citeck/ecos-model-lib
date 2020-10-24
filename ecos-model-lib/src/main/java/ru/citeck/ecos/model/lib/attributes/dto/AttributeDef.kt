@@ -1,9 +1,11 @@
 package ru.citeck.ecos.model.lib.attributes.dto
 
+import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
 
+@JsonDeserialize(builder = AttributeDef.Builder::class)
 data class AttributeDef(
     val id: String,
     val name: MLText,
@@ -39,17 +41,24 @@ data class AttributeDef(
 
     class Builder() {
 
-        private var id: String? = null
-        private var name: MLText? = null
-        private var type: AttributeType = AttributeType.TEXT
-        private var config: ObjectData = ObjectData.create()
-        private var multiple: Boolean = false
-        private var mandatory: Boolean = false
-        private var constraint: AttConstraintDef = AttConstraintDef.NONE
+        lateinit var id: String
+            private set
+        lateinit var name: MLText
+            private set
+        var type: AttributeType = AttributeType.TEXT
+            private set
+        var config: ObjectData = ObjectData.create()
+            private set
+        var multiple: Boolean = false
+            private set
+        var mandatory: Boolean = false
+            private set
+        var constraint: AttConstraintDef = AttConstraintDef.NONE
+            private set
 
         constructor(base: AttributeDef) : this() {
             id = base.id
-            name = MLText.copy(base.name)
+            name = MLText.copy(base.name)!!
             type = base.type
             config = ObjectData.deepCopy(base.config)!!
             multiple = base.multiple
@@ -57,43 +66,43 @@ data class AttributeDef(
             constraint = Json.mapper.copy(base.constraint)!!
         }
 
-        fun setId(id: String) : Builder {
+        fun withId(id: String) : Builder {
             this.id = id
             return this
         }
 
-        fun setName(name: MLText) : Builder {
+        fun withName(name: MLText) : Builder {
             this.name = name
             return this
         }
 
-        fun setType(type: AttributeType) : Builder {
+        fun withType(type: AttributeType) : Builder {
             this.type = type
             return this
         }
 
-        fun setConfig(config: ObjectData) : Builder {
+        fun withConfig(config: ObjectData) : Builder {
             this.config = config
             return this
         }
 
-        fun setMultiple(multiple: Boolean) : Builder {
+        fun withMultiple(multiple: Boolean) : Builder {
             this.multiple = multiple
             return this
         }
 
-        fun setMandatory(mandatory: Boolean) : Builder {
+        fun withMandatory(mandatory: Boolean) : Builder {
             this.mandatory = mandatory
             return this
         }
 
-        fun setConstraint(constraint: AttConstraintDef) : Builder {
+        fun withConstraint(constraint: AttConstraintDef) : Builder {
             this.constraint = constraint
             return this
         }
 
         fun build() : AttributeDef {
-            return AttributeDef(id!!, name!!, type, config, multiple, mandatory, constraint)
+            return AttributeDef(id, name, type, config, multiple, mandatory, constraint)
         }
     }
 }

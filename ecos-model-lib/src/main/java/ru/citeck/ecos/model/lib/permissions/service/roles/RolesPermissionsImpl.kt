@@ -19,4 +19,10 @@ class RolesPermissionsImpl(private val permissions: Map<String, Set<String>>) : 
     override fun isWriteAllowed(roles: Collection<String>): Boolean {
         return isAllowed(roles, PermissionType.WRITE)
     }
+
+    override fun getPermissions(roles: Collection<String>): Set<String> {
+        val permissions = hashSetOf<String>()
+        roles.forEach { this.permissions[it]?.forEach { permission -> permissions.add(permission) } }
+        return permissions
+    }
 }
