@@ -3,8 +3,8 @@ package ru.citeck.ecos.model.lib.permissions.dto
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.records2.RecordRef
 
-@JsonDeserialize(builder = RecordPermsDef.Builder::class)
-data class RecordPermsDef(
+@JsonDeserialize(builder = TypePermsDef.Builder::class)
+data class TypePermsDef(
     val id: String,
     val typeRef: RecordRef,
     val permissions: PermissionsDef,
@@ -19,7 +19,7 @@ data class RecordPermsDef(
         }
 
         @JvmStatic
-        fun create(builder: Builder.() -> Unit) : RecordPermsDef {
+        fun create(builder: Builder.() -> Unit) : TypePermsDef {
             val builderObj = Builder()
             builder.invoke(builderObj)
             return builderObj.build()
@@ -30,7 +30,7 @@ data class RecordPermsDef(
         return Builder(this)
     }
 
-    fun copy(builder: Builder.() -> Unit) : RecordPermsDef {
+    fun copy(builder: Builder.() -> Unit) : TypePermsDef {
         val builderObj = Builder(this)
         builder.invoke(builderObj)
         return builderObj.build()
@@ -47,7 +47,7 @@ data class RecordPermsDef(
         var attributes: Map<String, PermissionsDef> = emptyMap()
             private set
 
-        constructor(base: RecordPermsDef) : this() {
+        constructor(base: TypePermsDef) : this() {
             this.id = base.id
             this.typeRef = base.typeRef
             this.permissions = base.permissions
@@ -74,8 +74,8 @@ data class RecordPermsDef(
             return this
         }
 
-        fun build() : RecordPermsDef {
-            return RecordPermsDef(id, typeRef, permissions, attributes)
+        fun build() : TypePermsDef {
+            return TypePermsDef(id, typeRef, permissions, attributes)
         }
     }
 }
