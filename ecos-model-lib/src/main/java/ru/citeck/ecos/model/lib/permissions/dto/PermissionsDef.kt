@@ -9,7 +9,6 @@ data class PermissionsDef(
     val matrix: Matrix,
     val rules: List<PermissionRule>
 ) {
-
     companion object {
 
         @JvmField
