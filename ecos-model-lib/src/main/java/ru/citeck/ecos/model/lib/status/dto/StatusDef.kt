@@ -15,23 +15,23 @@ data class StatusDef(
     companion object {
 
         @JvmStatic
-        fun create() : Builder {
+        fun create(): Builder {
             return Builder()
         }
 
         @JvmStatic
-        fun create(builder: Builder.() -> Unit) : StatusDef {
+        fun create(builder: Builder.() -> Unit): StatusDef {
             val builderObj = Builder()
             builder.invoke(builderObj)
             return builderObj.build()
         }
     }
 
-    fun copy() : Builder {
+    fun copy(): Builder {
         return Builder(this)
     }
 
-    fun copy(builder: Builder.() -> Unit) : StatusDef {
+    fun copy(builder: Builder.() -> Unit): StatusDef {
         val builderObj = Builder(this)
         builder.invoke(builderObj)
         return builderObj.build()
@@ -39,12 +39,9 @@ data class StatusDef(
 
     class Builder() {
 
-        lateinit var id: String
-            private set
-        lateinit var name: MLText
-            private set
+        var id: String? = null
+        var name: MLText? = null
         var config: ObjectData = ObjectData.create()
-            private set
 
         constructor(base: StatusDef) : this() {
             this.id = base.id
@@ -52,23 +49,23 @@ data class StatusDef(
             this.config = ObjectData.deepCopy(base.config)!!
         }
 
-        fun withId(id: String) : Builder {
+        fun withId(id: String): Builder {
             this.id = id
             return this
         }
 
-        fun withName(name: MLText) : Builder {
+        fun withName(name: MLText): Builder {
             this.name = name
             return this
         }
 
-        fun withConfig(config: ObjectData) : Builder {
+        fun withConfig(config: ObjectData): Builder {
             this.config = config
             return this
         }
 
-        fun build() : StatusDef {
-            return StatusDef(id, name, config)
+        fun build(): StatusDef {
+            return StatusDef(id!!, name!!, config)
         }
     }
 }

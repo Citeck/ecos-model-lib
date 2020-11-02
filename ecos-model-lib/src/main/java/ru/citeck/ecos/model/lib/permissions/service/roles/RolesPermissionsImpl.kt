@@ -25,4 +25,8 @@ class RolesPermissionsImpl(private val permissions: Map<String, Set<String>>) : 
         roles.forEach { this.permissions[it]?.forEach { permission -> permissions.add(permission) } }
         return permissions
     }
+
+    override fun getPermissions(role: String): Set<String> {
+        return permissions[role] ?: emptySet()
+    }
 }

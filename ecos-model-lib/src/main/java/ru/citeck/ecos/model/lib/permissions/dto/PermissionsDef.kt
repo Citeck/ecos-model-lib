@@ -1,5 +1,7 @@
 package ru.citeck.ecos.model.lib.permissions.dto
 
+import ecos.com.fasterxml.jackson210.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnore as JackJsonIgnore
 import ecos.com.fasterxml.jackson210.annotation.JsonSetter
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.json.Json
@@ -15,26 +17,32 @@ data class PermissionsDef(
         val EMPTY = PermissionsDef(Matrix.EMPTY, emptyList())
 
         @JvmStatic
-        fun create() : Builder {
+        fun create(): Builder {
             return Builder()
         }
 
         @JvmStatic
-        fun create(builder: Builder.() -> Unit) : PermissionsDef {
+        fun create(builder: Builder.() -> Unit): PermissionsDef {
             val builderObj = Builder()
             builder.invoke(builderObj)
             return builderObj.build()
         }
     }
 
-    fun copy() : Builder {
+    fun copy(): Builder {
         return Builder(this)
     }
 
-    fun copy(builder: Builder.() -> Unit) : PermissionsDef {
+    fun copy(builder: Builder.() -> Unit): PermissionsDef {
         val builderObj = Builder(this)
         builder.invoke(builderObj)
         return builderObj.build()
+    }
+
+    @JsonIgnore
+    @JackJsonIgnore
+    fun isEmpty(): Boolean {
+        return rules.isEmpty() && matrix.isEmpty()
     }
 
     class Builder() {
@@ -47,23 +55,23 @@ data class PermissionsDef(
             this.rules = ArrayList(base.rules)
         }
 
-        fun withMatrix(matrix: Map<String, Map<String, PermissionLevel>>) : Builder {
-            this.matrix = Json.mapper.convert(matrix, Matrix::class.java)!!
+        fun withMatrix(matrix: Map<String, Map<String, PermissionLevel>>): Builder {
+            this.matrix = Json.mapper.convert(matrix, Matrix::class.java) ?: error("Incorrect matrix: $matrix")
             return this
         }
 
         @JsonSetter
-        fun withMatrix(matrix: Matrix) : Builder {
+        fun withMatrix(matrix: Matrix): Builder {
             this.matrix = matrix
             return this
         }
 
-        fun withRules(rules: List<PermissionRule>) : Builder {
+        fun withRules(rules: List<PermissionRule>): Builder {
             this.rules = rules
             return this
         }
 
-        fun build() : PermissionsDef {
+        fun build(): PermissionsDef {
             return PermissionsDef(matrix, rules)
         }
     }

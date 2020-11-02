@@ -20,3 +20,7 @@ trim_trailing_whitespace = false
 [Jenkinsfile]
 
 indent_size = 2
+
+[*.{kt,kts}]
+
+disabled_rules=no-wildcard-imports

@@ -3,14 +3,14 @@ package ru.citeck.ecos.model.lib.permissions.service.roles
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionLevel
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionType
 
-object ReadWritePermissions : RolesPermissions {
+object ReadPermissions : RolesPermissions {
 
     override fun isAllowed(roles: Collection<String>, permission: String): Boolean {
-        return permission == PermissionType.READ.name || permission == PermissionType.WRITE.name
+        return permission == PermissionType.READ.name
     }
 
     override fun isAllowed(roles: Collection<String>, permission: PermissionType): Boolean {
-        return permission == PermissionType.READ || permission == PermissionType.WRITE
+        return permission == PermissionType.READ
     }
 
     override fun isReadAllowed(roles: Collection<String>): Boolean {
@@ -18,14 +18,14 @@ object ReadWritePermissions : RolesPermissions {
     }
 
     override fun isWriteAllowed(roles: Collection<String>): Boolean {
-        return true
+        return false
     }
 
     override fun getPermissions(roles: Collection<String>): Set<String> {
-        return PermissionLevel.WRITE.permissions.map { it.name }.toSet()
+        return PermissionLevel.READ.permissions.map { it.name }.toSet()
     }
 
     override fun getPermissions(role: String): Set<String> {
-        return PermissionLevel.WRITE.permissions.map { it.name }.toSet()
+        return PermissionLevel.READ.permissions.map { it.name }.toSet()
     }
 }

@@ -18,22 +18,22 @@ data class AttributeDef(
 
     companion object {
 
-        fun create() : Builder {
+        fun create(): Builder {
             return Builder()
         }
 
-        fun create(builder: Builder.() -> Unit) : AttributeDef {
+        fun create(builder: Builder.() -> Unit): AttributeDef {
             val builderObj = Builder()
             builder.invoke(builderObj)
             return builderObj.build()
         }
     }
 
-    fun copy() : Builder {
+    fun copy(): Builder {
         return Builder(this)
     }
 
-    fun copy(builder: Builder.() -> Unit) : AttributeDef {
+    fun copy(builder: Builder.() -> Unit): AttributeDef {
         val builderObj = Builder(this)
         builder.invoke(builderObj)
         return builderObj.build()
@@ -66,42 +66,42 @@ data class AttributeDef(
             constraint = Json.mapper.copy(base.constraint)!!
         }
 
-        fun withId(id: String) : Builder {
+        fun withId(id: String): Builder {
             this.id = id
             return this
         }
 
-        fun withName(name: MLText) : Builder {
+        fun withName(name: MLText): Builder {
             this.name = name
             return this
         }
 
-        fun withType(type: AttributeType) : Builder {
+        fun withType(type: AttributeType): Builder {
             this.type = type
             return this
         }
 
-        fun withConfig(config: ObjectData) : Builder {
+        fun withConfig(config: ObjectData): Builder {
             this.config = config
             return this
         }
 
-        fun withMultiple(multiple: Boolean) : Builder {
+        fun withMultiple(multiple: Boolean): Builder {
             this.multiple = multiple
             return this
         }
 
-        fun withMandatory(mandatory: Boolean) : Builder {
+        fun withMandatory(mandatory: Boolean): Builder {
             this.mandatory = mandatory
             return this
         }
 
-        fun withConstraint(constraint: AttConstraintDef) : Builder {
+        fun withConstraint(constraint: AttConstraintDef): Builder {
             this.constraint = constraint
             return this
         }
 
-        fun build() : AttributeDef {
+        fun build(): AttributeDef {
             return AttributeDef(id, name, type, config, multiple, mandatory, constraint)
         }
     }

@@ -1,6 +1,7 @@
-package ru.citeck.ecos.model.lib.permissions.dto
+package ru.citeck.ecos.model.lib.type.dto
 
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.graphql.meta.annotation.MetaAtt
 
@@ -20,31 +21,34 @@ data class TypePermsDef(
         @MetaAtt("attributes?json")
         var attributes: Map<String, PermissionsDef>
     ) {
-        fun toDef() : TypePermsDef {
+        fun toDef(): TypePermsDef {
             return TypePermsDef(id, typeRef, permissions, attributes)
         }
     }
 
     companion object {
 
+        @JvmField
+        val EMPTY = Builder().build()
+
         @JvmStatic
-        fun create() : Builder {
+        fun create(): Builder {
             return Builder()
         }
 
         @JvmStatic
-        fun create(builder: Builder.() -> Unit) : TypePermsDef {
+        fun create(builder: Builder.() -> Unit): TypePermsDef {
             val builderObj = Builder()
             builder.invoke(builderObj)
             return builderObj.build()
         }
     }
 
-    fun copy() : Builder {
+    fun copy(): Builder {
         return Builder(this)
     }
 
-    fun copy(builder: Builder.() -> Unit) : TypePermsDef {
+    fun copy(builder: Builder.() -> Unit): TypePermsDef {
         val builderObj = Builder(this)
         builder.invoke(builderObj)
         return builderObj.build()
@@ -52,14 +56,10 @@ data class TypePermsDef(
 
     class Builder() {
 
-        lateinit var id: String
-            private set
+        var id: String = ""
         var typeRef: RecordRef = RecordRef.EMPTY
-            private set
         var permissions: PermissionsDef = PermissionsDef.EMPTY
-            private set
         var attributes: Map<String, PermissionsDef> = emptyMap()
-            private set
 
         constructor(base: TypePermsDef) : this() {
             this.id = base.id
@@ -68,27 +68,27 @@ data class TypePermsDef(
             this.attributes = HashMap(base.attributes)
         }
 
-        fun withId(id: String) : Builder {
+        fun withId(id: String): Builder {
             this.id = id
             return this
         }
 
-        fun withTypeRef(typeRef: RecordRef) : Builder {
+        fun withTypeRef(typeRef: RecordRef): Builder {
             this.typeRef = typeRef
             return this
         }
 
-        fun withPermissions(permissions: PermissionsDef) : Builder {
+        fun withPermissions(permissions: PermissionsDef): Builder {
             this.permissions = permissions
             return this
         }
 
-        fun withAttributes(attributes: Map<String, PermissionsDef>) : Builder {
+        fun withAttributes(attributes: Map<String, PermissionsDef>): Builder {
             this.attributes = attributes
             return this
         }
 
-        fun build() : TypePermsDef {
+        fun build(): TypePermsDef {
             return TypePermsDef(id, typeRef, permissions, attributes)
         }
     }

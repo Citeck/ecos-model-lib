@@ -8,10 +8,8 @@ data class PermissionRule(
     val roles: Set<String> = emptySet(),
     val permissions: Set<String> = emptySet(),
 
-    // filters
     val statuses: Set<String> = emptySet(),
     val condition: Predicate = VoidPredicate.INSTANCE,
-    // /filters
 
-    val allow: Boolean = true
+    val type: RuleType = RuleType.ALLOW
 )
