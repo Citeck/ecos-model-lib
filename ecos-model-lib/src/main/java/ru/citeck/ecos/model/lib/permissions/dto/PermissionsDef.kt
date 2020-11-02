@@ -1,10 +1,10 @@
 package ru.citeck.ecos.model.lib.permissions.dto
 
 import ecos.com.fasterxml.jackson210.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonIgnore as JackJsonIgnore
 import ecos.com.fasterxml.jackson210.annotation.JsonSetter
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.json.Json
+import com.fasterxml.jackson.annotation.JsonIgnore as JackJsonIgnore
 
 @JsonDeserialize(builder = PermissionsDef.Builder::class)
 data class PermissionsDef(

@@ -42,19 +42,12 @@ data class AttributeDef(
     class Builder() {
 
         lateinit var id: String
-            private set
         lateinit var name: MLText
-            private set
         var type: AttributeType = AttributeType.TEXT
-            private set
         var config: ObjectData = ObjectData.create()
-            private set
         var multiple: Boolean = false
-            private set
         var mandatory: Boolean = false
-            private set
         var constraint: AttConstraintDef = AttConstraintDef.NONE
-            private set
 
         constructor(base: AttributeDef) : this() {
             id = base.id
