@@ -5,6 +5,7 @@ import ru.citeck.ecos.records2.RecordRef
 
 object TypeUtils {
 
+    @JvmStatic
     fun getTypeRef(typeId: String): RecordRef {
         return RecordRef.create(TypeConstants.TYPE_APP, TypeConstants.TYPE_SOURCE, typeId)
     }
