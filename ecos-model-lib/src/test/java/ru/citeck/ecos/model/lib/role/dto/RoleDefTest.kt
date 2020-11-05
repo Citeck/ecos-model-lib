@@ -9,8 +9,5 @@ class RoleDefTest {
     fun test() {
 
         println(Json.mapper.toString(RoleDef.create().build()))
-
-
     }
-
 }
