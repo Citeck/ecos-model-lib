@@ -18,7 +18,7 @@ class PermsEvaluator(services: ModelServiceFactory) {
         val log = KotlinLogging.logger {}
     }
 
-    private val recordsService = services.recordsServices.recordsService
+    private val recordsService = services.recordsServices.recordsServiceV1
     private val predicateService = services.recordsServices.predicateService
 
     fun getPermissions(
@@ -41,7 +41,7 @@ class PermsEvaluator(services: ModelServiceFactory) {
         val attsToLoad = permissions.flatMap { getAttributesToLoad(it.rules) }.toMutableList()
         attsToLoad.add(StatusAtts.STATUS_STR)
 
-        val recordData = recordsService.getAttributes(recordRef, attsToLoad).attributes
+        val recordData = recordsService.getAtts(recordRef, attsToLoad).getAtts()
         return permissions.map { RolesPermissionsImpl(getPermissionsImpl(recordData, roles, statuses, it)) }
     }
 

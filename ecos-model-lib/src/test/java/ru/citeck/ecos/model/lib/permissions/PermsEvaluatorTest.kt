@@ -5,9 +5,10 @@ import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionLevel
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionType
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
+import ru.citeck.ecos.model.lib.type.dto.TypePermsDef
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records2.RecordsServiceFactory
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
+import ru.citeck.ecos.records3.RecordsServiceFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -19,11 +20,11 @@ class PermsEvaluatorTest {
 
         val services = ModelServiceFactory()
         services.setRecordsServices(RecordsServiceFactory())
-        services.recordsServices.recordsService.register(
+        services.recordsServices.recordsServiceV1.register(
             RecordsDaoBuilder.create("test")
-                .addRecord(RecordRef.valueOf("in-draft"), TestDto("draft"))
-                .addRecord(RecordRef.valueOf("in-approve"), TestDto("approve"))
-                .addRecord(RecordRef.valueOf("in-scanning"), TestDto("scanning"))
+                .addRecord("in-draft", TestDto("draft"))
+                .addRecord("in-approve", TestDto("approve"))
+                .addRecord("in-scanning", TestDto("scanning"))
                 .build()
         )
 
@@ -136,6 +137,9 @@ class PermsEvaluatorTest {
         assertEquals(hashSetOf("WRITE", "READ"), scanPerms.getPermissions(setOf("scan-man", "initiator")).toHashSet())
         assertEquals(hashSetOf("WRITE", "READ"), scanPerms.getPermissions(roles).toHashSet())
         assertEquals(hashSetOf(), scanPerms.getPermissions(roles.filter { it != "scan-man" }).toHashSet())
+
+        val read = services.recordsServices.dtoSchemaReader.read(TypePermsDef.Mutable::class.java)
+        println(read)
     }
 
     class TestDto(val _status: String)

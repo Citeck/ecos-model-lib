@@ -2,7 +2,7 @@ package ru.citeck.ecos.model.lib.permissions;
 
 import org.junit.jupiter.api.Test;
 import ru.citeck.ecos.model.lib.type.dto.TypePermsDef;
-import ru.citeck.ecos.records2.RecordsServiceFactory;
+import ru.citeck.ecos.records3.RecordsServiceFactory;
 
 import java.util.Map;
 

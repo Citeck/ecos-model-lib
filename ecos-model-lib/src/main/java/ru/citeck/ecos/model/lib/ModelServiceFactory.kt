@@ -7,7 +7,7 @@ import ru.citeck.ecos.model.lib.permissions.service.RecordPermsService
 import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.TypeDefService
-import ru.citeck.ecos.records2.RecordsServiceFactory
+import ru.citeck.ecos.records3.RecordsServiceFactory
 
 open class ModelServiceFactory {
 
