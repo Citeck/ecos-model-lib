@@ -4,5 +4,7 @@ enum class AttributeType {
     ASSOC,
     TEXT,
     NUMBER,
-    BOOLEAN
+    BOOLEAN,
+    DATE,
+    DATETIME
 }
