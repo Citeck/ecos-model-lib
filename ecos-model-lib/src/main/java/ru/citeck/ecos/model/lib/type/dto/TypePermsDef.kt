@@ -3,7 +3,6 @@ package ru.citeck.ecos.model.lib.type.dto
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records2.graphql.meta.annotation.MetaAtt
 
 @JsonDeserialize(builder = TypePermsDef.Builder::class)
 data class TypePermsDef(
@@ -12,19 +11,6 @@ data class TypePermsDef(
     val permissions: PermissionsDef,
     val attributes: Map<String, PermissionsDef>
 ) {
-
-    class Mutable(
-        var id: String,
-        var typeRef: RecordRef,
-        @MetaAtt("permissions?json")
-        var permissions: PermissionsDef,
-        @MetaAtt("attributes?json")
-        var attributes: Map<String, PermissionsDef>
-    ) {
-        fun toDef(): TypePermsDef {
-            return TypePermsDef(id, typeRef, permissions, attributes)
-        }
-    }
 
     companion object {
 
