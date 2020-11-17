@@ -6,11 +6,24 @@ import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
 import ru.citeck.ecos.model.lib.type.dto.TypeDef
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
+import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordRef
 
 class TypeDefService(services: ModelServiceFactory) {
 
     private val typesRepo = services.typesRepo
+    private val recordsService = services.records.recordsServiceV1
+
+    fun getTypeRef(record: Any?): RecordRef {
+
+        record ?: return RecordRef.EMPTY
+
+        if (record is RecordRef && RecordRef.isEmpty(record)) {
+            return RecordRef.EMPTY
+        }
+        val typeStr = recordsService.getAtt(record, "${RecordConstants.ATT_TYPE}?id").asText()
+        return RecordRef.valueOf(typeStr)
+    }
 
     fun getModelDef(typeRef: RecordRef): TypeModelDef {
 

@@ -20,7 +20,7 @@ class PermsEvaluatorTest {
 
         val services = ModelServiceFactory()
         services.setRecordsServices(RecordsServiceFactory())
-        services.recordsServices.recordsServiceV1.register(
+        services.records.recordsServiceV1.register(
             RecordsDaoBuilder.create("test")
                 .addRecord("in-draft", TestDto("draft"))
                 .addRecord("in-approve", TestDto("approve"))
@@ -63,7 +63,7 @@ class PermsEvaluatorTest {
                 )
             )
         }
-        val defFromRecords = services.recordsServices.recordsServiceV1.getAtts(permsDef, PermissionsDef::class.java)
+        val defFromRecords = services.records.recordsServiceV1.getAtts(permsDef, PermissionsDef::class.java)
         assertEquals(permsDef, defFromRecords)
 
         val draftPerms = permsEvaluator.getPermissions(
@@ -140,7 +140,7 @@ class PermsEvaluatorTest {
         assertEquals(hashSetOf("WRITE", "READ"), scanPerms.getPermissions(roles).toHashSet())
         assertEquals(hashSetOf(), scanPerms.getPermissions(roles.filter { it != "scan-man" }).toHashSet())
 
-        val read = services.recordsServices.dtoSchemaReader.read(TypePermsDef::class.java)
+        val read = services.records.dtoSchemaReader.read(TypePermsDef::class.java)
         println(read)
     }
 

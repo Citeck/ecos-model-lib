@@ -15,7 +15,7 @@ class RecordPermsService(services: ModelServiceFactory) {
     private val permsRepo: PermissionsRepo = services.permissionsRepo
     private val permsEvaluator: PermsEvaluator = services.permsEvaluator
 
-    private val recordsService = services.recordsServices.recordsService
+    private val recordsService = services.records.recordsService
     private val typeDefService = services.typeDefService
 
     fun getRecordPerms(recordRef: RecordRef): RolesPermissions? {

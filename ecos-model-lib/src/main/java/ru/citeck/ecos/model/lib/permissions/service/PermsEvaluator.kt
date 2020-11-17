@@ -18,8 +18,8 @@ class PermsEvaluator(services: ModelServiceFactory) {
         val log = KotlinLogging.logger {}
     }
 
-    private val recordsService = services.recordsServices.recordsServiceV1
-    private val predicateService = services.recordsServices.predicateService
+    private val recordsService = services.records.recordsServiceV1
+    private val predicateService = services.records.predicateService
 
     fun getPermissions(
         recordRef: RecordRef,
