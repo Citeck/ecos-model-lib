@@ -48,5 +48,6 @@ open class ModelServiceFactory {
 
     open fun setRecordsServices(services: RecordsServiceFactory) {
         this.records = services
+        services.setRecordTypeService(typeDefService)
     }
 }

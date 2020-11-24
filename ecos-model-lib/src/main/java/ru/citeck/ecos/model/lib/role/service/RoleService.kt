@@ -55,7 +55,7 @@ class RoleService(services: ModelServiceFactory) {
         assignees.addAll(roleDef.assignees)
 
         val assigneesSet = HashSet<String>()
-        return assignees.map{ it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
+        return assignees.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
     }
 
     fun getRoleDef(typeRef: RecordRef?, roleId: String?): RoleDef {

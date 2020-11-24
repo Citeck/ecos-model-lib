@@ -8,11 +8,40 @@ import ru.citeck.ecos.model.lib.type.dto.TypeDef
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.records3.record.op.atts.service.computed.ComputedAtt
+import ru.citeck.ecos.records3.record.op.atts.service.computed.ComputedAttType
+import ru.citeck.ecos.records3.record.type.RecordTypeService
 
-class TypeDefService(services: ModelServiceFactory) {
+class TypeDefService(services: ModelServiceFactory) : RecordTypeService {
 
     private val typesRepo = services.typesRepo
     private val recordsService = services.records.recordsServiceV1
+
+    override fun getComputedAtts(typeRef: RecordRef): List<ComputedAtt> {
+        return getAttributes(typeRef).filter {
+            it.computed.type != ComputedAttType.NONE
+        }.map {
+            ComputedAtt(it.id, it.computed)
+        }
+    }
+
+    fun getAttributes(typeRef: RecordRef): List<AttributeDef> {
+
+        val attributes = ArrayList<AttributeDef>()
+
+        forEachAsc(typeRef) { typeDef ->
+            attributes.addAll(typeDef.model.attributes)
+            false
+        }
+
+        val result = LinkedHashMap<String, AttributeDef>()
+        for (idx in attributes.lastIndex downTo 0) {
+            val att = attributes[idx]
+            result[att.id] = att
+        }
+
+        return result.values.toList().reversed()
+    }
 
     fun getTypeRef(record: Any?): RecordRef {
 

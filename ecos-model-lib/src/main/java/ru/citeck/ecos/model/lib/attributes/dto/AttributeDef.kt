@@ -4,6 +4,7 @@ import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.records3.record.op.atts.service.computed.ComputedAttDef
 
 @JsonDeserialize(builder = AttributeDef.Builder::class)
 data class AttributeDef(
@@ -13,6 +14,7 @@ data class AttributeDef(
     val config: ObjectData,
     val multiple: Boolean,
     val mandatory: Boolean,
+    val computed: ComputedAttDef,
     val constraint: AttConstraintDef
 ) {
 
@@ -41,12 +43,13 @@ data class AttributeDef(
 
     class Builder() {
 
-        lateinit var id: String
-        lateinit var name: MLText
+        var id: String = ""
+        var name: MLText = MLText()
         var type: AttributeType = AttributeType.TEXT
         var config: ObjectData = ObjectData.create()
         var multiple: Boolean = false
         var mandatory: Boolean = false
+        var computed: ComputedAttDef = ComputedAttDef.EMPTY
         var constraint: AttConstraintDef = AttConstraintDef.NONE
 
         constructor(base: AttributeDef) : this() {
@@ -56,7 +59,13 @@ data class AttributeDef(
             config = ObjectData.deepCopy(base.config)!!
             multiple = base.multiple
             mandatory = base.mandatory
+            computed = base.computed
             constraint = Json.mapper.copy(base.constraint)!!
+        }
+
+        fun withComputed(computed: ComputedAttDef): Builder {
+            this.computed = computed
+            return this
         }
 
         fun withId(id: String): Builder {
@@ -95,7 +104,7 @@ data class AttributeDef(
         }
 
         fun build(): AttributeDef {
-            return AttributeDef(id, name, type, config, multiple, mandatory, constraint)
+            return AttributeDef(id, name, type, config, multiple, mandatory, computed, constraint)
         }
     }
 }
