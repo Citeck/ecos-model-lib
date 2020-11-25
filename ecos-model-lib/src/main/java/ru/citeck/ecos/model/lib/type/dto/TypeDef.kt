@@ -8,5 +8,8 @@ data class TypeDef(
 
     val id: String,
     val parentRef: RecordRef? = null,
-    val model: TypeModelDef = TypeModelDef.EMPTY
+    val model: TypeModelDef = TypeModelDef.EMPTY,
+
+    val numTemplateRef: RecordRef? = null,
+    val inheritNumTemplate: Boolean = true
 )

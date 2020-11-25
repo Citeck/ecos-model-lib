@@ -11,6 +11,7 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.record.op.atts.service.computed.ComputedAtt
 import ru.citeck.ecos.records3.record.op.atts.service.computed.ComputedAttType
 import ru.citeck.ecos.records3.record.type.RecordTypeService
+import java.util.concurrent.atomic.AtomicReference
 
 class TypeDefService(services: ModelServiceFactory) : RecordTypeService {
 
@@ -23,6 +24,24 @@ class TypeDefService(services: ModelServiceFactory) : RecordTypeService {
         }.map {
             ComputedAtt(it.id, it.computed)
         }
+    }
+
+    fun getNumTemplate(typeRef: RecordRef): RecordRef? {
+
+        val result = AtomicReference<RecordRef>()
+
+        forEachAsc(typeRef) { typeDto ->
+
+            val numTemplateRef: RecordRef? = typeDto.numTemplateRef
+            if (RecordRef.isNotEmpty(numTemplateRef)) {
+                result.set(numTemplateRef)
+                true
+            } else {
+                !typeDto.inheritNumTemplate
+            }
+        }
+
+        return result.get()
     }
 
     fun getAttributes(typeRef: RecordRef): List<AttributeDef> {
