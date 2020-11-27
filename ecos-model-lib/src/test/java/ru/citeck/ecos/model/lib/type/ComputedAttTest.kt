@@ -37,10 +37,10 @@ class ComputedAttTest {
                         AttributeDef.create {
                             withId("computedTestParentAtt")
                             withComputed(
-                                ComputedAttDef(
-                                    ComputedAttType.SCRIPT,
-                                    ObjectData.create(mapOf(Pair("script", "return 123;")))
-                                )
+                                ComputedAttDef.create {
+                                    type = ComputedAttType.SCRIPT
+                                    config = ObjectData.create(mapOf(Pair("script", "return 123;")))
+                                }
                             )
                         }
                     )
@@ -57,10 +57,10 @@ class ComputedAttTest {
                         AttributeDef.create {
                             withId("computedTestAtt")
                             withComputed(
-                                ComputedAttDef(
-                                    ComputedAttType.SCRIPT,
-                                    ObjectData.create(mapOf(Pair("script", "return 'abc';")))
-                                )
+                                ComputedAttDef.create {
+                                    type = ComputedAttType.SCRIPT
+                                    config = ObjectData.create(mapOf(Pair("script", "return 'abc';")))
+                                }
                             )
                         },
                         AttributeDef.create {
