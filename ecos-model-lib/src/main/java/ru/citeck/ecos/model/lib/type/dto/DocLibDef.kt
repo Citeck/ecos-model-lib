@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 @JsonDeserialize(builder = DocLibDef.Builder::class)
 @JackJsonDeserialize(builder = DocLibDef.Builder::class)
 class DocLibDef(
+    val enabled: Boolean,
     val dirTypeRef: RecordRef,
     val fileTypeRefs: List<RecordRef>
 ) {
@@ -42,12 +43,19 @@ class DocLibDef(
 
     class Builder() {
 
+        var enabled: Boolean = false
         var dirTypeRef: RecordRef = RecordRef.EMPTY
         var fileTypeRefs: List<RecordRef> = emptyList()
 
         constructor(base: DocLibDef) : this() {
+            this.enabled = base.enabled
             this.dirTypeRef = base.dirTypeRef
             this.fileTypeRefs = DataValue.create(base.fileTypeRefs).asList(RecordRef::class.java)
+        }
+
+        fun withEnabled(enabled: Boolean): Builder {
+            this.enabled = enabled
+            return this
         }
 
         fun withDirTypeRef(dirTypeRef: RecordRef): Builder {
@@ -61,7 +69,7 @@ class DocLibDef(
         }
 
         fun build(): DocLibDef {
-            return DocLibDef(dirTypeRef, fileTypeRefs)
+            return DocLibDef(enabled, dirTypeRef, fileTypeRefs)
         }
     }
 }

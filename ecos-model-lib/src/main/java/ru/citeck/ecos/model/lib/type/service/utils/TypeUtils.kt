@@ -5,6 +5,9 @@ import ru.citeck.ecos.records2.RecordRef
 
 object TypeUtils {
 
+    val DOCLIB_DEFAULT_FILE_TYPE = getTypeRef("file")
+    val DOCLIB_DEFAULT_DIR_TYPE = getTypeRef("directory")
+
     @JvmStatic
     fun getTypeRef(typeId: String): RecordRef {
         return RecordRef.create(TypeConstants.TYPE_APP, TypeConstants.TYPE_SOURCE, typeId)

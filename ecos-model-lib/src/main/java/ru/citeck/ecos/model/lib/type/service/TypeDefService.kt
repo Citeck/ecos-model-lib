@@ -4,8 +4,10 @@ import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
+import ru.citeck.ecos.model.lib.type.dto.DocLibDef
 import ru.citeck.ecos.model.lib.type.dto.TypeDef
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
+import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.record.op.atts.service.computed.ComputedAtt
@@ -23,6 +25,33 @@ class TypeDefService(services: ModelServiceFactory) : RecordTypeService {
             it.computed.type != ComputedAttType.NONE
         }.map {
             ComputedAtt(it.id, it.computed)
+        }
+    }
+
+    fun getDocLib(typeRef: RecordRef?): DocLibDef {
+
+        typeRef ?: return DocLibDef.EMPTY
+
+        val typeDef = typesRepo.getTypeDef(typeRef) ?: return DocLibDef.EMPTY
+        if (!typeDef.docLib.enabled) {
+            return DocLibDef.EMPTY
+        }
+
+        val dirType = typeDef.docLib.dirTypeRef
+        val fileTypes = typeDef.docLib.fileTypeRefs
+
+        return DocLibDef.create {
+            enabled = true
+            fileTypeRefs = if (fileTypes.isEmpty()) {
+                listOf(TypeUtils.DOCLIB_DEFAULT_FILE_TYPE)
+            } else {
+                fileTypes
+            }
+            dirTypeRef = if (RecordRef.isEmpty(dirType)) {
+                TypeUtils.DOCLIB_DEFAULT_DIR_TYPE
+            } else {
+                dirType
+            }
         }
     }
 

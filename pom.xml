@@ -264,6 +264,7 @@
 
     <modules>
         <module>ecos-model-lib</module>
+        <module>ecos-model-lib-spring</module>
     </modules>
 
     <repositories>
