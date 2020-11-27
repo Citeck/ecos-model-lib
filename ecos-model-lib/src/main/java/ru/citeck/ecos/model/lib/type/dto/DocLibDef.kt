@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 
 @JsonDeserialize(builder = DocLibDef.Builder::class)
 @JackJsonDeserialize(builder = DocLibDef.Builder::class)
-class DocLibDef(
+data class DocLibDef(
     val enabled: Boolean,
     val dirTypeRef: RecordRef,
     val fileTypeRefs: List<RecordRef>
