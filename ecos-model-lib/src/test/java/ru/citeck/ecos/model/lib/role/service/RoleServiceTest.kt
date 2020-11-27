@@ -26,9 +26,9 @@ class RoleServiceTest {
                 return object : TypesRepo {
                     override fun getTypeDef(typeRef: RecordRef): TypeDef? {
                         if (typeRef == RecordDto.RECORD_TYPE_REF) {
-                            return TypeDef(
-                                RecordDto.RECORD_TYPE_REF.id, null,
-                                TypeModelDef.create {
+                            return TypeDef.create {
+                                id = RecordDto.RECORD_TYPE_REF.id
+                                model = TypeModelDef.create {
                                     roles = listOf(
                                         RoleDef.create {
                                             id = roleId
@@ -38,7 +38,7 @@ class RoleServiceTest {
                                         }
                                     )
                                 }
-                            )
+                            }
                         }
                         return null
                     }

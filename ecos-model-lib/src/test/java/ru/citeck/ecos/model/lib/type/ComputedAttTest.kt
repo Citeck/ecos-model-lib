@@ -22,10 +22,9 @@ class ComputedAttTest {
     @Test
     fun test() {
 
-        val typeParentDef = TypeDef(
-            "testparent",
-            null,
-            TypeModelDef.create {
+        val typeParentDef = TypeDef.create {
+            id = "testparent"
+            model = TypeModelDef.create {
                 withAttributes(
                     listOf(
                         AttributeDef.create {
@@ -46,12 +45,12 @@ class ComputedAttTest {
                     )
                 )
             }
-        )
+        }
 
-        val typeDef = TypeDef(
-            "test",
-            TypeUtils.getTypeRef(typeParentDef.id),
-            TypeModelDef.create {
+        val typeDef = TypeDef.create {
+            id = "test"
+            parentRef = TypeUtils.getTypeRef(typeParentDef.id)
+            model = TypeModelDef.create {
                 withAttributes(
                     listOf(
                         AttributeDef.create {
@@ -69,7 +68,7 @@ class ComputedAttTest {
                     )
                 )
             }
-        )
+        }
 
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
