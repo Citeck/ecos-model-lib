@@ -6,5 +6,6 @@ enum class AttributeType {
     NUMBER,
     BOOLEAN,
     DATE,
-    DATETIME
+    DATETIME,
+    CONTENT
 }
