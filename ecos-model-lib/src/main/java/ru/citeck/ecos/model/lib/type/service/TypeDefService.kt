@@ -129,6 +129,20 @@ class TypeDefService(services: ModelServiceFactory) : RecordTypeService {
         return typesRepo.getChildren(typeRef)
     }
 
+    fun expandTypeWithChildren(typeRef: RecordRef?): List<RecordRef> {
+
+        if (typeRef == null || RecordRef.isEmpty(typeRef)) {
+            return emptyList()
+        }
+
+        val result = ArrayList<RecordRef>()
+        forEachDesc(typeRef) { typeDef ->
+            result.add(TypeUtils.getTypeRef(typeDef.id))
+        }
+
+        return result
+    }
+
     fun forEachAsc(typeRef: RecordRef, action: (TypeDef) -> Boolean) {
 
         var typeDef: TypeDef? = typesRepo.getTypeDef(typeRef)
