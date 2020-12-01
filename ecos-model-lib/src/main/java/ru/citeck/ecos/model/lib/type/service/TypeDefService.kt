@@ -91,6 +91,10 @@ class TypeDefService(services: ModelServiceFactory) : RecordTypeService {
         return result.values.toList().reversed()
     }
 
+    fun getTypeDef(typeRef: RecordRef): TypeDef? {
+        return typesRepo.getTypeDef(typeRef)
+    }
+
     fun getTypeRef(record: Any?): RecordRef {
 
         record ?: return RecordRef.EMPTY

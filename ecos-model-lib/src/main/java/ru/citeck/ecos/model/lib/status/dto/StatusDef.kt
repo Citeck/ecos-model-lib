@@ -39,8 +39,8 @@ data class StatusDef(
 
     class Builder() {
 
-        var id: String? = null
-        var name: MLText? = null
+        var id: String = ""
+        var name: MLText = MLText()
         var config: ObjectData = ObjectData.create()
 
         constructor(base: StatusDef) : this() {
@@ -65,7 +65,7 @@ data class StatusDef(
         }
 
         fun build(): StatusDef {
-            return StatusDef(id!!, name!!, config)
+            return StatusDef(id, name, config)
         }
     }
 }

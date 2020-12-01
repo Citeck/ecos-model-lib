@@ -2,6 +2,7 @@ package ru.citeck.ecos.model.lib.type.dto
 
 import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.records2.RecordRef
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
 data class TypeDef(
     val id: String,
+    val name: MLText,
     val parentRef: RecordRef?,
     val model: TypeModelDef,
     val docLib: DocLibDef,
@@ -48,6 +50,7 @@ data class TypeDef(
     class Builder() {
 
         var id: String = ""
+        var name: MLText = MLText()
         var parentRef: RecordRef? = null
         var model: TypeModelDef = TypeModelDef.EMPTY
         var docLib: DocLibDef = DocLibDef.EMPTY
@@ -66,6 +69,11 @@ data class TypeDef(
 
         fun withId(id: String): Builder {
             this.id = id
+            return this
+        }
+
+        fun withName(name: MLText): Builder {
+            this.name = name
             return this
         }
 
@@ -95,7 +103,7 @@ data class TypeDef(
         }
 
         fun build(): TypeDef {
-            return TypeDef(id, parentRef, model, docLib, numTemplateRef, inheritNumTemplate)
+            return TypeDef(id, name, parentRef, model, docLib, numTemplateRef, inheritNumTemplate)
         }
     }
 }

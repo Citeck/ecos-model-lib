@@ -11,6 +11,14 @@ class AttributePermissionsImpl(private val permissions: Map<String, RolesPermiss
         if (permissions.isEmpty()) {
             return ReadWritePermissions
         }
-        return permissions[attribute] ?: ReadPermissions
+        var result = permissions[attribute]
+        if (result == null) {
+            result = if (attribute.contains('.')) {
+                ReadWritePermissions
+            } else {
+                ReadPermissions
+            }
+        }
+        return result
     }
 }
