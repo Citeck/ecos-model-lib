@@ -5,6 +5,7 @@ import ru.citeck.ecos.model.lib.permissions.repo.PermissionsRepo
 import ru.citeck.ecos.model.lib.permissions.service.PermsEvaluator
 import ru.citeck.ecos.model.lib.permissions.service.RecordPermsService
 import ru.citeck.ecos.model.lib.role.service.RoleService
+import ru.citeck.ecos.model.lib.role.service.StatusService
 import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.TypeDefService
@@ -18,12 +19,17 @@ open class ModelServiceFactory {
     val permissionsRepo: PermissionsRepo by lazy { createPermissionsRepo() }
     val recordPermsService: RecordPermsService by lazy { createRecordPermsService() }
     val roleService: RoleService by lazy { createRoleService() }
+    val statusService: StatusService by lazy { createStatusService() }
 
     lateinit var records: RecordsServiceFactory
         private set
 
     protected open fun createRoleService(): RoleService {
         return RoleService(this)
+    }
+
+    protected open fun createStatusService(): StatusService {
+        return StatusService(this)
     }
 
     protected open fun createPermsEvaluator(): PermsEvaluator {

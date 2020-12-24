@@ -28,23 +28,6 @@ class TypeDefService(services: ModelServiceFactory) : RecordTypeService {
         }
     }
 
-    fun getStatuses(typeRef: RecordRef): Map<String, StatusDef> {
-        val statuses = ArrayList<StatusDef>()
-
-        forEachAsc(typeRef) { typeDef ->
-            statuses.addAll(typeDef.model.statuses)
-            false
-        }
-
-        val result = LinkedHashMap<String, StatusDef>()
-        for (idx in statuses.lastIndex downTo 0) {
-            val att = statuses[idx]
-            result[att.id] = att
-        }
-
-        return result
-    }
-
     fun getDocLib(typeRef: RecordRef?): DocLibDef {
 
         typeRef ?: return DocLibDef.EMPTY
