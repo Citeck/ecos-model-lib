@@ -43,7 +43,7 @@ class TypeDefService(services: ModelServiceFactory) : RecordTypeService {
         return DocLibDef.create {
             enabled = true
             fileTypeRefs = if (fileTypes.isEmpty()) {
-                listOf(TypeUtils.DOCLIB_DEFAULT_FILE_TYPE)
+                listOf(typeRef)
             } else {
                 fileTypes
             }
