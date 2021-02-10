@@ -6,7 +6,8 @@ import ru.citeck.ecos.model.lib.permissions.repo.PermissionsRepo
 import ru.citeck.ecos.model.lib.permissions.service.roles.AttributePermissions
 import ru.citeck.ecos.model.lib.permissions.service.roles.AttributePermissionsImpl
 import ru.citeck.ecos.model.lib.permissions.service.roles.RolesPermissions
-import ru.citeck.ecos.model.lib.type.constants.TypeConstants
+import ru.citeck.ecos.model.lib.role.constants.RoleConstants
+import ru.citeck.ecos.model.lib.status.constants.StatusConstants
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
 import ru.citeck.ecos.records2.RecordRef
 
@@ -38,8 +39,8 @@ class RecordPermsService(services: ModelServiceFactory) {
         val notNullTypePerms = typePerms ?: return null
 
         val typeModel = typeDefService.getModelDef(typeRef)
-        val statuses = getListWithDefault(typeModel.statuses.map { it.id }, TypeConstants.STATUS_NONE)
-        val roles = getListWithDefault(typeModel.roles.map { it.id }, TypeConstants.ROLE_ALL)
+        val statuses = getListWithDefault(typeModel.statuses.map { it.id }, StatusConstants.STATUS_ANY)
+        val roles = getListWithDefault(typeModel.roles.map { it.id }, RoleConstants.ROLE_ALL)
 
         return permsEvaluator.getPermissions(recordRef, roles, statuses, listOf(notNullTypePerms))[0]
     }
@@ -78,8 +79,8 @@ class RecordPermsService(services: ModelServiceFactory) {
 
         val notNullAttsPerms = typeAttsPerms ?: return null
 
-        val statuses = getListWithDefault(typeModel.statuses.map { it.id }, TypeConstants.STATUS_NONE)
-        val roles = getListWithDefault(typeModel.roles.map { it.id }, TypeConstants.ROLE_ALL)
+        val statuses = getListWithDefault(typeModel.statuses.map { it.id }, StatusConstants.STATUS_ANY)
+        val roles = getListWithDefault(typeModel.roles.map { it.id }, RoleConstants.ROLE_ALL)
 
         val permsList = notNullAttsPerms.toList().filter { attributes.contains(it.first) }
         val rolePerms = permsEvaluator.getPermissions(recordRef, roles, statuses, permsList.map { it.second })

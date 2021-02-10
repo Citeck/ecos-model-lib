@@ -1,11 +1,14 @@
 package ru.citeck.ecos.model.lib.status.dto
 
+import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
-import ru.citeck.ecos.commons.json.Json
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @JsonDeserialize(builder = StatusDef.Builder::class)
+@JackJsonDeserialize(builder = StatusDef.Builder::class)
+@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 data class StatusDef(
     val id: String,
     val name: MLText,
@@ -45,8 +48,8 @@ data class StatusDef(
 
         constructor(base: StatusDef) : this() {
             this.id = base.id
-            this.name = Json.mapper.copy(base.name)!!
-            this.config = ObjectData.deepCopy(base.config)!!
+            this.name = base.name
+            this.config = ObjectData.deepCopyOrNew(base.config)
         }
 
         fun withId(id: String): Builder {
@@ -54,13 +57,13 @@ data class StatusDef(
             return this
         }
 
-        fun withName(name: MLText): Builder {
-            this.name = name
+        fun withName(name: MLText?): Builder {
+            this.name = name ?: MLText.EMPTY
             return this
         }
 
-        fun withConfig(config: ObjectData): Builder {
-            this.config = config
+        fun withConfig(config: ObjectData?): Builder {
+            this.config = config ?: ObjectData.create()
             return this
         }
 

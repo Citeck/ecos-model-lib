@@ -1,10 +1,12 @@
 package ru.citeck.ecos.model.lib.type.dto
 
+import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.records2.RecordRef
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
+@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonDeserialize(builder = DocLibDef.Builder::class)
 @JackJsonDeserialize(builder = DocLibDef.Builder::class)
 data class DocLibDef(
@@ -53,18 +55,18 @@ data class DocLibDef(
             this.fileTypeRefs = DataValue.create(base.fileTypeRefs).asList(RecordRef::class.java)
         }
 
-        fun withEnabled(enabled: Boolean): Builder {
-            this.enabled = enabled
+        fun withEnabled(enabled: Boolean?): Builder {
+            this.enabled = enabled ?: false
             return this
         }
 
-        fun withDirTypeRef(dirTypeRef: RecordRef): Builder {
-            this.dirTypeRef = dirTypeRef
+        fun withDirTypeRef(dirTypeRef: RecordRef?): Builder {
+            this.dirTypeRef = dirTypeRef ?: RecordRef.EMPTY
             return this
         }
 
-        fun withFileTypeRefs(fileTypeRefs: List<RecordRef>): Builder {
-            this.fileTypeRefs = fileTypeRefs
+        fun withFileTypeRefs(fileTypeRefs: List<RecordRef>?): Builder {
+            this.fileTypeRefs = fileTypeRefs?.filter { RecordRef.isNotEmpty(it) } ?: emptyList()
             return this
         }
 

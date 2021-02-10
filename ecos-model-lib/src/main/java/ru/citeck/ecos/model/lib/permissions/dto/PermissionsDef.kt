@@ -1,12 +1,18 @@
 package ru.citeck.ecos.model.lib.permissions.dto
 
 import ecos.com.fasterxml.jackson210.annotation.JsonIgnore
+import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ecos.com.fasterxml.jackson210.annotation.JsonSetter
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.json.Json
+import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashMap
 import com.fasterxml.jackson.annotation.JsonIgnore as JackJsonIgnore
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
+@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonDeserialize(builder = PermissionsDef.Builder::class)
+@JackJsonDeserialize(builder = PermissionsDef.Builder::class)
 data class PermissionsDef(
     val matrix: Matrix,
     val rules: List<PermissionRule>
@@ -14,7 +20,7 @@ data class PermissionsDef(
     companion object {
 
         @JvmField
-        val EMPTY = PermissionsDef(Matrix.EMPTY, emptyList())
+        val EMPTY = create {}
 
         @JvmStatic
         fun create(): Builder {
@@ -47,27 +53,31 @@ data class PermissionsDef(
 
     class Builder() {
 
-        private var matrix = Matrix.EMPTY
-        private var rules = emptyList<PermissionRule>()
+        private var matrix: Matrix = Matrix()
+        private var rules: List<PermissionRule> = emptyList()
 
         constructor(base: PermissionsDef) : this() {
             this.matrix = Json.mapper.copy(base.matrix)!!
             this.rules = ArrayList(base.rules)
         }
 
-        fun withMatrix(matrix: Map<String, Map<String, PermissionLevel>>): Builder {
-            this.matrix = Json.mapper.convert(matrix, Matrix::class.java) ?: error("Incorrect matrix: $matrix")
+        fun withMatrix(matrix: Map<String, Map<String, PermissionLevel>>?): Builder {
+            this.matrix = if (matrix.isNullOrEmpty()) {
+                Matrix()
+            } else {
+                Json.mapper.convert(matrix, Matrix::class.java) ?: error("Incorrect matrix: $matrix")
+            }
             return this
         }
 
         @JsonSetter
-        fun withMatrix(matrix: Matrix): Builder {
-            this.matrix = matrix
+        fun withMatrix(matrix: Matrix?): Builder {
+            this.matrix = matrix ?: Matrix()
             return this
         }
 
-        fun withRules(rules: List<PermissionRule>): Builder {
-            this.rules = rules
+        fun withRules(rules: List<PermissionRule>?): Builder {
+            this.rules = rules ?: emptyList()
             return this
         }
 
@@ -79,11 +89,5 @@ data class PermissionsDef(
     /**
      * <Role, <Status, PermissionType>>
      */
-    class Matrix : LinkedHashMap<String, Map<String, PermissionLevel>>() {
-
-        companion object {
-            @JvmField
-            val EMPTY = Matrix()
-        }
-    }
+    class Matrix : LinkedHashMap<String, Map<String, PermissionLevel>>()
 }

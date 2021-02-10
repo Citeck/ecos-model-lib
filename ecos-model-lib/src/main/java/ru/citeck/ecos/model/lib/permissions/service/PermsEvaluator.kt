@@ -6,11 +6,9 @@ import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.permissions.dto.*
 import ru.citeck.ecos.model.lib.permissions.service.roles.RolesPermissions
 import ru.citeck.ecos.model.lib.permissions.service.roles.RolesPermissionsImpl
-import ru.citeck.ecos.model.lib.status.constants.StatusAtts
-import ru.citeck.ecos.records2.RecordMeta
+import ru.citeck.ecos.model.lib.status.constants.StatusConstants
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.PredicateUtils
-import ru.citeck.ecos.records2.predicate.RecordElement
 
 class PermsEvaluator(services: ModelServiceFactory) {
 
@@ -39,7 +37,7 @@ class PermsEvaluator(services: ModelServiceFactory) {
     ): List<RolesPermissions> {
 
         val attsToLoad = permissions.flatMap { getAttributesToLoad(it.rules) }.toMutableList()
-        attsToLoad.add(StatusAtts.STATUS_STR)
+        attsToLoad.add(StatusConstants.ATT_STATUS_STR)
 
         val recordData = recordsService.getAtts(recordRef, attsToLoad).getAtts()
         return permissions.map { RolesPermissionsImpl(getPermissionsImpl(recordData, roles, statuses, it)) }
@@ -64,7 +62,7 @@ class PermsEvaluator(services: ModelServiceFactory) {
     ): Map<String, Set<String>> {
 
         val permissionsByRole = HashMap<String, MutableSet<String>>()
-        val status = recordData.get(StatusAtts.STATUS_STR).asText()
+        val status = recordData.get(StatusConstants.ATT_STATUS_STR).asText()
 
         if (!statuses.contains(status)) {
             for (role in roles) {
@@ -81,7 +79,7 @@ class PermsEvaluator(services: ModelServiceFactory) {
         permissions.rules.filter {
             it.statuses.isEmpty() || it.statuses.contains(status)
         }.filter {
-            predicateService.isMatch(RecordElement(RecordMeta(RecordRef.EMPTY, recordData)), it.condition)
+            predicateService.isMatch(recordData, it.condition)
         }.forEach { rule ->
             rule.roles.forEach { role ->
                 val rolePermissions = permissionsByRole.computeIfAbsent(role) { HashSet() }

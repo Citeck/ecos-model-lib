@@ -2,11 +2,9 @@ package ru.citeck.ecos.model.lib.role.dto
 
 import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
-import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.MLText
-import ru.citeck.ecos.commons.json.Json
 
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonDeserialize(builder = RoleDef.Builder::class)
 data class RoleDef(
     val id: String,
@@ -52,9 +50,9 @@ data class RoleDef(
 
         constructor(base: RoleDef) : this() {
             this.id = base.id
-            this.name = Json.mapper.copy(base.name)!!
+            this.name = base.name
             this.attribute = base.attribute
-            this.assignees = DataValue.create(base.assignees).asStrList()
+            this.assignees = base.assignees.toList()
         }
 
         fun withId(id: String): Builder {
@@ -62,18 +60,18 @@ data class RoleDef(
             return this
         }
 
-        fun withName(name: MLText): Builder {
-            this.name = name
+        fun withName(name: MLText?): Builder {
+            this.name = name ?: MLText()
             return this
         }
 
-        fun withAttribute(attribute: String): Builder {
-            this.attribute = attribute
+        fun withAttribute(attribute: String?): Builder {
+            this.attribute = attribute ?: ""
             return this
         }
 
-        fun withAssignees(authorities: List<String>): Builder {
-            this.assignees = authorities
+        fun withAssignees(assignees: List<String>?): Builder {
+            this.assignees = assignees?.filter { it.isNotBlank() } ?: emptyList()
             return this
         }
 

@@ -5,7 +5,7 @@ import ru.citeck.ecos.model.lib.permissions.repo.PermissionsRepo
 import ru.citeck.ecos.model.lib.permissions.service.PermsEvaluator
 import ru.citeck.ecos.model.lib.permissions.service.RecordPermsService
 import ru.citeck.ecos.model.lib.role.service.RoleService
-import ru.citeck.ecos.model.lib.role.service.StatusService
+import ru.citeck.ecos.model.lib.status.service.StatusService
 import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.TypeDefService

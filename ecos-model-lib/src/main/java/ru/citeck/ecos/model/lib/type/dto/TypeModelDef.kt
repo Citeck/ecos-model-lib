@@ -1,10 +1,16 @@
 package ru.citeck.ecos.model.lib.type.dto
 
+import ecos.com.fasterxml.jackson210.annotation.JsonInclude
+import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
+@JsonDeserialize(builder = TypeModelDef.Builder::class)
+@JackJsonDeserialize(builder = TypeModelDef.Builder::class)
+@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 data class TypeModelDef(
     val roles: List<RoleDef>,
     val statuses: List<StatusDef>,
@@ -39,6 +45,10 @@ data class TypeModelDef(
         return builderObj.build()
     }
 
+    fun isEmpty(): Boolean {
+        return roles.isEmpty() && statuses.isEmpty() && attributes.isEmpty()
+    }
+
     class Builder() {
 
         var roles: List<RoleDef> = emptyList()
@@ -51,18 +61,18 @@ data class TypeModelDef(
             this.attributes = DataValue.create(base.attributes).asList(AttributeDef::class.java)
         }
 
-        fun withRoles(roles: List<RoleDef>): Builder {
-            this.roles = roles
+        fun withRoles(roles: List<RoleDef>?): Builder {
+            this.roles = roles?.filter { it.id.isNotBlank() } ?: emptyList()
             return this
         }
 
-        fun withStatuses(statuses: List<StatusDef>): Builder {
-            this.statuses = statuses
+        fun withStatuses(statuses: List<StatusDef>?): Builder {
+            this.statuses = statuses?.filter { it.id.isNotBlank() } ?: emptyList()
             return this
         }
 
-        fun withAttributes(attributes: List<AttributeDef>): Builder {
-            this.attributes = attributes
+        fun withAttributes(attributes: List<AttributeDef>?): Builder {
+            this.attributes = attributes?.filter { it.id.isNotBlank() } ?: emptyList()
             return this
         }
 

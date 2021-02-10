@@ -149,7 +149,7 @@ class TypeDefService(services: ModelServiceFactory) : RecordTypeService {
 
         while (typeDef != null && !action.invoke(typeDef)) {
             val parent = typeDef.parentRef
-            if (parent != null) {
+            if (RecordRef.isNotEmpty(parent)) {
                 typeDef = typesRepo.getTypeDef(parent)
             } else {
                 break

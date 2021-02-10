@@ -8,15 +8,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 
 @JsonDeserialize(builder = TypeDef.Builder::class)
 @JackJsonDeserialize(builder = TypeDef.Builder::class)
-@JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 data class TypeDef(
     val id: String,
     val name: MLText,
-    val parentRef: RecordRef?,
+    val parentRef: RecordRef,
     val model: TypeModelDef,
     val docLib: DocLibDef,
-    val numTemplateRef: RecordRef?,
-    val inheritNumTemplate: Boolean
+    val numTemplateRef: RecordRef,
+    val inheritNumTemplate: Boolean,
+    val createVariants: List<CreateVariantDef>
 ) {
 
     companion object {
@@ -51,12 +52,14 @@ data class TypeDef(
 
         var id: String = ""
         var name: MLText = MLText()
-        var parentRef: RecordRef? = null
+        var parentRef: RecordRef = RecordRef.EMPTY
         var model: TypeModelDef = TypeModelDef.EMPTY
         var docLib: DocLibDef = DocLibDef.EMPTY
 
-        var numTemplateRef: RecordRef? = null
+        var numTemplateRef: RecordRef = RecordRef.EMPTY
         var inheritNumTemplate: Boolean = true
+
+        var createVariants: List<CreateVariantDef> = emptyList()
 
         constructor(base: TypeDef) : this() {
             this.id = base.id
@@ -65,6 +68,7 @@ data class TypeDef(
             this.docLib = base.docLib
             this.numTemplateRef = base.numTemplateRef
             this.inheritNumTemplate = base.inheritNumTemplate
+            this.createVariants = base.createVariants.toList()
         }
 
         fun withId(id: String): Builder {
@@ -72,38 +76,43 @@ data class TypeDef(
             return this
         }
 
-        fun withName(name: MLText): Builder {
-            this.name = name
+        fun withName(name: MLText?): Builder {
+            this.name = name ?: MLText()
             return this
         }
 
         fun withParentRef(parentRef: RecordRef?): Builder {
-            this.parentRef = parentRef
+            this.parentRef = parentRef ?: RecordRef.EMPTY
             return this
         }
 
-        fun withModel(model: TypeModelDef): Builder {
-            this.model = model
+        fun withModel(model: TypeModelDef?): Builder {
+            this.model = model ?: TypeModelDef.EMPTY
             return this
         }
 
-        fun withDocLib(docLib: DocLibDef): Builder {
-            this.docLib = docLib
+        fun withDocLib(docLib: DocLibDef?): Builder {
+            this.docLib = docLib ?: DocLibDef.EMPTY
             return this
         }
 
         fun withNumTemplateRef(numTemplateRef: RecordRef?): Builder {
-            this.numTemplateRef = numTemplateRef
+            this.numTemplateRef = numTemplateRef ?: RecordRef.EMPTY
             return this
         }
 
-        fun withInheritNumTemplate(inheritNumTemplate: Boolean): Builder {
-            this.inheritNumTemplate = inheritNumTemplate
+        fun withInheritNumTemplate(inheritNumTemplate: Boolean?): Builder {
+            this.inheritNumTemplate = inheritNumTemplate ?: true
+            return this
+        }
+
+        fun withCreateVariants(createVariants: List<CreateVariantDef>?): Builder {
+            this.createVariants = createVariants ?: emptyList()
             return this
         }
 
         fun build(): TypeDef {
-            return TypeDef(id, name, parentRef, model, docLib, numTemplateRef, inheritNumTemplate)
+            return TypeDef(id, name, parentRef, model, docLib, numTemplateRef, inheritNumTemplate, createVariants)
         }
     }
 }

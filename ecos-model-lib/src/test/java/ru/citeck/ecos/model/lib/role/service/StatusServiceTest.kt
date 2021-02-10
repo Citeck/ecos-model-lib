@@ -72,16 +72,16 @@ class StatusServiceTest {
         val expectedReworkChild = StatusDef(statusRework, MLText(statusRework + "_child"), ObjectData.create(null))
 
         val draftParent = services.statusService.getStatusDefByType(RecordDto(RecordDto.RECORD_TYPE_REF).type, statusDraft)
-        assertEquals(draftParent, expectedDraft)
+        assertEquals(expectedDraft, draftParent)
 
         val draftChild = services.statusService.getStatusDefByType(RecordDto(RecordDto.RECORD_TYPE_REF_CHILD).type, statusDraft)
-        assertEquals(draftChild, expectedDraft)
+        assertEquals(expectedDraft, draftChild)
 
         val reworkParent = services.statusService.getStatusDefByType(RecordDto(RecordDto.RECORD_TYPE_REF).type, statusRework)
-        assertEquals(reworkParent, expectedRework)
+        assertEquals(expectedRework, reworkParent)
 
         val reworkChild = services.statusService.getStatusDefByType(RecordDto(RecordDto.RECORD_TYPE_REF_CHILD).type, statusRework)
-        assertEquals(reworkChild, expectedReworkChild)
+        assertEquals(expectedReworkChild, reworkChild)
 
         val statusesParent = services.statusService.getStatusesByType(RecordDto(RecordDto.RECORD_TYPE_REF).type)
         assertEquals(statusesParent, hashMapOf(Pair(statusDraft, expectedDraft), Pair(statusRework, expectedRework)))

@@ -1,6 +1,7 @@
 package ru.citeck.ecos.model.lib.role.service
 
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.records2.RecordRef
 import java.util.concurrent.atomic.AtomicReference
@@ -31,8 +32,8 @@ class RoleService(services: ModelServiceFactory) {
 
     fun getAssignees(record: Any?, roleId: String?): List<String> {
 
-        record ?: return emptyList()
         roleId ?: return emptyList()
+        record ?: return emptyList()
 
         return getAssignees(record, typeDefService.getTypeRef(record), roleId)
     }
@@ -41,6 +42,11 @@ class RoleService(services: ModelServiceFactory) {
 
         record ?: return emptyList()
         typeRef ?: return emptyList()
+
+        if (roleId == RoleConstants.ROLE_ALL) {
+            // Role 'ALL' is virtual and doesn't have assignees
+            return emptyList()
+        }
 
         val roleDef = getRoleDef(typeRef, roleId)
         if (roleDef.id.isBlank()) {
@@ -65,6 +71,12 @@ class RoleService(services: ModelServiceFactory) {
 
         if (RecordRef.isEmpty(typeRef) || roleId.isBlank()) {
             return RoleDef.EMPTY
+        }
+
+        if (roleId == RoleConstants.ROLE_ALL) {
+            return RoleDef.create {
+                withId(RoleConstants.ROLE_ALL)
+            }
         }
 
         val resRoleDef = AtomicReference<RoleDef>()

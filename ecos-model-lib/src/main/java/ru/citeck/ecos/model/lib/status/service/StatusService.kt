@@ -1,4 +1,4 @@
-package ru.citeck.ecos.model.lib.role.service
+package ru.citeck.ecos.model.lib.status.service
 
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.status.dto.StatusDef

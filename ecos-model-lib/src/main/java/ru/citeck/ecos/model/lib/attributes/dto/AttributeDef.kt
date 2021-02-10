@@ -1,12 +1,15 @@
 package ru.citeck.ecos.model.lib.attributes.dto
 
+import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
-import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.records3.record.op.atts.service.computed.ComputedAttDef
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @JsonDeserialize(builder = AttributeDef.Builder::class)
+@JackJsonDeserialize(builder = AttributeDef.Builder::class)
+@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 data class AttributeDef(
     val id: String,
     val name: MLText,
@@ -15,6 +18,7 @@ data class AttributeDef(
     val multiple: Boolean,
     val mandatory: Boolean,
     val computed: ComputedAttDef,
+    val options: List<AttOptionDef>,
     val constraint: AttConstraintDef
 ) {
 
@@ -44,28 +48,24 @@ data class AttributeDef(
     class Builder() {
 
         var id: String = ""
-        var name: MLText = MLText()
+        var name: MLText = MLText.EMPTY
         var type: AttributeType = AttributeType.TEXT
         var config: ObjectData = ObjectData.create()
         var multiple: Boolean = false
         var mandatory: Boolean = false
         var computed: ComputedAttDef = ComputedAttDef.EMPTY
-        var constraint: AttConstraintDef = AttConstraintDef.NONE
+        var options: List<AttOptionDef> = emptyList()
+        var constraint: AttConstraintDef = AttConstraintDef.EMPTY
 
         constructor(base: AttributeDef) : this() {
             id = base.id
-            name = MLText.copy(base.name)!!
+            name = base.name
             type = base.type
-            config = ObjectData.deepCopy(base.config)!!
+            config = ObjectData.deepCopyOrNew(base.config)
             multiple = base.multiple
             mandatory = base.mandatory
             computed = base.computed
-            constraint = Json.mapper.copy(base.constraint)!!
-        }
-
-        fun withComputed(computed: ComputedAttDef): Builder {
-            this.computed = computed
-            return this
+            constraint = base.constraint
         }
 
         fun withId(id: String): Builder {
@@ -83,28 +83,38 @@ data class AttributeDef(
             return this
         }
 
-        fun withConfig(config: ObjectData): Builder {
-            this.config = config
+        fun withComputed(computed: ComputedAttDef?): Builder {
+            this.computed = computed ?: ComputedAttDef.EMPTY
             return this
         }
 
-        fun withMultiple(multiple: Boolean): Builder {
-            this.multiple = multiple
+        fun withConfig(config: ObjectData?): Builder {
+            this.config = config ?: ObjectData.create()
             return this
         }
 
-        fun withMandatory(mandatory: Boolean): Builder {
-            this.mandatory = mandatory
+        fun withMultiple(multiple: Boolean?): Builder {
+            this.multiple = multiple ?: false
             return this
         }
 
-        fun withConstraint(constraint: AttConstraintDef): Builder {
-            this.constraint = constraint
+        fun withMandatory(mandatory: Boolean?): Builder {
+            this.mandatory = mandatory ?: false
+            return this
+        }
+
+        fun withOptions(options: List<AttOptionDef>?): Builder {
+            this.options = options ?: emptyList()
+            return this
+        }
+
+        fun withConstraint(constraint: AttConstraintDef?): Builder {
+            this.constraint = constraint ?: AttConstraintDef.EMPTY
             return this
         }
 
         fun build(): AttributeDef {
-            return AttributeDef(id, name, type, config, multiple, mandatory, computed, constraint)
+            return AttributeDef(id, name, type, config, multiple, mandatory, computed, options, constraint)
         }
     }
 }

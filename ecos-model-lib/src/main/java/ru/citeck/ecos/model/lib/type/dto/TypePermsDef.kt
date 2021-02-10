@@ -1,10 +1,14 @@
 package ru.citeck.ecos.model.lib.type.dto
 
+import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
 import ru.citeck.ecos.records2.RecordRef
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
+@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
 @JsonDeserialize(builder = TypePermsDef.Builder::class)
+@JackJsonDeserialize(builder = TypeModelDef.Builder::class)
 data class TypePermsDef(
     val id: String,
     val typeRef: RecordRef,
@@ -64,13 +68,13 @@ data class TypePermsDef(
             return this
         }
 
-        fun withPermissions(permissions: PermissionsDef): Builder {
-            this.permissions = permissions
+        fun withPermissions(permissions: PermissionsDef?): Builder {
+            this.permissions = permissions ?: PermissionsDef.EMPTY
             return this
         }
 
-        fun withAttributes(attributes: Map<String, PermissionsDef>): Builder {
-            this.attributes = attributes
+        fun withAttributes(attributes: Map<String, PermissionsDef>?): Builder {
+            this.attributes = attributes ?: emptyMap()
             return this
         }
 
