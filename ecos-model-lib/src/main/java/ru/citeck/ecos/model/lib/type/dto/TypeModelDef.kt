@@ -1,5 +1,7 @@
 package ru.citeck.ecos.model.lib.type.dto
 
+import ecos.com.fasterxml.jackson210.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnore as JackJsonIgnore
 import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.DataValue
@@ -45,6 +47,8 @@ data class TypeModelDef(
         return builderObj.build()
     }
 
+    @JsonIgnore
+    @JackJsonIgnore
     fun isEmpty(): Boolean {
         return roles.isEmpty() && statuses.isEmpty() && attributes.isEmpty()
     }
