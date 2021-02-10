@@ -52,7 +52,7 @@ data class TypeDef(
 
         var id: String = ""
         var name: MLText = MLText()
-        var parentRef: RecordRef = RecordRef.EMPTY
+        var parentRef: RecordRef? = RecordRef.EMPTY
         var model: TypeModelDef = TypeModelDef.EMPTY
         var docLib: DocLibDef = DocLibDef.EMPTY
 
@@ -112,7 +112,16 @@ data class TypeDef(
         }
 
         fun build(): TypeDef {
-            return TypeDef(id, name, parentRef, model, docLib, numTemplateRef, inheritNumTemplate, createVariants)
+            return TypeDef(
+                id,
+                name,
+                parentRef ?: RecordRef.EMPTY,
+                model,
+                docLib,
+                numTemplateRef,
+                inheritNumTemplate,
+                createVariants
+            )
         }
     }
 }
