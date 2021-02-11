@@ -6,7 +6,7 @@ import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.records2.RecordRef
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
-@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonDeserialize(builder = DocLibDef.Builder::class)
 @JackJsonDeserialize(builder = DocLibDef.Builder::class)
 data class DocLibDef(

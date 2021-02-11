@@ -10,7 +10,7 @@ import kotlin.collections.LinkedHashMap
 import com.fasterxml.jackson.annotation.JsonIgnore as JackJsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
-@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonDeserialize(builder = PermissionsDef.Builder::class)
 @JackJsonDeserialize(builder = PermissionsDef.Builder::class)
 data class PermissionsDef(

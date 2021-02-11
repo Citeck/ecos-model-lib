@@ -1,15 +1,18 @@
 package ru.citeck.ecos.model.lib.attributes.dto
 
+/**
+ * Warning: Fixed values order! New values should be added after last element.
+ */
 enum class AttributeType {
 
     ASSOC,
 
     PERSON,
-    GROUP,
+    AUTHORITY_GROUP,
     AUTHORITY,
 
     TEXT,
-    ML_TEXT,
+    MLTEXT,
 
     NUMBER,
     BOOLEAN,

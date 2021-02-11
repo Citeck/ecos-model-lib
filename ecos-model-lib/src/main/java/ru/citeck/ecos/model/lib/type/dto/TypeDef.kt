@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 
 @JsonDeserialize(builder = TypeDef.Builder::class)
 @JackJsonDeserialize(builder = TypeDef.Builder::class)
-@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 data class TypeDef(
     val id: String,
     val name: MLText,

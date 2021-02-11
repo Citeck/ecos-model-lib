@@ -6,7 +6,7 @@ import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
 import ru.citeck.ecos.records2.RecordRef
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
-@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonDeserialize(builder = TypePermsDef.Builder::class)
 @JackJsonDeserialize(builder = TypeModelDef.Builder::class)
 data class TypePermsDef(

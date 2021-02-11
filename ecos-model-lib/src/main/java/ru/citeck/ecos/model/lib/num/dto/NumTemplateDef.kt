@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 
 @JsonDeserialize(builder = NumTemplateDef.Builder::class)
 @JackJsonDeserialize(builder = NumTemplateDef.Builder::class)
-@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 data class NumTemplateDef(
     val id: String,
     val name: String,
