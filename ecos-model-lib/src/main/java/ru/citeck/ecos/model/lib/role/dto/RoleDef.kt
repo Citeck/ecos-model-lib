@@ -1,10 +1,10 @@
 package ru.citeck.ecos.model.lib.role.dto
 
-import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.MLText
+import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@IncludeNonDefault
 @JsonDeserialize(builder = RoleDef.Builder::class)
 data class RoleDef(
     val id: String,

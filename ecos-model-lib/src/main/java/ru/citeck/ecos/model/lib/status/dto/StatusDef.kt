@@ -1,14 +1,14 @@
 package ru.citeck.ecos.model.lib.status.dto
 
-import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @JsonDeserialize(builder = StatusDef.Builder::class)
 @JackJsonDeserialize(builder = StatusDef.Builder::class)
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@IncludeNonDefault
 data class StatusDef(
     val id: String,
     val name: MLText,

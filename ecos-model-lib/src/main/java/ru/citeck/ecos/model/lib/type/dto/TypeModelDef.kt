@@ -1,9 +1,9 @@
 package ru.citeck.ecos.model.lib.type.dto
 
 import ecos.com.fasterxml.jackson210.annotation.JsonIgnore
-import ecos.com.fasterxml.jackson210.annotation.JsonInclude
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.DataValue
+import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 
 @JsonDeserialize(builder = TypeModelDef.Builder::class)
 @JackJsonDeserialize(builder = TypeModelDef.Builder::class)
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@IncludeNonDefault
 data class TypeModelDef(
     val roles: List<RoleDef>,
     val statuses: List<StatusDef>,
