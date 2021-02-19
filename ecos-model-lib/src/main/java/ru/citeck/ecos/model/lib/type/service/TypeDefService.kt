@@ -1,5 +1,6 @@
 package ru.citeck.ecos.model.lib.type.service
 
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
@@ -26,6 +27,21 @@ class TypeDefService(services: ModelServiceFactory) : RecordTypeService {
         }.map {
             ComputedAtt(it.id, it.computed)
         }
+    }
+
+    fun getResolvedProperties(typeRef: RecordRef): ObjectData {
+
+        val types = mutableListOf<TypeDef>()
+        forEachAsc(typeRef) { types.add(it) }
+
+        val result = ObjectData.create()
+
+        for (idx in types.size - 1 downTo 0) {
+            val type = types[idx]
+            type.properties.forEach { k, v -> result.set(k, v) }
+        }
+
+        return result
     }
 
     fun getDocLib(typeRef: RecordRef?): DocLibDef {

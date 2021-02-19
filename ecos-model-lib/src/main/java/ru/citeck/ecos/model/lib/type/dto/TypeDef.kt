@@ -2,6 +2,7 @@ package ru.citeck.ecos.model.lib.type.dto
 
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.MLText
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import ru.citeck.ecos.records2.RecordRef
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
@@ -17,7 +18,8 @@ data class TypeDef(
     val docLib: DocLibDef,
     val numTemplateRef: RecordRef,
     val inheritNumTemplate: Boolean,
-    val createVariants: List<CreateVariantDef>
+    val createVariants: List<CreateVariantDef>,
+    val properties: ObjectData
 ) {
 
     companion object {
@@ -59,6 +61,8 @@ data class TypeDef(
         var numTemplateRef: RecordRef = RecordRef.EMPTY
         var inheritNumTemplate: Boolean = true
 
+        var properties: ObjectData = ObjectData.create()
+
         var createVariants: List<CreateVariantDef> = emptyList()
 
         constructor(base: TypeDef) : this() {
@@ -66,6 +70,7 @@ data class TypeDef(
             this.parentRef = base.parentRef
             this.model = base.model
             this.docLib = base.docLib
+            this.properties = ObjectData.deepCopyOrNew(base.properties);
             this.numTemplateRef = base.numTemplateRef
             this.inheritNumTemplate = base.inheritNumTemplate
             this.createVariants = base.createVariants.toList()
@@ -111,6 +116,10 @@ data class TypeDef(
             return this
         }
 
+        fun withProperties(properties: ObjectData?) {
+            this.properties = properties ?: ObjectData.create()
+        }
+
         fun build(): TypeDef {
             return TypeDef(
                 id,
@@ -120,7 +129,8 @@ data class TypeDef(
                 docLib,
                 numTemplateRef,
                 inheritNumTemplate,
-                createVariants
+                createVariants,
+                properties
             )
         }
     }
