@@ -70,7 +70,7 @@ data class TypeDef(
             this.parentRef = base.parentRef
             this.model = base.model
             this.docLib = base.docLib
-            this.properties = ObjectData.deepCopyOrNew(base.properties);
+            this.properties = ObjectData.deepCopyOrNew(base.properties)
             this.numTemplateRef = base.numTemplateRef
             this.inheritNumTemplate = base.inheritNumTemplate
             this.createVariants = base.createVariants.toList()

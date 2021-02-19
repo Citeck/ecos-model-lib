@@ -138,7 +138,8 @@ class TypeDefTest {
                     withAttributes(ObjectData.create("""{"aa":"bb24"}"""))
                     withProperties(ObjectData.create("""{"aa":"bb3"}"""))
                 }
-            )
+            ),
+            ObjectData.create("{\"aaa\":\"bbb\"}")
         )
 
         val newTypeDef = Json.mapper.read(Json.mapper.toString(typeDef), TypeDef::class.java)
