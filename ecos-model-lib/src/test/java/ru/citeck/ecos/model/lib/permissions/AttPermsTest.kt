@@ -8,7 +8,6 @@ import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
 import ru.citeck.ecos.model.lib.permissions.repo.PermissionsRepo
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
-import ru.citeck.ecos.model.lib.type.dto.TypeDef
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.dto.TypePermsDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
@@ -66,43 +65,46 @@ class AttPermsTest {
 
         val modelServiceFactory = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
+
                 return object : TypesRepo {
-                    override fun getTypeDef(typeRef: RecordRef): TypeDef? {
+
+                    override fun getParent(typeRef: RecordRef): RecordRef {
+                        return RecordRef.EMPTY
+                    }
+
+                    override fun getModel(typeRef: RecordRef): TypeModelDef {
+
                         if ("test-type" == typeRef.id) {
-                            return TypeDef.create {
-                                withId("test-type")
-                                withModel(
-                                    TypeModelDef.create {
-                                        withAttributes(
-                                            listOf(
-                                                AttributeDef.create {
-                                                    withId("att0")
-                                                },
-                                                AttributeDef.create {
-                                                    withId("att1.att2")
-                                                }
-                                            )
-                                        )
-                                        withStatuses(
-                                            listOf(
-                                                StatusDef.create { withId("draft") },
-                                                StatusDef.create { withId("approve") },
-                                                StatusDef.create { withId("scanning") }
-                                            )
-                                        )
-                                        withRoles(
-                                            listOf(
-                                                RoleDef.create { withId("initiator") },
-                                                RoleDef.create { withId("approver") },
-                                                RoleDef.create { withId("scan-man") }
-                                            )
-                                        )
-                                    }
+                            return TypeModelDef.create {
+                                withAttributes(
+                                    listOf(
+                                        AttributeDef.create {
+                                            withId("att0")
+                                        },
+                                        AttributeDef.create {
+                                            withId("att1.att2")
+                                        }
+                                    )
+                                )
+                                withStatuses(
+                                    listOf(
+                                        StatusDef.create { withId("draft") },
+                                        StatusDef.create { withId("approve") },
+                                        StatusDef.create { withId("scanning") }
+                                    )
+                                )
+                                withRoles(
+                                    listOf(
+                                        RoleDef.create { withId("initiator") },
+                                        RoleDef.create { withId("approver") },
+                                        RoleDef.create { withId("scan-man") }
+                                    )
                                 )
                             }
                         }
-                        return null
+                        return TypeModelDef.EMPTY
                     }
+
                     override fun getChildren(typeRef: RecordRef): List<RecordRef> {
                         return emptyList()
                     }

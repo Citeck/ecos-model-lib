@@ -18,7 +18,6 @@ data class AttributeDef(
     val multiple: Boolean,
     val mandatory: Boolean,
     val computed: ComputedAttDef,
-    val options: List<AttOptionDef>,
     val constraint: AttConstraintDef
 ) {
 
@@ -54,7 +53,6 @@ data class AttributeDef(
         var multiple: Boolean = false
         var mandatory: Boolean = false
         var computed: ComputedAttDef = ComputedAttDef.EMPTY
-        var options: List<AttOptionDef> = emptyList()
         var constraint: AttConstraintDef = AttConstraintDef.EMPTY
 
         constructor(base: AttributeDef) : this() {
@@ -103,18 +101,13 @@ data class AttributeDef(
             return this
         }
 
-        fun withOptions(options: List<AttOptionDef>?): Builder {
-            this.options = options ?: emptyList()
-            return this
-        }
-
         fun withConstraint(constraint: AttConstraintDef?): Builder {
             this.constraint = constraint ?: AttConstraintDef.EMPTY
             return this
         }
 
         fun build(): AttributeDef {
-            return AttributeDef(id, name, type, config, multiple, mandatory, computed, options, constraint)
+            return AttributeDef(id, name, type, config, multiple, mandatory, computed, constraint)
         }
     }
 }

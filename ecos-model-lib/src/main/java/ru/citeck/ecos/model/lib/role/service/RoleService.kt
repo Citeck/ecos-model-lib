@@ -4,12 +4,12 @@ import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.records2.RecordRef
-import java.util.concurrent.atomic.AtomicReference
 
 class RoleService(services: ModelServiceFactory) {
 
-    private val typeDefService = services.typeDefService
+    private val typeDefService = services.typeRefService
     private val recordsService = services.records.recordsServiceV1
+    private val typesRepo = services.typesRepo
 
     fun getRolesId(typeRef: RecordRef?): List<String> {
         return getRoles(typeRef).map { it.id }
@@ -21,13 +21,7 @@ class RoleService(services: ModelServiceFactory) {
         if (RecordRef.isEmpty(typeRef)) {
             return emptyList()
         }
-        val roles = mutableListOf<RoleDef>()
-        typeDefService.forEachAsc(typeRef) {
-            roles.addAll(it.model.roles)
-            false
-        }
-
-        return roles
+        return typesRepo.getModel(typeRef).roles
     }
 
     fun getAssignees(record: Any?, roleId: String?): List<String> {
@@ -79,17 +73,6 @@ class RoleService(services: ModelServiceFactory) {
             }
         }
 
-        val resRoleDef = AtomicReference<RoleDef>()
-        typeDefService.forEachAsc(typeRef) {
-            for (roleDef in it.model.roles) {
-                if (roleDef.id == roleId) {
-                    resRoleDef.set(roleDef)
-                    break
-                }
-            }
-            resRoleDef.get() != null
-        }
-
-        return resRoleDef.get() ?: RoleDef.EMPTY
+        return getRoles(typeRef).firstOrNull { it.id == roleId } ?: RoleDef.EMPTY
     }
 }

@@ -5,12 +5,9 @@ import ru.citeck.ecos.model.lib.status.dto.StatusDef
 import ru.citeck.ecos.records2.RecordRef
 
 class StatusService(services: ModelServiceFactory) {
-    private val typeDefService = services.typeDefService
 
-    fun getStatusDefByDocument(documentRef: RecordRef?, statusId: String?): StatusDef? {
-        val typeRef = typeDefService.getTypeRef(documentRef)
-        return getStatusDefByType(typeRef, statusId)
-    }
+    private val typeDefService = services.typeRefService
+    private val typesRepo = services.typesRepo
 
     fun getStatusDefByType(typeRef: RecordRef?, statusId: String?): StatusDef? {
         statusId ?: return null
@@ -18,23 +15,18 @@ class StatusService(services: ModelServiceFactory) {
     }
 
     fun getStatusesByDocument(documentRef: RecordRef?): Map<String, StatusDef> {
-        val typeRef = typeDefService.getTypeRef(documentRef)
-        return getStatusesByType(typeRef)
+        return getStatusesByType(typeDefService.getTypeRef(documentRef))
     }
 
     fun getStatusesByType(typeRef: RecordRef?): Map<String, StatusDef> {
+
         typeRef ?: return emptyMap()
 
-        val statuses = ArrayList<StatusDef>()
-        typeDefService.forEachAsc(typeRef) { typeDef ->
-            statuses.addAll(typeDef.model.statuses)
-            false
-        }
+        val statuses = typesRepo.getModel(typeRef).statuses
 
         val result = LinkedHashMap<String, StatusDef>()
-        for (idx in statuses.lastIndex downTo 0) {
-            val att = statuses[idx]
-            result[att.id] = att
+        for (status in statuses) {
+            result[status.id] = status
         }
 
         return result
