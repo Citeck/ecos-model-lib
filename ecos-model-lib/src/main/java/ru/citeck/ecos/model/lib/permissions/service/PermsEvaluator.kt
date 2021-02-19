@@ -1,6 +1,5 @@
 package ru.citeck.ecos.model.lib.permissions.service
 
-import mu.KotlinLogging
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.permissions.dto.*
@@ -11,10 +10,6 @@ import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 
 class PermsEvaluator(services: ModelServiceFactory) {
-
-    companion object {
-        val log = KotlinLogging.logger {}
-    }
 
     private val recordsService = services.records.recordsServiceV1
     private val predicateService = services.records.predicateService

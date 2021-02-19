@@ -17,7 +17,8 @@ class RecordPermsService(services: ModelServiceFactory) {
     private val permsEvaluator: PermsEvaluator = services.permsEvaluator
 
     private val recordsService = services.records.recordsService
-    private val typeDefService = services.typeDefService
+    private val typeRefService = services.typeRefService
+    private val typesRepo = services.typesRepo
 
     fun getRecordPerms(recordRef: RecordRef): RolesPermissions? {
 
@@ -26,23 +27,20 @@ class RecordPermsService(services: ModelServiceFactory) {
             return null
         }
 
-        var typePerms: PermissionsDef? = null
-        typeDefService.forEachAsc(typeRef) {
+        val typePerms: PermissionsDef = typeRefService.forEachAsc(typeRef) {
             val permissions = permsRepo.getPermissionsForType(TypeUtils.getTypeRef(it.id))
             if (permissions == null || permissions.permissions.isEmpty()) {
-                false
+                null
             } else {
-                typePerms = permissions.permissions
-                true
+                permissions.permissions
             }
-        }
-        val notNullTypePerms = typePerms ?: return null
+        } ?: return null
 
-        val typeModel = typeDefService.getModelDef(typeRef)
+        val typeModel = typesRepo.getModel(typeRef)
         val statuses = getListWithDefault(typeModel.statuses.map { it.id }, StatusConstants.STATUS_ANY)
         val roles = getListWithDefault(typeModel.roles.map { it.id }, RoleConstants.ROLE_ALL)
 
-        return permsEvaluator.getPermissions(recordRef, roles, statuses, listOf(notNullTypePerms))[0]
+        return permsEvaluator.getPermissions(recordRef, roles, statuses, listOf(typePerms))[0]
     }
 
     private fun <T> getListWithDefault(list: List<T>, def: T): List<T> {
@@ -55,34 +53,30 @@ class RecordPermsService(services: ModelServiceFactory) {
 
     fun getRecordAttsPerms(recordRef: RecordRef): AttributePermissions? {
 
-        val typeRef = RecordRef.valueOf(recordsService.getAtt(recordRef, "_type?id").asText())
+        val typeRef = typeRefService.getTypeRef(recordRef)
         if (RecordRef.isEmpty(typeRef)) {
             return null
         }
 
-        val typeModel = typeDefService.getModelDef(typeRef)
+        val typeModel = typesRepo.getModel(typeRef)
         val attributes = typeModel.attributes.map { it.id }.toSet()
         if (attributes.isEmpty()) {
             return null
         }
 
-        var typeAttsPerms: Map<String, PermissionsDef>? = null
-        typeDefService.forEachAsc(typeRef) {
+        val typeAttsPerms: Map<String, PermissionsDef> = typeRefService.forEachAsc(typeRef) {
             val permissions = permsRepo.getPermissionsForType(TypeUtils.getTypeRef(it.id))
             if (permissions == null || permissions.attributes.isEmpty()) {
-                false
+                null
             } else {
-                typeAttsPerms = permissions.attributes
-                true
+                permissions.attributes
             }
-        }
-
-        val notNullAttsPerms = typeAttsPerms ?: return null
+        } ?: return null
 
         val statuses = getListWithDefault(typeModel.statuses.map { it.id }, StatusConstants.STATUS_ANY)
         val roles = getListWithDefault(typeModel.roles.map { it.id }, RoleConstants.ROLE_ALL)
 
-        val permsList = notNullAttsPerms.toList().filter { attributes.contains(it.first) }
+        val permsList = typeAttsPerms.toList().filter { attributes.contains(it.first) }
         val rolePerms = permsEvaluator.getPermissions(recordRef, roles, statuses, permsList.map { it.second })
 
         return AttributePermissionsImpl(

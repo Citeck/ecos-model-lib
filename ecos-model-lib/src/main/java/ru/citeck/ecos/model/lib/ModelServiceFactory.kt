@@ -8,18 +8,19 @@ import ru.citeck.ecos.model.lib.role.service.RoleService
 import ru.citeck.ecos.model.lib.status.service.StatusService
 import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
-import ru.citeck.ecos.model.lib.type.service.TypeDefService
+import ru.citeck.ecos.model.lib.type.service.TypeRefService
 import ru.citeck.ecos.records3.RecordsServiceFactory
 
 open class ModelServiceFactory {
 
     val permsEvaluator: PermsEvaluator by lazy { createPermsEvaluator() }
-    val typeDefService: TypeDefService by lazy { createTypeDefService() }
-    val typesRepo: TypesRepo by lazy { createTypesRepo() }
+    val typeRefService: TypeRefService by lazy { createTypeDefService() }
     val permissionsRepo: PermissionsRepo by lazy { createPermissionsRepo() }
     val recordPermsService: RecordPermsService by lazy { createRecordPermsService() }
     val roleService: RoleService by lazy { createRoleService() }
     val statusService: StatusService by lazy { createStatusService() }
+
+    val typesRepo: TypesRepo by lazy { createTypesRepo() }
 
     lateinit var records: RecordsServiceFactory
         private set
@@ -40,8 +41,8 @@ open class ModelServiceFactory {
         return DefaultTypesRepo()
     }
 
-    protected open fun createTypeDefService(): TypeDefService {
-        return TypeDefService(this)
+    protected open fun createTypeDefService(): TypeRefService {
+        return TypeRefService(this)
     }
 
     protected open fun createPermissionsRepo(): PermissionsRepo {
@@ -54,6 +55,6 @@ open class ModelServiceFactory {
 
     open fun setRecordsServices(services: RecordsServiceFactory) {
         this.records = services
-        services.setRecordTypeService(typeDefService)
+        services.setRecordTypeService(typeRefService)
     }
 }

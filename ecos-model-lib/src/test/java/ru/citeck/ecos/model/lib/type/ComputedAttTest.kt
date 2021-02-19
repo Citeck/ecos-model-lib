@@ -5,7 +5,6 @@ import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
-import ru.citeck.ecos.model.lib.type.dto.TypeDef
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
@@ -22,65 +21,52 @@ class ComputedAttTest {
     @Test
     fun test() {
 
-        val typeParentDef = TypeDef.create {
-            id = "testparent"
-            model = TypeModelDef.create {
-                withAttributes(
-                    listOf(
-                        AttributeDef.create {
-                            withId("computedTestAtt")
-                        },
-                        AttributeDef.create {
-                            withId("simpleTestAtt")
-                        },
-                        AttributeDef.create {
-                            withId("computedTestParentAtt")
-                            withComputed(
-                                ComputedAttDef.create {
-                                    type = ComputedAttType.SCRIPT
-                                    config = ObjectData.create(mapOf(Pair("script", "return 123;")))
-                                }
-                            )
-                        }
-                    )
-                )
-            }
-        }
+        val modelByRef = mutableMapOf<String, TypeModelDef>()
 
-        val typeDef = TypeDef.create {
-            id = "test"
-            parentRef = TypeUtils.getTypeRef(typeParentDef.id)
-            model = TypeModelDef.create {
-                withAttributes(
-                    listOf(
-                        AttributeDef.create {
-                            withId("computedTestAtt")
-                            withComputed(
-                                ComputedAttDef.create {
-                                    type = ComputedAttType.SCRIPT
-                                    config = ObjectData.create(mapOf(Pair("script", "return 'abc';")))
-                                }
-                            )
-                        },
-                        AttributeDef.create {
-                            withId("simpleTestAtt")
-                        }
-                    )
+        modelByRef["testparent"] = TypeModelDef.create {
+            withAttributes(
+                listOf(
+                    AttributeDef.create {
+                        withId("computedTestAtt")
+                    },
+                    AttributeDef.create {
+                        withId("simpleTestAtt")
+                    },
+                    AttributeDef.create {
+                        withId("computedTestParentAtt")
+                        withComputed(
+                            ComputedAttDef.create {
+                                type = ComputedAttType.SCRIPT
+                                config = ObjectData.create(mapOf(Pair("script", "return 123;")))
+                            }
+                        )
+                    },
+                    AttributeDef.create {
+                        withId("computedTestAtt")
+                        withComputed(
+                            ComputedAttDef.create {
+                                type = ComputedAttType.SCRIPT
+                                config = ObjectData.create(mapOf(Pair("script", "return 'abc';")))
+                            }
+                        )
+                    },
+                    AttributeDef.create {
+                        withId("simpleTestAtt")
+                    }
                 )
-            }
+            )
         }
 
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
-                    override fun getTypeDef(typeRef: RecordRef): TypeDef? {
-                        if (typeRef.id == typeDef.id) {
-                            return typeDef
-                        }
-                        if (typeRef.id == typeParentDef.id) {
-                            return typeParentDef
-                        }
-                        return null
+
+                    override fun getParent(typeRef: RecordRef): RecordRef {
+                        return RecordRef.EMPTY
+                    }
+
+                    override fun getModel(typeRef: RecordRef): TypeModelDef {
+                        return modelByRef[typeRef.id] ?: TypeModelDef.EMPTY
                     }
                     override fun getChildren(typeRef: RecordRef): List<RecordRef> {
                         return emptyList()
@@ -90,7 +76,7 @@ class ComputedAttTest {
         }
         services.setRecordsServices(RecordsServiceFactory())
 
-        val typeRef0 = RecordRef.valueOf(TypeUtils.getTypeRef(typeDef.id))
+        val typeRef0 = RecordRef.valueOf(TypeUtils.getTypeRef("testparent"))
         val typeRef1 = RecordRef.valueOf(TypeUtils.getTypeRef("otherRef"))
 
         services.records.recordsServiceV1.register(

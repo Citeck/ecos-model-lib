@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
-import ru.citeck.ecos.model.lib.type.dto.TypeDef
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
@@ -24,30 +23,34 @@ class RoleServiceTest {
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
-                    override fun getTypeDef(typeRef: RecordRef): TypeDef? {
+
+                    override fun getModel(typeRef: RecordRef): TypeModelDef {
                         if (typeRef == RecordDto.RECORD_TYPE_REF) {
-                            return TypeDef.create {
-                                id = RecordDto.RECORD_TYPE_REF.id
-                                model = TypeModelDef.create {
-                                    roles = listOf(
-                                        RoleDef.create {
-                                            id = roleId
-                                            name = MLText(roleId)
-                                            assignees = explicitAssignees
-                                            attribute = "customAtt"
-                                        }
-                                    )
-                                }
+                            return TypeModelDef.create {
+                                roles = listOf(
+                                    RoleDef.create {
+                                        id = roleId
+                                        name = MLText(roleId)
+                                        assignees = explicitAssignees
+                                        attribute = "customAtt"
+                                    }
+                                )
                             }
                         }
-                        return null
+                        return TypeModelDef.EMPTY
                     }
+
+                    override fun getParent(typeRef: RecordRef): RecordRef {
+                        return RecordRef.EMPTY
+                    }
+
                     override fun getChildren(typeRef: RecordRef): List<RecordRef> {
                         return emptyList()
                     }
                 }
             }
         }
+
         services.setRecordsServices(RecordsServiceFactory())
 
         val assignees = services.roleService.getAssignees(RecordDto(RecordDto.CUSTOM_ATT_VALUE_0), roleId)
