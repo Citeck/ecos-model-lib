@@ -14,9 +14,9 @@ import ru.citeck.ecos.model.lib.type.dto.CreateVariantDef
 import ru.citeck.ecos.model.lib.type.dto.DocLibDef
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records3.record.op.atts.service.computed.ComputedAttDef
-import ru.citeck.ecos.records3.record.op.atts.service.computed.ComputedAttType
-import ru.citeck.ecos.records3.record.op.atts.service.computed.StoringType
+import ru.citeck.ecos.records3.record.atts.computed.ComputedAttDef
+import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
+import ru.citeck.ecos.records3.record.atts.computed.StoringType
 import java.util.*
 import kotlin.test.assertEquals
 

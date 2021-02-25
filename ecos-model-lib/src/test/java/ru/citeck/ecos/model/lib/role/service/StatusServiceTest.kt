@@ -10,7 +10,7 @@ import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsServiceFactory
-import ru.citeck.ecos.records3.record.op.atts.service.schema.annotation.AttName
+import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import kotlin.test.assertEquals
 
 class StatusServiceTest {
