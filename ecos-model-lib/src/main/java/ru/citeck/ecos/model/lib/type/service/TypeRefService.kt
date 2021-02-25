@@ -3,8 +3,8 @@ package ru.citeck.ecos.model.lib.type.service
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records3.record.op.atts.service.computed.ComputedAtt
-import ru.citeck.ecos.records3.record.op.atts.service.computed.ComputedAttType
+import ru.citeck.ecos.records3.record.atts.computed.ComputedAtt
+import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
 import ru.citeck.ecos.records3.record.type.RecordTypeService
 
 class TypeRefService(services: ModelServiceFactory) : RecordTypeService {

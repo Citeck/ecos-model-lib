@@ -14,7 +14,7 @@ import ru.citeck.ecos.records3.RecordsServiceFactory
 open class ModelServiceFactory {
 
     val permsEvaluator: PermsEvaluator by lazy { createPermsEvaluator() }
-    val typeRefService: TypeRefService by lazy { createTypeDefService() }
+    val typeRefService: TypeRefService by lazy { createTypeRefService() }
     val permissionsRepo: PermissionsRepo by lazy { createPermissionsRepo() }
     val recordPermsService: RecordPermsService by lazy { createRecordPermsService() }
     val roleService: RoleService by lazy { createRoleService() }
@@ -41,7 +41,7 @@ open class ModelServiceFactory {
         return DefaultTypesRepo()
     }
 
-    protected open fun createTypeDefService(): TypeRefService {
+    protected open fun createTypeRefService(): TypeRefService {
         return TypeRefService(this)
     }
 

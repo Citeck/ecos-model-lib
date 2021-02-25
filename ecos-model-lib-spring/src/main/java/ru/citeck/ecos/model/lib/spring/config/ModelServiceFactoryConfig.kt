@@ -16,8 +16,8 @@ open class ModelServiceFactoryConfig : ModelServiceFactory() {
     private var repo: TypesRepo? = null
 
     @Bean
-    override fun createTypeDefService(): TypeRefService {
-        return super.createTypeDefService()
+    override fun createTypeRefService(): TypeRefService {
+        return super.createTypeRefService()
     }
 
     override fun createTypesRepo(): TypesRepo {
