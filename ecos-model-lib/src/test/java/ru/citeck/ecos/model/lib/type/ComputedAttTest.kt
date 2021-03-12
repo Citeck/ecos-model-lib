@@ -37,7 +37,7 @@ class ComputedAttTest {
                         withComputed(
                             ComputedAttDef.create {
                                 type = ComputedAttType.SCRIPT
-                                config = ObjectData.create(mapOf(Pair("script", "return 123;")))
+                                config = ObjectData.create(mapOf(Pair("fn", "return 123;")))
                             }
                         )
                     },
@@ -46,7 +46,7 @@ class ComputedAttTest {
                         withComputed(
                             ComputedAttDef.create {
                                 type = ComputedAttType.SCRIPT
-                                config = ObjectData.create(mapOf(Pair("script", "return 'abc';")))
+                                config = ObjectData.create(mapOf(Pair("fn", "return 'abc';")))
                             }
                         )
                     },
