@@ -283,12 +283,12 @@
 
     <distributionManagement>
         <repository>
-            <id>citeck-releases</id>
-            <url>${releases.repo.url}</url>
+            <id>citeck-community-releases</id>
+            <url>${community.releases.distr.url}</url>
         </repository>
         <snapshotRepository>
-            <id>citeck-snapshots</id>
-            <url>${snapshots.repo.url}</url>
+            <id>citeck-community-snapshots</id>
+            <url>${community.snapshots.distr.url}</url>
         </snapshotRepository>
     </distributionManagement>
 
