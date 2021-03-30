@@ -16,8 +16,8 @@ class PermsEvaluator(services: ModelServiceFactory) {
 
     fun getPermissions(
         recordRef: RecordRef,
-        roles: List<String>,
-        statuses: List<String>,
+        roles: Collection<String>,
+        statuses: Collection<String>,
         permissions: PermissionsDef
     ): RolesPermissions {
 
@@ -26,8 +26,8 @@ class PermsEvaluator(services: ModelServiceFactory) {
 
     fun getPermissions(
         recordRef: RecordRef,
-        roles: List<String>,
-        statuses: List<String>,
+        roles: Collection<String>,
+        statuses: Collection<String>,
         permissions: List<PermissionsDef>
     ): List<RolesPermissions> {
 
@@ -51,13 +51,13 @@ class PermsEvaluator(services: ModelServiceFactory) {
 
     private fun getPermissionsImpl(
         recordData: ObjectData,
-        roles: List<String>,
-        statuses: List<String>,
+        roles: Collection<String>,
+        statuses: Collection<String>,
         permissions: PermissionsDef
     ): Map<String, Set<String>> {
 
         val permissionsByRole = HashMap<String, MutableSet<String>>()
-        val status = recordData.get(StatusConstants.ATT_STATUS_STR).asText()
+        val status = getStatusFromData(recordData)
 
         if (!statuses.contains(status)) {
             for (role in roles) {
@@ -67,7 +67,12 @@ class PermsEvaluator(services: ModelServiceFactory) {
         }
 
         for (role in roles) {
-            val level = permissions.matrix[role]?.get(status) ?: PermissionLevel.READ
+            val rolePerms = permissions.matrix[role]
+            val level = if (rolePerms != null) {
+                (rolePerms[status] ?: PermissionLevel.NONE).union(rolePerms[StatusConstants.STATUS_ANY])
+            } else {
+                PermissionLevel.NONE
+            }
             permissionsByRole[role] = level.permissions.map { it.name }.toHashSet()
         }
 
@@ -91,5 +96,13 @@ class PermsEvaluator(services: ModelServiceFactory) {
             }
         }
         return permissionsByRole
+    }
+
+    private fun getStatusFromData(data: ObjectData): String {
+        val status = data.get(StatusConstants.ATT_STATUS_STR).asText()
+        if (status.isBlank()) {
+            return StatusConstants.STATUS_EMPTY
+        }
+        return status
     }
 }

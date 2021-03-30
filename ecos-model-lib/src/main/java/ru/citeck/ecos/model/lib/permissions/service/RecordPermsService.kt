@@ -22,12 +22,9 @@ class RecordPermsService(services: ModelServiceFactory) {
 
     fun getRecordPerms(recordRef: RecordRef): RolesPermissions? {
 
-        val typeRef = RecordRef.valueOf(recordsService.getAtt(recordRef, "_type?id").asText())
-        if (RecordRef.isEmpty(typeRef)) {
-            return null
-        }
+        val context = getPermsEvalContextForRecord(recordRef) ?: return null
 
-        val typePerms: PermissionsDef = typeRefService.forEachAsc(typeRef) {
+        val typePerms: PermissionsDef = typeRefService.forEachAsc(context.typeRef) {
             val permissions = permsRepo.getPermissionsForType(TypeUtils.getTypeRef(it.id))
             if (permissions == null || permissions.permissions.isEmpty()) {
                 null
@@ -36,35 +33,18 @@ class RecordPermsService(services: ModelServiceFactory) {
             }
         } ?: return null
 
-        val typeModel = typesRepo.getModel(typeRef)
-        val statuses = getListWithDefault(typeModel.statuses.map { it.id }, StatusConstants.STATUS_ANY)
-        val roles = getListWithDefault(typeModel.roles.map { it.id }, RoleConstants.ROLE_ALL)
-
-        return permsEvaluator.getPermissions(recordRef, roles, statuses, listOf(typePerms))[0]
-    }
-
-    private fun <T> getListWithDefault(list: List<T>, def: T): List<T> {
-        return if (list.isEmpty()) {
-            listOf(def)
-        } else {
-            list
-        }
+        return permsEvaluator.getPermissions(recordRef, context.roles, context.statuses, listOf(typePerms))[0]
     }
 
     fun getRecordAttsPerms(recordRef: RecordRef): AttributePermissions? {
 
-        val typeRef = typeRefService.getTypeRef(recordRef)
-        if (RecordRef.isEmpty(typeRef)) {
+        val context = getPermsEvalContextForRecord(recordRef) ?: return null
+
+        if (context.attributes.isEmpty()) {
             return null
         }
 
-        val typeModel = typesRepo.getModel(typeRef)
-        val attributes = typeModel.attributes.map { it.id }.toSet()
-        if (attributes.isEmpty()) {
-            return null
-        }
-
-        val typeAttsPerms: Map<String, PermissionsDef> = typeRefService.forEachAsc(typeRef) {
+        val typeAttsPerms: Map<String, PermissionsDef> = typeRefService.forEachAsc(context.typeRef) {
             val permissions = permsRepo.getPermissionsForType(TypeUtils.getTypeRef(it.id))
             if (permissions == null || permissions.attributes.isEmpty()) {
                 null
@@ -73,11 +53,13 @@ class RecordPermsService(services: ModelServiceFactory) {
             }
         } ?: return null
 
-        val statuses = getListWithDefault(typeModel.statuses.map { it.id }, StatusConstants.STATUS_ANY)
-        val roles = getListWithDefault(typeModel.roles.map { it.id }, RoleConstants.ROLE_ALL)
-
-        val permsList = typeAttsPerms.toList().filter { attributes.contains(it.first) }
-        val rolePerms = permsEvaluator.getPermissions(recordRef, roles, statuses, permsList.map { it.second })
+        val permsList = typeAttsPerms.toList().filter { context.attributes.contains(it.first) }
+        val rolePerms = permsEvaluator.getPermissions(
+            recordRef,
+            context.roles,
+            context.statuses,
+            permsList.map { it.second }
+        )
 
         return AttributePermissionsImpl(
             permsList.mapIndexed {
@@ -86,4 +68,48 @@ class RecordPermsService(services: ModelServiceFactory) {
             }.toMap()
         )
     }
+
+    private fun getPermsEvalContextForRecord(recordRef: RecordRef): PermsEvalContext? {
+        val typeRefStr = recordsService.getAtt(recordRef, "_type?id").asText()
+        return getPermsEvalContextForTypeRef(RecordRef.valueOf(typeRefStr))
+    }
+
+    private fun getPermsEvalContextForTypeRef(typeRef: RecordRef): PermsEvalContext? {
+
+        if (RecordRef.isEmpty(typeRef)) {
+            return null
+        }
+
+        val typeModel = typesRepo.getModel(typeRef)
+
+        return PermsEvalContext(
+            typeRef,
+            roles = getStrSetWithAdditional(typeModel.roles, setOf(RoleConstants.ROLE_ALL)) { it.id },
+            statuses = getStrSetWithAdditional(typeModel.statuses, setOf(StatusConstants.STATUS_EMPTY)) { it.id },
+            attributes = typeModel.attributes.map { it.id }.toSet()
+        )
+    }
+
+    private inline fun <T> getStrSetWithAdditional(
+        list: List<T>,
+        additional: Set<String>,
+        getStr: (T) -> String
+    ): Set<String> {
+        val result = mutableSetOf<String>()
+        for (item in list) {
+            val str = getStr.invoke(item)
+            if (str.isNotBlank()) {
+                result.add(str)
+            }
+        }
+        result.addAll(additional)
+        return result
+    }
+
+    private data class PermsEvalContext(
+        val typeRef: RecordRef,
+        val roles: Set<String>,
+        val statuses: Set<String>,
+        val attributes: Set<String>
+    )
 }

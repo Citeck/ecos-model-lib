@@ -17,4 +17,13 @@ enum class PermissionLevel(val permissions: Set<PermissionType>) {
             return NONE.permissions
         }
     }
+
+    fun union(level: PermissionLevel?): PermissionLevel {
+        level ?: return this
+        return if (level.ordinal > this.ordinal) {
+            level
+        } else {
+            this
+        }
+    }
 }
