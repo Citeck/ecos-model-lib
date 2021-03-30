@@ -37,8 +37,8 @@ class RoleService(services: ModelServiceFactory) {
         record ?: return emptyList()
         typeRef ?: return emptyList()
 
-        if (roleId == RoleConstants.ROLE_ALL) {
-            // Role 'ALL' is virtual and doesn't have assignees
+        if (roleId == RoleConstants.ROLE_EVERYONE) {
+            // Role 'EVERYONE' is virtual and doesn't have assignees
             return emptyList()
         }
 
@@ -67,9 +67,9 @@ class RoleService(services: ModelServiceFactory) {
             return RoleDef.EMPTY
         }
 
-        if (roleId == RoleConstants.ROLE_ALL) {
+        if (roleId == RoleConstants.ROLE_EVERYONE) {
             return RoleDef.create {
-                withId(RoleConstants.ROLE_ALL)
+                withId(RoleConstants.ROLE_EVERYONE)
             }
         }
 
