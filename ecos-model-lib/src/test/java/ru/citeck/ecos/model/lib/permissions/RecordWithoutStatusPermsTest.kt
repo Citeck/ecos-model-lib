@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionLevel
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
 import ru.citeck.ecos.model.lib.permissions.testutils.PermsTestBase
+import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.type.dto.TypePermsDef
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -42,7 +43,7 @@ class RecordWithoutStatusPermsTest : PermsTestBase() {
         assertFalse(perms.isWriteAllowed(listOf("approver")))
         assertTrue(perms.isReadAllowed(listOf("approver")))
 
-        assertFalse(perms.isReadAllowed(listOf("ALL")))
+        assertFalse(perms.isReadAllowed(listOf(RoleConstants.ROLE_EVERYONE)))
     }
 
     @Test
@@ -54,7 +55,7 @@ class RecordWithoutStatusPermsTest : PermsTestBase() {
                     PermissionsDef.create {
                         withMatrix(
                             mapOf(
-                                "ALL" to mapOf(
+                                RoleConstants.ROLE_EVERYONE to mapOf(
                                     "ANY" to PermissionLevel.WRITE
                                 )
                             )
@@ -68,13 +69,13 @@ class RecordWithoutStatusPermsTest : PermsTestBase() {
 
         val perms = recordPermsService.getRecordPerms(getRecordRef())!!
 
-        assertTrue(perms.isWriteAllowed(listOf("ALL", "initiator")))
-        assertTrue(perms.isReadAllowed(listOf("ALL", "initiator")))
+        assertTrue(perms.isWriteAllowed(listOf(RoleConstants.ROLE_EVERYONE, "initiator")))
+        assertTrue(perms.isReadAllowed(listOf(RoleConstants.ROLE_EVERYONE, "initiator")))
 
-        assertTrue(perms.isWriteAllowed(listOf("ALL", "approver")))
-        assertTrue(perms.isReadAllowed(listOf("ALL", "approver")))
+        assertTrue(perms.isWriteAllowed(listOf(RoleConstants.ROLE_EVERYONE, "approver")))
+        assertTrue(perms.isReadAllowed(listOf(RoleConstants.ROLE_EVERYONE, "approver")))
 
-        assertTrue(perms.isWriteAllowed(listOf("ALL")))
-        assertTrue(perms.isReadAllowed(listOf("ALL")))
+        assertTrue(perms.isWriteAllowed(listOf(RoleConstants.ROLE_EVERYONE)))
+        assertTrue(perms.isReadAllowed(listOf(RoleConstants.ROLE_EVERYONE)))
     }
 }

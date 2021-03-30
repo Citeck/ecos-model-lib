@@ -84,7 +84,7 @@ class RecordPermsService(services: ModelServiceFactory) {
 
         return PermsEvalContext(
             typeRef,
-            roles = getStrSetWithAdditional(typeModel.roles, setOf(RoleConstants.ROLE_ALL)) { it.id },
+            roles = getStrSetWithAdditional(typeModel.roles, setOf(RoleConstants.ROLE_EVERYONE)) { it.id },
             statuses = getStrSetWithAdditional(typeModel.statuses, setOf(StatusConstants.STATUS_EMPTY)) { it.id },
             attributes = typeModel.attributes.map { it.id }.toSet()
         )
