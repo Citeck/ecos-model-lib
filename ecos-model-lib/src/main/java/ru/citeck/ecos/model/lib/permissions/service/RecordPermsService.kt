@@ -84,15 +84,15 @@ class RecordPermsService(services: ModelServiceFactory) {
 
         return PermsEvalContext(
             typeRef,
-            roles = getStrSetWithAdditional(typeModel.roles, setOf(RoleConstants.ROLE_EVERYONE)) { it.id },
-            statuses = getStrSetWithAdditional(typeModel.statuses, setOf(StatusConstants.STATUS_EMPTY)) { it.id },
+            roles = getStrSetOrDefault(typeModel.roles, setOf(RoleConstants.ROLE_EVERYONE)) { it.id },
+            statuses = getStrSetOrDefault(typeModel.statuses, setOf(StatusConstants.STATUS_EMPTY)) { it.id },
             attributes = typeModel.attributes.map { it.id }.toSet()
         )
     }
 
-    private inline fun <T> getStrSetWithAdditional(
+    private inline fun <T> getStrSetOrDefault(
         list: List<T>,
-        additional: Set<String>,
+        default: Set<String>,
         getStr: (T) -> String
     ): Set<String> {
         val result = mutableSetOf<String>()
@@ -102,7 +102,9 @@ class RecordPermsService(services: ModelServiceFactory) {
                 result.add(str)
             }
         }
-        result.addAll(additional)
+        if (result.isEmpty()) {
+            result.addAll(default)
+        }
         return result
     }
 
