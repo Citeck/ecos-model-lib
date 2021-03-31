@@ -65,7 +65,7 @@ class RecordWithoutStatusPermsTest : PermsTestBase() {
             }
         )
 
-        setTypeRoles(listOf("initiator", "approver"))
+        setTypeRoles(listOf("initiator", "approver", RoleConstants.ROLE_EVERYONE))
 
         val perms = recordPermsService.getRecordPerms(getRecordRef())!!
 
@@ -125,7 +125,7 @@ class RecordWithoutStatusPermsTest : PermsTestBase() {
         setTypeStatuses(listOf("status0", "statusOutOfMtx"))
 
         // typeStatus: OK, mtxStatus: OK, typeRole: OK, mtxRole: OK
-        //testWith("status0", listOf("initiator"), PermissionLevel.WRITE)
+        testWith("status0", listOf("initiator"), PermissionLevel.WRITE)
         // typeStatus: OK, mtxStatus: OK, typeRole: OK, mtxRole: MISSING
         testWith("status0", listOf("approver"), PermissionLevel.READ)
         // typeStatus: OK, mtxStatus: OK, typeRole: MISSING, mtxRole: OK
