@@ -69,9 +69,9 @@ class PermsEvaluator(services: ModelServiceFactory) {
         for (role in roles) {
             val rolePerms = permissions.matrix[role]
             val level = if (rolePerms != null) {
-                (rolePerms[status] ?: PermissionLevel.NONE).union(rolePerms[StatusConstants.STATUS_ANY])
+                (rolePerms[status] ?: PermissionLevel.READ).union(rolePerms[StatusConstants.STATUS_ANY])
             } else {
-                PermissionLevel.NONE
+                PermissionLevel.READ
             }
             permissionsByRole[role] = level.permissions.map { it.name }.toHashSet()
         }
