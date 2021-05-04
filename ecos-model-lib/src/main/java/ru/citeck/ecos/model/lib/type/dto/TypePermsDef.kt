@@ -55,7 +55,7 @@ data class TypePermsDef(
             this.id = base.id
             this.typeRef = base.typeRef
             this.permissions = base.permissions
-            this.attributes = HashMap(base.attributes)
+            this.attributes = LinkedHashMap(base.attributes)
         }
 
         fun withId(id: String): Builder {
