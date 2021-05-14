@@ -85,9 +85,7 @@ class PermsEvaluator(services: ModelServiceFactory) {
                 val rolePermissions = permissionsByRole.computeIfAbsent(role) { HashSet() }
                 when (rule.type) {
                     RuleType.ALLOW -> {
-                        rule.permissions.forEach { permission ->
-                            rolePermissions.addAll(PermissionLevel.getPermissionsFor(permission).map { it.name })
-                        }
+                        rolePermissions.addAll(rule.permissions)
                     }
                     RuleType.REVOKE -> {
                         rolePermissions.removeAll(rule.permissions)

@@ -3,6 +3,7 @@ package ru.citeck.ecos.model.lib.permissions
 import org.junit.jupiter.api.Test
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionLevel
+import ru.citeck.ecos.model.lib.permissions.dto.PermissionRule
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionType
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
 import ru.citeck.ecos.model.lib.type.dto.TypePermsDef
@@ -62,6 +63,14 @@ class PermsEvaluatorTest {
                     )
                 )
             )
+            withRules(
+                listOf(
+                    PermissionRule(
+                        roles = setOf("initiator"),
+                        permissions = setOf("AddChildren")
+                    )
+                )
+            )
         }
         val defFromRecords = services.records.recordsServiceV1.getAtts(permsDef, PermissionsDef::class.java)
         assertEquals(permsDef, defFromRecords)
@@ -79,6 +88,7 @@ class PermsEvaluatorTest {
         assertTrue(draftPerms.isAllowed(setOf("initiator"), PermissionType.WRITE))
         assertTrue(draftPerms.isAllowed(setOf("initiator"), "READ"))
         assertTrue(draftPerms.isAllowed(setOf("initiator"), "WRITE"))
+        assertTrue(draftPerms.isAllowed(setOf("initiator"), "AddChildren"))
 
         assertTrue(draftPerms.isAllowed(setOf("approver"), PermissionType.READ))
         assertFalse(draftPerms.isAllowed(setOf("approver"), PermissionType.WRITE))
@@ -102,6 +112,7 @@ class PermsEvaluatorTest {
         assertFalse(approvePerms.isAllowed(setOf("initiator"), PermissionType.WRITE))
         assertTrue(approvePerms.isAllowed(setOf("initiator"), "READ"))
         assertFalse(approvePerms.isAllowed(setOf("initiator"), "WRITE"))
+        assertTrue(approvePerms.isAllowed(setOf("initiator"), "AddChildren"))
 
         assertTrue(approvePerms.isAllowed(setOf("approver"), PermissionType.READ))
         assertTrue(approvePerms.isAllowed(setOf("approver"), PermissionType.WRITE))
@@ -134,11 +145,12 @@ class PermsEvaluatorTest {
 
         assertTrue(scanPerms.isAllowed(setOf("scan-man"), PermissionType.READ))
         assertTrue(scanPerms.isAllowed(setOf("scan-man"), PermissionType.WRITE))
+        assertTrue(scanPerms.isAllowed(setOf("initiator"), "AddChildren"))
 
         assertEquals(hashSetOf("WRITE", "READ"), scanPerms.getPermissions("scan-man").toHashSet())
-        assertEquals(hashSetOf("WRITE", "READ"), scanPerms.getPermissions(setOf("scan-man", "initiator")).toHashSet())
-        assertEquals(hashSetOf("WRITE", "READ"), scanPerms.getPermissions(roles).toHashSet())
-        assertEquals(hashSetOf(), scanPerms.getPermissions(roles.filter { it != "scan-man" }).toHashSet())
+        assertEquals(hashSetOf("WRITE", "READ", "AddChildren"), scanPerms.getPermissions(setOf("scan-man", "initiator")).toHashSet())
+        assertEquals(hashSetOf("WRITE", "READ", "AddChildren"), scanPerms.getPermissions(roles).toHashSet())
+        assertEquals(hashSetOf("AddChildren"), scanPerms.getPermissions(roles.filter { it != "scan-man" }).toHashSet())
 
         val read = services.records.dtoSchemaReader.read(TypePermsDef::class.java)
         println(read)
