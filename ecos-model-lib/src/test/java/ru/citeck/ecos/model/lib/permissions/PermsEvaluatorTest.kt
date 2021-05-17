@@ -31,7 +31,7 @@ class PermsEvaluatorTest {
 
         val permsEvaluator = services.permsEvaluator
 
-        val roles = listOf("initiator", "approver", "scan-man")
+        val roles = listOf("initiator", "approver", "scan-man", "unknown-status-reader")
         val statuses = listOf("draft", "approve", "scanning")
 
         val permsDef = PermissionsDef.create {
@@ -68,6 +68,10 @@ class PermsEvaluatorTest {
                     PermissionRule(
                         roles = setOf("initiator"),
                         permissions = setOf("AddChildren")
+                    ),
+                    PermissionRule(
+                        roles = setOf("unknown-status-reader"),
+                        permissions = setOf(PermissionType.READ.name)
                     )
                 )
             )
@@ -150,10 +154,27 @@ class PermsEvaluatorTest {
         assertEquals(hashSetOf("WRITE", "READ"), scanPerms.getPermissions("scan-man").toHashSet())
         assertEquals(hashSetOf("WRITE", "READ", "AddChildren"), scanPerms.getPermissions(setOf("scan-man", "initiator")).toHashSet())
         assertEquals(hashSetOf("WRITE", "READ", "AddChildren"), scanPerms.getPermissions(roles).toHashSet())
-        assertEquals(hashSetOf("AddChildren"), scanPerms.getPermissions(roles.filter { it != "scan-man" }).toHashSet())
+        assertEquals(hashSetOf("AddChildren"), scanPerms.getPermissions(roles.filter {
+            it != "scan-man" && it != "unknown-status-reader"
+        }).toHashSet())
 
         val read = services.records.dtoSchemaReader.read(TypePermsDef::class.java)
         println(read)
+
+        val unknownStatusPerms = permsEvaluator.getPermissions(
+            RecordRef.valueOf("test@unknown-status"),
+            roles,
+            statuses,
+            permsDef
+        )
+
+        listOf("initiator", "approver", "scan-man").forEach {
+            assertFalse(unknownStatusPerms.isAllowed(setOf(it), PermissionType.READ))
+            assertFalse(unknownStatusPerms.isAllowed(setOf(it), PermissionType.WRITE))
+        }
+
+        assertTrue(unknownStatusPerms.isAllowed(setOf("unknown-status-reader"), PermissionType.READ))
+        assertFalse(unknownStatusPerms.isAllowed(setOf("unknown-status-reader"), PermissionType.WRITE))
     }
 
     class TestDto(val _status: String)
