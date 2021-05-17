@@ -1,35 +1,18 @@
-package ru.citeck.ecos.model.lib.permissions
+package ru.citeck.ecos.model.lib.permissions.evaluator
 
 import org.junit.jupiter.api.Test
-import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionLevel
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionRule
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionType
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
-import ru.citeck.ecos.model.lib.type.dto.TypePermsDef
-import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
-import ru.citeck.ecos.records3.RecordsServiceFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class PermsEvaluatorTest {
+class PermsEvaluatorTest : PermsEvaluatorTestBase() {
 
     @Test
     fun test() {
-
-        val services = ModelServiceFactory()
-        services.setRecordsServices(RecordsServiceFactory())
-        services.records.recordsServiceV1.register(
-            RecordsDaoBuilder.create("test")
-                .addRecord("in-draft", TestDto("draft"))
-                .addRecord("in-approve", TestDto("approve"))
-                .addRecord("in-scanning", TestDto("scanning"))
-                .build()
-        )
-
-        val permsEvaluator = services.permsEvaluator
 
         val roles = listOf("initiator", "approver", "scan-man", "unknown-status-reader")
         val statuses = listOf("draft", "approve", "scanning")
@@ -76,11 +59,9 @@ class PermsEvaluatorTest {
                 )
             )
         }
-        val defFromRecords = services.records.recordsServiceV1.getAtts(permsDef, PermissionsDef::class.java)
-        assertEquals(permsDef, defFromRecords)
 
-        val draftPerms = permsEvaluator.getPermissions(
-            RecordRef.valueOf("test@in-draft"),
+        val draftPerms = getPerms(
+            "draft",
             roles,
             statuses,
             permsDef
@@ -103,8 +84,8 @@ class PermsEvaluatorTest {
         assertFalse(draftPerms.isAllowed(setOf("scan-man"), PermissionType.READ))
         assertFalse(draftPerms.isAllowed(setOf("scan-man"), PermissionType.WRITE))
 
-        val approvePerms = permsEvaluator.getPermissions(
-            RecordRef.valueOf("test@in-approve"),
+        val approvePerms = getPerms(
+            "approve",
             roles,
             statuses,
             permsDef
@@ -127,8 +108,8 @@ class PermsEvaluatorTest {
         assertFalse(approvePerms.isAllowed(setOf("scan-man"), PermissionType.READ))
         assertFalse(approvePerms.isAllowed(setOf("scan-man"), PermissionType.WRITE))
 
-        val scanPerms = permsEvaluator.getPermissions(
-            RecordRef.valueOf("test@in-scanning"),
+        val scanPerms = getPerms(
+            "scanning",
             roles,
             statuses,
             permsDef
@@ -158,11 +139,8 @@ class PermsEvaluatorTest {
             it != "scan-man" && it != "unknown-status-reader"
         }).toHashSet())
 
-        val read = services.records.dtoSchemaReader.read(TypePermsDef::class.java)
-        println(read)
-
-        val unknownStatusPerms = permsEvaluator.getPermissions(
-            RecordRef.valueOf("test@unknown-status"),
+        val unknownStatusPerms = getPerms(
+            "unknown-status",
             roles,
             statuses,
             permsDef
@@ -176,6 +154,4 @@ class PermsEvaluatorTest {
         assertTrue(unknownStatusPerms.isAllowed(setOf("unknown-status-reader"), PermissionType.READ))
         assertFalse(unknownStatusPerms.isAllowed(setOf("unknown-status-reader"), PermissionType.WRITE))
     }
-
-    class TestDto(val _status: String)
 }
