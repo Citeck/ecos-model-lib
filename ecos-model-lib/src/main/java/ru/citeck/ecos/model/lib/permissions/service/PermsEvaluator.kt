@@ -60,15 +60,23 @@ class PermsEvaluator(services: ModelServiceFactory) {
         val status = getStatusFromData(recordData)
 
         if (!statuses.contains(status)) {
-            for (role in roles) {
-                permissionsByRole[role] = hashSetOf()
+            if (status == StatusConstants.STATUS_EMPTY) {
+                for (role in roles) {
+                    permissionsByRole[role] = PermissionLevel.READ.permissions.map { it.name }.toHashSet()
+                }
+            } else {
+                for (role in roles) {
+                    permissionsByRole[role] = hashSetOf()
+                }
             }
         } else {
             for (role in roles) {
                 val rolePerms = permissions.matrix[role]
                 val level = if (rolePerms != null) {
-                    (rolePerms[status] ?: PermissionLevel.READ).union(rolePerms[StatusConstants.STATUS_ANY])
+                    val statusPerms = rolePerms[status] ?: PermissionLevel.READ // status perms is not set
+                    statusPerms.union(rolePerms[StatusConstants.STATUS_ANY])
                 } else {
+                    // role permissions is not set
                     PermissionLevel.READ
                 }
                 permissionsByRole[role] = level.permissions.map { it.name }.toHashSet()
