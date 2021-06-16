@@ -20,5 +20,7 @@ enum class AttributeType {
     DATE,
     DATETIME,
 
-    CONTENT
+    CONTENT,
+
+    JSON
 }

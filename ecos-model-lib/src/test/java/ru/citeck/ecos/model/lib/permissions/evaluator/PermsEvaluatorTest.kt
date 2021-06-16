@@ -135,9 +135,14 @@ class PermsEvaluatorTest : PermsEvaluatorTestBase() {
         assertEquals(hashSetOf("WRITE", "READ"), scanPerms.getPermissions("scan-man").toHashSet())
         assertEquals(hashSetOf("WRITE", "READ", "AddChildren"), scanPerms.getPermissions(setOf("scan-man", "initiator")).toHashSet())
         assertEquals(hashSetOf("WRITE", "READ", "AddChildren"), scanPerms.getPermissions(roles).toHashSet())
-        assertEquals(hashSetOf("AddChildren"), scanPerms.getPermissions(roles.filter {
-            it != "scan-man" && it != "unknown-status-reader"
-        }).toHashSet())
+        assertEquals(
+            hashSetOf("AddChildren"),
+            scanPerms.getPermissions(
+                roles.filter {
+                    it != "scan-man" && it != "unknown-status-reader"
+                }
+            ).toHashSet()
+        )
 
         val unknownStatusPerms = getPerms(
             "unknown-status",
