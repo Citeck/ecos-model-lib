@@ -23,5 +23,5 @@ enum class AttributeType {
     CONTENT,
 
     JSON,
-    BYTEA
+    BINARY
 }
