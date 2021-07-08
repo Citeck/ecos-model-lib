@@ -83,6 +83,9 @@ class AttPermsTest {
                                         },
                                         AttributeDef.create {
                                             withId("att1.att2")
+                                        },
+                                        AttributeDef.create {
+                                            withId("known_without_matrix")
                                         }
                                     )
                                 )
@@ -142,9 +145,9 @@ class AttPermsTest {
         val notExistsAttPerms = attPerms.getPermissions("att-unknown")
 
         assertEquals(true, notExistsAttPerms.isReadAllowed(listOf("initiator")))
-        assertEquals(false, notExistsAttPerms.isWriteAllowed(listOf("initiator")))
+        assertEquals(true, notExistsAttPerms.isWriteAllowed(listOf("initiator")))
         assertEquals(true, notExistsAttPerms.isReadAllowed(listOf("approver")))
-        assertEquals(false, notExistsAttPerms.isWriteAllowed(listOf("approver")))
+        assertEquals(true, notExistsAttPerms.isWriteAllowed(listOf("approver")))
 
         val notExistsInnerAtt = attPerms.getPermissions("att0.unknown-att")
 
@@ -159,6 +162,21 @@ class AttPermsTest {
         assertEquals(true, existsInnerAtt.isWriteAllowed(listOf("initiator")))
         assertEquals(true, existsInnerAtt.isReadAllowed(listOf("approver")))
         assertEquals(false, existsInnerAtt.isWriteAllowed(listOf("approver")))
+
+        val knownAttWithoutMatrix = attPerms.getPermissions("known_without_matrix")
+
+        assertEquals(true, knownAttWithoutMatrix.isReadAllowed(listOf("initiator")))
+        assertEquals(false, knownAttWithoutMatrix.isWriteAllowed(listOf("initiator")))
+        assertEquals(true, knownAttWithoutMatrix.isReadAllowed(listOf("approver")))
+        assertEquals(false, knownAttWithoutMatrix.isWriteAllowed(listOf("approver")))
+
+        // allow to edit attributes outside of model
+        val unknownAttWithoutMatrix = attPerms.getPermissions("unknown_without_matrix")
+
+        assertEquals(true, unknownAttWithoutMatrix.isReadAllowed(listOf("initiator")))
+        assertEquals(true, unknownAttWithoutMatrix.isWriteAllowed(listOf("initiator")))
+        assertEquals(true, unknownAttWithoutMatrix.isReadAllowed(listOf("approver")))
+        assertEquals(true, unknownAttWithoutMatrix.isWriteAllowed(listOf("approver")))
     }
 
     data class TestDto(

@@ -65,7 +65,8 @@ class RecordPermsService(services: ModelServiceFactory) {
             permsList.mapIndexed {
                 idx, perms ->
                 Pair(perms.first, rolePerms[idx])
-            }.toMap()
+            }.toMap(),
+            context.attributes
         )
     }
 
