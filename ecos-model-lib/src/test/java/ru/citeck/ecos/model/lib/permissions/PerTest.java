@@ -12,9 +12,9 @@ public class PerTest {
     void test() {
 
         RecordsServiceFactory factory = new RecordsServiceFactory();
-        Map<String, String> attributes = factory.getRecordsMetaService().getAttributes(TypePermsDef.class);
+        //Map<String, String> attributes = factory.getRecordsMetaService().getAttributes(TypePermsDef.class);
 
-        System.out.println(attributes);
+        //System.out.println(attributes);
 
         //AttributeDef attributeDef = new AttributeDef("adw", new MLText());
         //attributeDef.copy().setType(AttributeType.BOOLEAN).build();
