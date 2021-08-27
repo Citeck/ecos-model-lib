@@ -19,6 +19,7 @@ data class CreateVariantDef(
     val postActionRef: RecordRef,
     val formOptions: ObjectData,
     val attributes: ObjectData,
+    val allowedFor: List<String>,
     val properties: ObjectData
 ) {
 
@@ -60,6 +61,7 @@ data class CreateVariantDef(
         var postActionRef: RecordRef = RecordRef.EMPTY
         var formOptions: ObjectData = ObjectData.create()
         var attributes: ObjectData = ObjectData.create()
+        var allowedFor: List<String> = emptyList()
         var properties: ObjectData = ObjectData.create()
 
         constructor(base: CreateVariantDef) : this() {
@@ -68,6 +70,7 @@ data class CreateVariantDef(
             sourceId = base.sourceId
             typeRef = base.typeRef
             formRef = base.formRef
+            allowedFor = base.allowedFor
             postActionRef = base.postActionRef
             formOptions = ObjectData.deepCopyOrNew(base.formOptions)
             attributes = ObjectData.deepCopyOrNew(base.attributes)
@@ -109,6 +112,11 @@ data class CreateVariantDef(
             return this
         }
 
+        fun withAllowedFor(allowedFor: List<String>?): Builder {
+            this.allowedFor = allowedFor ?: emptyList()
+            return this
+        }
+
         fun withAttributes(attributes: ObjectData?): Builder {
             this.attributes = attributes ?: ObjectData.create()
             return this
@@ -129,6 +137,7 @@ data class CreateVariantDef(
                 postActionRef,
                 formOptions,
                 attributes,
+                allowedFor,
                 properties
             )
         }
