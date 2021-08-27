@@ -36,8 +36,8 @@ timestamps {
       def project_version = readMavenPom().getVersion().toLowerCase()
       if ((env.BRANCH_NAME != "master") && (!project_version.contains('snapshot')))  {
         echo "Assembly of release artifacts is allowed only from the master branch!"
-        currentBuild.result = 'SUCCESS'
-        return
+        //currentBuild.result = 'SUCCESS'
+        //return
       }
       buildTools.notifyBuildStarted(repoUrl, project_version, env)
       stage('Assembling and publishing project artifacts') {
