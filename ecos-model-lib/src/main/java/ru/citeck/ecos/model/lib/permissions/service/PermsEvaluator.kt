@@ -8,6 +8,8 @@ import ru.citeck.ecos.model.lib.permissions.service.roles.RolesPermissionsImpl
 import ru.citeck.ecos.model.lib.status.constants.StatusConstants
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.PredicateUtils
+import ru.citeck.ecos.records2.predicate.element.elematts.RecordAttsElement
+import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
 
 class PermsEvaluator(services: ModelServiceFactory) {
 
@@ -34,8 +36,8 @@ class PermsEvaluator(services: ModelServiceFactory) {
         val attsToLoad = permissions.flatMap { getAttributesToLoad(it.rules) }.toMutableList()
         attsToLoad.add(StatusConstants.ATT_STATUS_STR)
 
-        val recordData = recordsService.getAtts(recordRef, attsToLoad).getAtts()
-        return permissions.map { RolesPermissionsImpl(getPermissionsImpl(recordData, roles, statuses, it)) }
+        val recordAtts = recordsService.getAtts(recordRef, attsToLoad)
+        return permissions.map { RolesPermissionsImpl(getPermissionsImpl(recordAtts, roles, statuses, it)) }
     }
 
     private fun getAttributesToLoad(rules: List<PermissionRule>): Set<String> {
@@ -50,14 +52,14 @@ class PermsEvaluator(services: ModelServiceFactory) {
     }
 
     private fun getPermissionsImpl(
-        recordData: ObjectData,
+        recordData: RecordAtts,
         roles: Collection<String>,
         statuses: Collection<String>,
         permissions: PermissionsDef
     ): Map<String, Set<String>> {
 
         val permissionsByRole = HashMap<String, MutableSet<String>>()
-        val status = getStatusFromData(recordData)
+        val status = getStatusFromData(recordData.getAtts())
 
         if (!statuses.contains(status)) {
             if (status == StatusConstants.STATUS_EMPTY) {
@@ -83,10 +85,11 @@ class PermsEvaluator(services: ModelServiceFactory) {
             }
         }
 
+        val recordElement = RecordAttsElement(recordData, recordData)
         permissions.rules.filter {
             it.statuses.isEmpty() || it.statuses.contains(status)
         }.filter {
-            predicateService.isMatch(recordData, it.condition)
+            predicateService.isMatch(recordElement, it.condition)
         }.forEach { rule ->
             rule.roles.forEach { role ->
                 val rolePermissions = permissionsByRole.computeIfAbsent(role) { HashSet() }
