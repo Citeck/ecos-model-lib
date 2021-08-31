@@ -41,7 +41,7 @@ abstract class PermsEvaluatorTestBase {
                 }
             }
         }
-        dao.addAttributesMixin(object: AttMixin {
+        dao.addAttributesMixin(object : AttMixin {
             override fun getAtt(path: String, value: AttValueCtx) = currentStatus
             override fun getProvidedAtts() = listOf("_status")
         })
@@ -54,7 +54,7 @@ abstract class PermsEvaluatorTestBase {
         this.records[id] = record
     }
 
-    fun setRecordsCurrentStatus(status: String) {
+    fun setStatusForRecord(status: String) {
         this.currentStatus = status
     }
 
@@ -82,7 +82,7 @@ abstract class PermsEvaluatorTestBase {
         return evaluator.getPermissions(EMPTY_TEST_REF, roles, statuses, permsDef)
     }
 
-    fun createPermsDefWithRules(rules: List<PermissionRule>) : PermissionsDef {
+    fun createPermsDefWithRules(rules: List<PermissionRule>): PermissionsDef {
         return PermissionsDef.create {
             withMatrix(getNoneMatrix(statuses, roles))
             withRules(rules)

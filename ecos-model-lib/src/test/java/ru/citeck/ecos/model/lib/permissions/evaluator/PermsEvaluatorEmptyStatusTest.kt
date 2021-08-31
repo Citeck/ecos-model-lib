@@ -28,7 +28,7 @@ class PermsEvaluatorEmptyStatusTest : PermsEvaluatorTestBase() {
             )
         }
 
-        setRecordsCurrentStatus("")
+        setStatusForRecord("")
         val emptyPerms = getPerms(permsDef)
 
         assertTrue(emptyPerms.isReadAllowed(setOf("initiator")))
@@ -69,7 +69,7 @@ class PermsEvaluatorEmptyStatusTest : PermsEvaluatorTestBase() {
             )
         }
 
-        setRecordsCurrentStatus("")
+        setStatusForRecord("")
         val emptyPerms = getPerms(permsDef)
 
         assertFalse(emptyPerms.isReadAllowed(setOf("initiator")))
