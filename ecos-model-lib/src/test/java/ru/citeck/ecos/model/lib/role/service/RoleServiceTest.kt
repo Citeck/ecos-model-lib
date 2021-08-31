@@ -32,7 +32,7 @@ class RoleServiceTest {
                                         id = roleId
                                         name = MLText(roleId)
                                         assignees = explicitAssignees
-                                        attribute = "customAtt"
+                                        withAttributes(listOf("customAtt", "otherAtt"))
                                     }
                                 )
                             }
@@ -53,8 +53,15 @@ class RoleServiceTest {
 
         services.setRecordsServices(RecordsServiceFactory())
 
-        val assignees = services.roleService.getAssignees(RecordDto(RecordDto.CUSTOM_ATT_VALUE_0), roleId)
-        val expected = hashSetOf(*RecordDto.CUSTOM_ATT_VALUE_0.toTypedArray(), *explicitAssignees.toTypedArray())
+        val assignees = services.roleService.getAssignees(RecordDto(
+            RecordDto.CUSTOM_ATT_VALUE_0,
+            RecordDto.OTHER_ATT_VALUE_0
+        ), roleId)
+        val expected = hashSetOf(
+            *RecordDto.CUSTOM_ATT_VALUE_0.toTypedArray(),
+            *RecordDto.OTHER_ATT_VALUE_0.toTypedArray(),
+            *explicitAssignees.toTypedArray()
+        )
         val actual = hashSetOf(*assignees.toTypedArray())
 
         assertEquals(expected, actual)
@@ -68,6 +75,7 @@ class RoleServiceTest {
 
     class RecordDto(
         val customAtt: List<String>,
+        val otherAtt: List<String> = emptyList(),
         @AttName("_type")
         val type: RecordRef = RECORD_TYPE_REF
     ) {
@@ -75,6 +83,7 @@ class RoleServiceTest {
             val RECORD_TYPE_REF = TypeUtils.getTypeRef("custom-type")
             val CUSTOM_ATT_VALUE_0 = arrayListOf("first", "second")
             val CUSTOM_ATT_VALUE_1 = arrayListOf("third", "fourth")
+            val OTHER_ATT_VALUE_0 = arrayListOf("five", "six")
         }
     }
 }
