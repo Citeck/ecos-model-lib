@@ -15,7 +15,9 @@ class PermsEvaluatorTest : PermsEvaluatorTestBase() {
     fun test() {
 
         val roles = listOf("initiator", "approver", "scan-man", "unknown-status-reader")
+        setRoles(roles)
         val statuses = listOf("draft", "approve", "scanning")
+        setStatuses(statuses)
 
         val permsDef = PermissionsDef.create {
             withMatrix(
@@ -60,10 +62,8 @@ class PermsEvaluatorTest : PermsEvaluatorTestBase() {
             )
         }
 
+        setRecordsCurrentStatus("draft")
         val draftPerms = getPerms(
-            "draft",
-            roles,
-            statuses,
             permsDef
         )
 
@@ -84,12 +84,8 @@ class PermsEvaluatorTest : PermsEvaluatorTestBase() {
         assertFalse(draftPerms.isAllowed(setOf("scan-man"), PermissionType.READ))
         assertFalse(draftPerms.isAllowed(setOf("scan-man"), PermissionType.WRITE))
 
-        val approvePerms = getPerms(
-            "approve",
-            roles,
-            statuses,
-            permsDef
-        )
+        setRecordsCurrentStatus("approve")
+        val approvePerms = getPerms(permsDef)
 
         assertTrue(approvePerms.isReadAllowed(setOf("initiator")))
         assertFalse(approvePerms.isWriteAllowed(setOf("initiator")))
@@ -108,12 +104,8 @@ class PermsEvaluatorTest : PermsEvaluatorTestBase() {
         assertFalse(approvePerms.isAllowed(setOf("scan-man"), PermissionType.READ))
         assertFalse(approvePerms.isAllowed(setOf("scan-man"), PermissionType.WRITE))
 
-        val scanPerms = getPerms(
-            "scanning",
-            roles,
-            statuses,
-            permsDef
-        )
+        setRecordsCurrentStatus("scanning")
+        val scanPerms = getPerms(permsDef)
 
         assertFalse(scanPerms.isReadAllowed(setOf("initiator")))
         assertFalse(scanPerms.isWriteAllowed(setOf("initiator")))
@@ -144,12 +136,8 @@ class PermsEvaluatorTest : PermsEvaluatorTestBase() {
             ).toHashSet()
         )
 
-        val unknownStatusPerms = getPerms(
-            "unknown-status",
-            roles,
-            statuses,
-            permsDef
-        )
+        setRecordsCurrentStatus("unknown-status")
+        val unknownStatusPerms = getPerms(permsDef)
 
         listOf("initiator", "approver", "scan-man").forEach {
             assertFalse(unknownStatusPerms.isAllowed(setOf(it), PermissionType.READ))

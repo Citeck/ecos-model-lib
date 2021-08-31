@@ -11,8 +11,8 @@ class PermsEvaluatorEmptyStatusTest : PermsEvaluatorTestBase() {
     @Test
     fun testWithoutEmptyStatusInConfig() {
 
-        val roles = listOf("initiator", "approver")
-        val statuses = listOf("draft", "approve", "scanning")
+        setRoles(listOf("initiator", "approver"))
+        setStatuses(listOf("draft", "approve", "scanning"))
 
         val permsDef = PermissionsDef.create {
             withMatrix(
@@ -28,7 +28,8 @@ class PermsEvaluatorEmptyStatusTest : PermsEvaluatorTestBase() {
             )
         }
 
-        val emptyPerms = getPerms("", roles, statuses, permsDef)
+        setRecordsCurrentStatus("")
+        val emptyPerms = getPerms(permsDef)
 
         assertTrue(emptyPerms.isReadAllowed(setOf("initiator")))
         assertTrue(emptyPerms.isReadAllowed(setOf("approver")))
@@ -42,8 +43,8 @@ class PermsEvaluatorEmptyStatusTest : PermsEvaluatorTestBase() {
     @Test
     fun testWithEmptyStatusInConfig() {
 
-        val roles = listOf("initiator", "approver")
-        val statuses = listOf("EMPTY", "draft", "approve", "scanning")
+        setRoles(listOf("initiator", "approver"))
+        setStatuses(listOf("EMPTY", "draft", "approve", "scanning"))
 
         val permsDef = PermissionsDef.create {
             withMatrix(
@@ -68,7 +69,8 @@ class PermsEvaluatorEmptyStatusTest : PermsEvaluatorTestBase() {
             )
         }
 
-        val emptyPerms = getPerms("", roles, statuses, permsDef)
+        setRecordsCurrentStatus("")
+        val emptyPerms = getPerms(permsDef)
 
         assertFalse(emptyPerms.isReadAllowed(setOf("initiator")))
         assertTrue(emptyPerms.isReadAllowed(setOf("approver")))
