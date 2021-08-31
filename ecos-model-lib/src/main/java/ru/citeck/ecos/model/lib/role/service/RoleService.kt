@@ -46,11 +46,20 @@ class RoleService(services: ModelServiceFactory) {
         if (roleDef.id.isBlank()) {
             return emptyList()
         }
-        val assignees: MutableList<String>
-        assignees = if (roleDef.attribute.isNotBlank()) {
-            recordsService.getAtt(record, "${roleDef.attribute}[]?str").asStrList()
-        } else {
-            ArrayList()
+        val roleAtts = roleDef.attributes
+        val assignees: MutableList<String> = ArrayList()
+
+        if (roleAtts.isNotEmpty()) {
+
+            val atts = roleAtts.associateWith { "$it[]?str" }
+            val attsValues = recordsService.getAtts(record, atts)
+
+            roleAtts.forEach {
+                val value = attsValues.getAtt(it)
+                if (value.isArray()) {
+                    assignees.addAll(value.asStrList())
+                }
+            }
         }
         assignees.addAll(roleDef.assignees)
 

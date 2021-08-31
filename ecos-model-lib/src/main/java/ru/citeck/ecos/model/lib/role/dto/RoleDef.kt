@@ -9,7 +9,7 @@ import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 data class RoleDef(
     val id: String,
     val name: MLText,
-    val attribute: String,
+    val attributes: List<String>,
     val assignees: List<String>
 ) {
 
@@ -45,13 +45,13 @@ data class RoleDef(
 
         var id: String = ""
         var name: MLText = MLText()
-        var attribute: String = ""
+        var attributes: List<String> = emptyList()
         var assignees: List<String> = emptyList()
 
         constructor(base: RoleDef) : this() {
             this.id = base.id
             this.name = base.name
-            this.attribute = base.attribute
+            this.attributes = ArrayList(base.attributes)
             this.assignees = base.assignees.toList()
         }
 
@@ -66,7 +66,18 @@ data class RoleDef(
         }
 
         fun withAttribute(attribute: String?): Builder {
-            this.attribute = attribute ?: ""
+            withAttributes(
+                if (attribute.isNullOrBlank()) {
+                    emptyList()
+                } else {
+                    listOf(attribute)
+                }
+            )
+            return this
+        }
+
+        fun withAttributes(attributes: List<String>?): Builder {
+            this.attributes = attributes?.filter { it.isNotBlank() } ?: emptyList()
             return this
         }
 
@@ -76,7 +87,7 @@ data class RoleDef(
         }
 
         fun build(): RoleDef {
-            return RoleDef(id, name, attribute, assignees)
+            return RoleDef(id, name, attributes, assignees)
         }
     }
 }
