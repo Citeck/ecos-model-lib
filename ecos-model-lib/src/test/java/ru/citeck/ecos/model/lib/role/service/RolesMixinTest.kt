@@ -72,6 +72,9 @@ class RolesMixinTest {
         AuthContext.runAs("user0", listOf("GROUP_EXP_FIRST")) {
             assertThat(records.getAtt(recRef, "_roles.isCurrentUserMemberOf.$roleId?bool").asBoolean()).isTrue
         }
+
+        assertThat(records.getAtt(recRef, "_roles.assigneesOf.$roleId[]?str").asStrList())
+            .containsExactlyElementsOf(explicitAssignees)
     }
 
     data class TestDto(

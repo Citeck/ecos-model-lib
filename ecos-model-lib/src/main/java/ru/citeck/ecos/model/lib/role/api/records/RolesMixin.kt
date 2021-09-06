@@ -25,12 +25,19 @@ class RolesMixin(val service: RoleService) : AttMixin {
 
     inner class RolesAttValue(val value: AttValueCtx) {
 
-        fun getIsCurrentUserMemberOf(): RolesIsMemberOfValue {
-            return RolesIsMemberOfValue(value)
+        fun getIsCurrentUserMemberOf() = IsMemberOfRoleValue(value)
+
+        fun getAssigneesOf() = AssigneesOfRoleValue(value)
+    }
+
+    inner class AssigneesOfRoleValue(private val value: AttValueCtx) : AttValue {
+
+        override fun getAtt(roleName: String): Any {
+            return service.getAssignees(value.getRef(), roleName)
         }
     }
 
-    inner class RolesIsMemberOfValue(private val value: AttValueCtx) : AttValue {
+    inner class IsMemberOfRoleValue(private val value: AttValueCtx) : AttValue {
 
         override fun getAtt(roleName: String): Boolean {
             val currentUserAuthorities = AuthContext.getCurrentAuthorities()
