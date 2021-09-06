@@ -49,21 +49,27 @@ class RoleDefTest {
 
         assertThat(roleDef1.attributes).containsExactly(attribute0, attribute1)
 
-        val defFromStrSingleAtt = Json.mapper.read("""
+        val defFromStrSingleAtt = Json.mapper.read(
+            """
             {
                 "id": "abc",
                 "attribute": "$attribute0"
             }
-        """.trimIndent(), RoleDef::class.java)!!
+            """.trimIndent(),
+            RoleDef::class.java
+        )!!
 
         assertThat(defFromStrSingleAtt.attributes).containsExactly(attribute0)
 
-        val defFromStrArrayAtt = Json.mapper.read("""
+        val defFromStrArrayAtt = Json.mapper.read(
+            """
             {
                 "id": "abc",
                 "attributes": ["$attribute0", "$attribute1"]
             }
-        """.trimIndent(), RoleDef::class.java)!!
+            """.trimIndent(),
+            RoleDef::class.java
+        )!!
 
         assertThat(defFromStrArrayAtt.attributes).containsExactly(attribute0, attribute1)
     }

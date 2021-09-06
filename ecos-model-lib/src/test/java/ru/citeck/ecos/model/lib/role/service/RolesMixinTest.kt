@@ -1,21 +1,25 @@
 package ru.citeck.ecos.model.lib.role.service
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import ru.citeck.ecos.commons.data.MLText
+import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.role.api.records.RolesMixin
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
-import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
-import kotlin.test.assertEquals
+import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
 
-class RoleServiceTest {
+class RolesMixinTest {
 
     @Test
     fun test() {
+        val testTypeRef = TypeUtils.getTypeRef("test-type")
 
         val explicitAssignees = listOf("GROUP_EXP_FIRST", "GROUP_EXP_SECOND")
         val roleId = "ROLE_ID"
@@ -25,14 +29,13 @@ class RoleServiceTest {
                 return object : TypesRepo {
 
                     override fun getModel(typeRef: RecordRef): TypeModelDef {
-                        if (typeRef == RecordDto.RECORD_TYPE_REF) {
+                        if (typeRef == testTypeRef) {
                             return TypeModelDef.create {
                                 roles = listOf(
                                     RoleDef.create {
                                         id = roleId
                                         name = MLText(roleId)
                                         assignees = explicitAssignees
-                                        withAttributes(listOf("customAtt", "otherAtt"))
                                     }
                                 )
                             }
@@ -51,42 +54,31 @@ class RoleServiceTest {
             }
         }
 
-        services.setRecordsServices(RecordsServiceFactory())
+        val recId = "rec-0"
+        val recRef = RecordRef.create("test", recId)
 
-        val assignees = services.roleService.getAssignees(
-            RecordDto(
-                RecordDto.CUSTOM_ATT_VALUE_0,
-                RecordDto.OTHER_ATT_VALUE_0
-            ),
-            roleId
-        )
-        val expected = hashSetOf(
-            *RecordDto.CUSTOM_ATT_VALUE_0.toTypedArray(),
-            *RecordDto.OTHER_ATT_VALUE_0.toTypedArray(),
-            *explicitAssignees.toTypedArray()
-        )
-        val actual = hashSetOf(*assignees.toTypedArray())
+        val recordsServices = RecordsServiceFactory()
+        val records = recordsServices.recordsServiceV1
+        services.setRecordsServices(recordsServices)
 
-        assertEquals(expected, actual)
+        val recsDao = RecordsDaoBuilder.create("test")
+            .addRecord(recId, TestDto(testTypeRef))
+            .build()
+        (recsDao as AbstractRecordsDao).addAttributesMixin(RolesMixin(services.roleService))
+        records.register(recsDao)
 
-        val assignees2 = services.roleService.getAssignees(RecordDto(RecordDto.CUSTOM_ATT_VALUE_1), roleId)
-        val expected2 = hashSetOf(*RecordDto.CUSTOM_ATT_VALUE_1.toTypedArray(), *explicitAssignees.toTypedArray())
-        val actual2 = hashSetOf(*assignees2.toTypedArray())
+        assertThat(records.getAtt(recRef, "_roles.isCurrentUserMemberOf.$roleId?bool").asBoolean()).isFalse
 
-        assertEquals(expected2, actual2)
+        AuthContext.runAs("user0", listOf("GROUP_EXP_FIRST")) {
+            assertThat(records.getAtt(recRef, "_roles.isCurrentUserMemberOf.$roleId?bool").asBoolean()).isTrue
+        }
     }
 
-    class RecordDto(
-        val customAtt: List<String>,
-        val otherAtt: List<String> = emptyList(),
-        @AttName("_type")
-        val type: RecordRef = RECORD_TYPE_REF
+    data class TestDto(
+        val typeRef: RecordRef
     ) {
-        companion object {
-            val RECORD_TYPE_REF = TypeUtils.getTypeRef("custom-type")
-            val CUSTOM_ATT_VALUE_0 = arrayListOf("first", "second")
-            val CUSTOM_ATT_VALUE_1 = arrayListOf("third", "fourth")
-            val OTHER_ATT_VALUE_0 = arrayListOf("five", "six")
+        fun getEcosType(): RecordRef {
+            return typeRef
         }
     }
 }
