@@ -10,6 +10,7 @@ class RoleService(services: ModelServiceFactory) {
     private val typeDefService = services.typeRefService
     private val recordsService = services.records.recordsServiceV1
     private val typesRepo = services.typesRepo
+    private val authorityComponent = services.authorityComponent
 
     fun getRolesId(typeRef: RecordRef?): List<String> {
         return getRoles(typeRef).map { it.id }
@@ -64,7 +65,19 @@ class RoleService(services: ModelServiceFactory) {
         assignees.addAll(roleDef.assignees)
 
         val assigneesSet = HashSet<String>()
-        return assignees.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
+        val uniqueAssignees = assignees.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
+        val names = authorityComponent.getAuthorityNames(uniqueAssignees)
+        if (names.size != uniqueAssignees.size) {
+            error(
+                "Authority component should return list with same length from method getAuthorityNames. " +
+                    "Actual names: $names Argument names: $uniqueAssignees"
+            )
+        }
+        if (names === uniqueAssignees) {
+            return names
+        }
+        assigneesSet.clear()
+        return names.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
     }
 
     fun getRoleDef(typeRef: RecordRef?, roleId: String?): RoleDef {

@@ -29,13 +29,21 @@
 
         <ecos.jackson.version>2.10.4.3</ecos.jackson.version>
         <ecos.commons.version>2.5.0</ecos.commons.version>
-        <ecos.records.version>3.32.0</ecos.records.version>
+        <ecos.records.version>3.34.2</ecos.records.version>
+        <ecos.context-lib.version>1.0.4</ecos.context-lib.version>
 
         <groovy.version>2.5.9</groovy.version>
 
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>ru.citeck.ecos.context</groupId>
+            <artifactId>ecos-context-lib</artifactId>
+            <version>${ecos.context-lib.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

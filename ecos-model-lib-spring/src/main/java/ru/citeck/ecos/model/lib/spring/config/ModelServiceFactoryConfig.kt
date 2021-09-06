@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.role.service.auth.AuthorityComponent
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.TypeRefService
@@ -14,6 +15,7 @@ import ru.citeck.ecos.records3.RecordsServiceFactory
 open class ModelServiceFactoryConfig : ModelServiceFactory() {
 
     private var repo: TypesRepo? = null
+    private var authorityComponentBean: AuthorityComponent? = null
 
     @Bean
     override fun createTypeRefService(): TypeRefService {
@@ -34,9 +36,18 @@ open class ModelServiceFactoryConfig : ModelServiceFactory() {
         }
     }
 
+    override fun createAuthorityComponent(): AuthorityComponent {
+        return authorityComponentBean ?: super.createAuthorityComponent()
+    }
+
     @Autowired(required = false)
     fun setTypesRepo(repo: TypesRepo) {
         this.repo = repo
+    }
+
+    @Autowired(required = false)
+    fun setAuthorityComponent(authorityComponent: AuthorityComponent) {
+        this.authorityComponentBean = authorityComponent
     }
 
     @Autowired
