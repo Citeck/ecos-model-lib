@@ -3,7 +3,9 @@ package ru.citeck.ecos.model.lib.role.dto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import ru.citeck.ecos.commons.data.MLText
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
+import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
 import java.util.*
 
 class RoleDefTest {
@@ -15,8 +17,13 @@ class RoleDefTest {
             "role-id",
             MLText(Locale.ENGLISH to "en", Locale("ru") to "ru"),
             listOf("attribute0", "attribute1"),
-            listOf("assignee0", "assignee1")
+            listOf("assignee0", "assignee1"),
+            RoleComputedDef.create {
+                withType(ComputedAttType.SCRIPT)
+                withConfig(ObjectData.create("""{"fn":"return 'abc';"}"""))
+            }
         )
+
         assertThat(roleDef).isEqualTo(RoleDef.Builder(roleDef).build())
 
         val roleByBuilder = RoleDef.create()
@@ -24,6 +31,7 @@ class RoleDefTest {
             .withName(roleDef.name)
             .withAttributes(roleDef.attributes)
             .withAssignees(roleDef.assignees)
+            .withComputed(roleDef.computed)
             .build()
         assertThat(roleByBuilder).isEqualTo(roleDef)
 

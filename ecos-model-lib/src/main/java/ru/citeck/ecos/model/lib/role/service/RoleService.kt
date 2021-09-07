@@ -1,9 +1,13 @@
 package ru.citeck.ecos.model.lib.role.service
 
+import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.records3.record.atts.computed.ComputedAttDef
+import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
+import ru.citeck.ecos.records3.record.request.RequestContext
 
 class RoleService(services: ModelServiceFactory) {
 
@@ -23,6 +27,15 @@ class RoleService(services: ModelServiceFactory) {
             return emptyList()
         }
         return typesRepo.getModel(typeRef).roles
+    }
+
+    fun isRoleMember(record: Any?, roleId: String?): Boolean {
+        if (roleId == RoleConstants.ROLE_EVERYONE) {
+            return true
+        }
+        val currentUserAuthorities = AuthContext.getCurrentAuthorities()
+        val assignees = getAssignees(record, roleId)
+        return assignees.any { currentUserAuthorities.contains(it) }
     }
 
     fun getAssignees(record: Any?, roleId: String?): List<String> {
@@ -63,6 +76,21 @@ class RoleService(services: ModelServiceFactory) {
             }
         }
         assignees.addAll(roleDef.assignees)
+
+        val computed = roleDef.computed
+
+        if (computed.type != ComputedAttType.NONE) {
+
+            val computedAttDef = ComputedAttDef.create()
+                .withType(computed.type)
+                .withConfig(computed.config)
+                .build()
+
+            val authorities = RequestContext.doWithAtts(mapOf("roleAtt" to computedAttDef)) { _ ->
+                recordsService.getAtt(record, "\$roleAtt[]?str").asStrList()
+            }
+            assignees.addAll(authorities)
+        }
 
         val assigneesSet = HashSet<String>()
         val uniqueAssignees = assignees.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }

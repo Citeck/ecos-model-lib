@@ -10,7 +10,8 @@ data class RoleDef(
     val id: String,
     val name: MLText,
     val attributes: List<String>,
-    val assignees: List<String>
+    val assignees: List<String>,
+    val computed: RoleComputedDef
 ) {
 
     companion object {
@@ -47,12 +48,14 @@ data class RoleDef(
         var name: MLText = MLText()
         var attributes: List<String> = emptyList()
         var assignees: List<String> = emptyList()
+        var computed: RoleComputedDef = RoleComputedDef.EMPTY
 
         constructor(base: RoleDef) : this() {
             this.id = base.id
             this.name = base.name
             this.attributes = ArrayList(base.attributes)
             this.assignees = base.assignees.toList()
+            this.computed = base.computed
         }
 
         fun withId(id: String): Builder {
@@ -86,8 +89,13 @@ data class RoleDef(
             return this
         }
 
+        fun withComputed(computed: RoleComputedDef?): Builder {
+            this.computed = computed ?: RoleComputedDef.EMPTY
+            return this
+        }
+
         fun build(): RoleDef {
-            return RoleDef(id, name, attributes, assignees)
+            return RoleDef(id, name, attributes, assignees, computed)
         }
     }
 }
