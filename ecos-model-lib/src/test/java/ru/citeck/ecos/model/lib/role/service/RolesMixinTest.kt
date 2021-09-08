@@ -24,6 +24,9 @@ class RolesMixinTest {
         val explicitAssignees = listOf("GROUP_EXP_FIRST", "GROUP_EXP_SECOND")
         val roleId = "ROLE_ID"
 
+        val roleWithUserId = "roleWithUser"
+        val roleWithUserAssignees = listOf("user0")
+
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
@@ -36,6 +39,11 @@ class RolesMixinTest {
                                         id = roleId
                                         name = MLText(roleId)
                                         assignees = explicitAssignees
+                                    },
+                                    RoleDef.create {
+                                        id = roleWithUserId
+                                        name = MLText(roleWithUserId)
+                                        assignees = roleWithUserAssignees
                                     }
                                 )
                             }
@@ -71,6 +79,9 @@ class RolesMixinTest {
 
         AuthContext.runAs("user0", listOf("GROUP_EXP_FIRST")) {
             assertThat(records.getAtt(recRef, "_roles.isCurrentUserMemberOf.$roleId?bool").asBoolean()).isTrue
+        }
+        AuthContext.runAs("user0", emptyList()) {
+            assertThat(records.getAtt(recRef, "_roles.isCurrentUserMemberOf.$roleWithUserId?bool").asBoolean()).isTrue
         }
 
         assertThat(records.getAtt(recRef, "_roles.assigneesOf.$roleId[]?str").asStrList())

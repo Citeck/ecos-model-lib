@@ -33,7 +33,7 @@ class RoleService(services: ModelServiceFactory) {
         if (roleId == RoleConstants.ROLE_EVERYONE) {
             return true
         }
-        val currentUserAuthorities = AuthContext.getCurrentAuthorities()
+        val currentUserAuthorities = AuthContext.getCurrentUserWithAuthorities()
         val assignees = getAssignees(record, roleId)
         return assignees.any { currentUserAuthorities.contains(it) }
     }
