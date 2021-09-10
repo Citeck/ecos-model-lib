@@ -1,5 +1,6 @@
 package ru.citeck.ecos.model.lib.role.api.records
 
+import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.role.service.RoleService
 import ru.citeck.ecos.records3.record.atts.value.AttValue
@@ -33,14 +34,18 @@ class RolesMixin(val service: RoleService) : AttMixin {
     inner class AssigneesOfRoleValue(private val value: AttValueCtx) : AttValue {
 
         override fun getAtt(roleName: String): Any {
-            return service.getAssignees(value.getRef(), roleName)
+            return AuthContext.runAsSystem {
+                service.getAssignees(value.getRef(), roleName)
+            }
         }
     }
 
     inner class IsMemberOfRoleValue(private val value: AttValueCtx) : AttValue {
 
         override fun getAtt(roleName: String): Boolean {
-            return service.isRoleMember(value.getRef(), roleName)
+            return AuthContext.runAsSystem {
+                service.isRoleMember(value.getRef(), roleName)
+            }
         }
     }
 }
