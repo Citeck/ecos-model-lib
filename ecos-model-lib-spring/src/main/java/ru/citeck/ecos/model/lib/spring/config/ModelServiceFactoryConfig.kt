@@ -4,8 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.permissions.repo.PermissionsRepo
+import ru.citeck.ecos.model.lib.permissions.service.RecordPermsService
+import ru.citeck.ecos.model.lib.role.service.RoleService
 import ru.citeck.ecos.model.lib.role.service.auth.AuthorityComponent
+import ru.citeck.ecos.model.lib.status.service.StatusService
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
+import ru.citeck.ecos.model.lib.type.dto.TypePermsDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.TypeRefService
 import ru.citeck.ecos.records2.RecordRef
@@ -14,7 +19,8 @@ import ru.citeck.ecos.records3.RecordsServiceFactory
 @Configuration
 open class ModelServiceFactoryConfig : ModelServiceFactory() {
 
-    private var repo: TypesRepo? = null
+    private var custonTypesRepo: TypesRepo? = null
+    private var customPermsRepo: PermissionsRepo? = null
     private var authorityComponentBean: AuthorityComponent? = null
 
     @Bean
@@ -22,16 +28,39 @@ open class ModelServiceFactoryConfig : ModelServiceFactory() {
         return super.createTypeRefService()
     }
 
+    @Bean
+    override fun createRoleService(): RoleService {
+        return super.createRoleService()
+    }
+
+    @Bean
+    override fun createStatusService(): StatusService {
+        return super.createStatusService()
+    }
+
+    @Bean
+    override fun createRecordPermsService(): RecordPermsService {
+        return super.createRecordPermsService()
+    }
+
     override fun createTypesRepo(): TypesRepo {
         return object : TypesRepo {
             override fun getModel(typeRef: RecordRef): TypeModelDef {
-                return repo?.getModel(typeRef) ?: TypeModelDef.EMPTY
+                return custonTypesRepo?.getModel(typeRef) ?: TypeModelDef.EMPTY
             }
             override fun getParent(typeRef: RecordRef): RecordRef {
-                return repo?.getParent(typeRef) ?: RecordRef.EMPTY
+                return custonTypesRepo?.getParent(typeRef) ?: RecordRef.EMPTY
             }
             override fun getChildren(typeRef: RecordRef): List<RecordRef> {
-                return repo?.getChildren(typeRef) ?: emptyList()
+                return custonTypesRepo?.getChildren(typeRef) ?: emptyList()
+            }
+        }
+    }
+
+    override fun createPermissionsRepo(): PermissionsRepo {
+        return object : PermissionsRepo {
+            override fun getPermissionsForType(typeRef: RecordRef): TypePermsDef? {
+                return customPermsRepo?.getPermissionsForType(typeRef)
             }
         }
     }
@@ -42,7 +71,12 @@ open class ModelServiceFactoryConfig : ModelServiceFactory() {
 
     @Autowired(required = false)
     fun setTypesRepo(repo: TypesRepo) {
-        this.repo = repo
+        this.custonTypesRepo = repo
+    }
+
+    @Autowired(required = false)
+    fun setPermsRepo(repo: PermissionsRepo) {
+        this.customPermsRepo = repo
     }
 
     @Autowired(required = false)
