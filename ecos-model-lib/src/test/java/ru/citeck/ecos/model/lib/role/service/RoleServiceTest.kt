@@ -2,13 +2,16 @@ package ru.citeck.ecos.model.lib.role.service
 
 import org.junit.jupiter.api.Test
 import ru.citeck.ecos.commons.data.MLText
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.role.dto.RoleComputedDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsServiceFactory
+import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import kotlin.test.assertEquals
 
@@ -19,6 +22,7 @@ class RoleServiceTest {
 
         val explicitAssignees = listOf("GROUP_EXP_FIRST", "GROUP_EXP_SECOND")
         val roleId = "ROLE_ID"
+        val computedRoleId = "computedRoleId"
 
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
@@ -33,6 +37,22 @@ class RoleServiceTest {
                                         name = MLText(roleId)
                                         assignees = explicitAssignees
                                         withAttributes(listOf("customAtt", "otherAtt"))
+                                    },
+                                    RoleDef.create {
+                                        id = computedRoleId
+                                        name = MLText(computedRoleId)
+                                        withComputed(
+                                            RoleComputedDef.create {
+                                                withType(ComputedAttType.SCRIPT)
+                                                withConfig(
+                                                    ObjectData.create(
+                                                        """
+                                                {"fn":"return value.load('customAtt[]?str') || [];"}
+                                                        """
+                                                    )
+                                                )
+                                            }
+                                        )
                                     }
                                 )
                             }
@@ -74,6 +94,12 @@ class RoleServiceTest {
         val actual2 = hashSetOf(*assignees2.toTypedArray())
 
         assertEquals(expected2, actual2)
+
+        val assignees3 = services.roleService.getAssignees(RecordDto(RecordDto.CUSTOM_ATT_VALUE_1), computedRoleId)
+        val expected3 = hashSetOf(*RecordDto.CUSTOM_ATT_VALUE_1.toTypedArray())
+        val actual3 = hashSetOf(*assignees3.toTypedArray())
+
+        assertEquals(expected3, actual3)
     }
 
     class RecordDto(
