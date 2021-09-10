@@ -15,6 +15,7 @@ class RoleService(services: ModelServiceFactory) {
     private val recordsService = services.records.recordsServiceV1
     private val typesRepo = services.typesRepo
     private val authorityComponent = services.authorityComponent
+    private val currentAppName = services.records.properties.appName
 
     fun getRolesId(typeRef: RecordRef?): List<String> {
         return getRoles(typeRef).map { it.id }
@@ -54,6 +55,13 @@ class RoleService(services: ModelServiceFactory) {
         if (roleId == RoleConstants.ROLE_EVERYONE) {
             // Role 'EVERYONE' is virtual and doesn't have assignees
             return emptyList()
+        }
+
+        if (record is RecordRef && record.appName.isNotEmpty() && record.appName != currentAppName) {
+            return recordsService.getAtt(
+                record,
+                RoleConstants.ATT_ROLES + "." + RoleConstants.ATT_ASSIGNEES_OF + ".$roleId[]?str"
+            ).asStrList()
         }
 
         val roleDef = getRoleDef(typeRef, roleId)
