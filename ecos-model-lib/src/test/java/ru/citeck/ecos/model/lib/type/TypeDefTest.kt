@@ -1,5 +1,6 @@
 package ru.citeck.ecos.model.lib.type
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.MLText
@@ -14,6 +15,7 @@ import ru.citeck.ecos.model.lib.type.dto.CreateVariantDef
 import ru.citeck.ecos.model.lib.type.dto.DocLibDef
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.computed.ComputedAttDef
 import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
 import ru.citeck.ecos.records3.record.atts.computed.StoringType
@@ -21,6 +23,39 @@ import java.util.*
 import kotlin.test.assertEquals
 
 class TypeDefTest {
+
+    @Test
+    fun computedAttTest() {
+
+        val computedAtt = ComputedAttDef.create()
+            .withType(ComputedAttType.SCRIPT)
+            .withConfig(ObjectData.create("""{"fn":"return 'abc';"}"""))
+            .withStoringType(StoringType.ON_CREATE)
+            .build()
+
+        val services = RecordsServiceFactory()
+        val records = services.recordsServiceV1
+        val computedAttFromRecords = records.getAtts(computedAtt, ComputedAttDef::class.java)
+
+        assertThat(computedAttFromRecords).isEqualTo(computedAtt)
+
+        val modelDef = TypeModelDef.create()
+            .withAttributes(
+                listOf(
+                    AttributeDef.create()
+                        .withId("some-id")
+                        .withComputed(computedAtt)
+                        .build()
+                )
+            )
+            .build()
+
+        val computed = records.getAtt(modelDef, "attributes[].computed?json")
+        assertThat(computed).isEqualTo(DataValue.create(listOf(computedAtt)))
+
+        val modelDefFromRecords = records.getAtts(modelDef, TypeModelDef::class.java)
+        assertThat(modelDefFromRecords).isEqualTo(modelDef)
+    }
 
     @Test
     fun dtoTest() {
@@ -148,5 +183,9 @@ class TypeDefTest {
         )
 
         assertEquals(createVariants, newCreateVariants)
+
+        val records = RecordsServiceFactory().recordsServiceV1
+        val newTypeModelDef = records.getAtts(typeModelDef, TypeModelDef::class.java)
+        assertThat(newTypeModelDef).isEqualTo(typeModelDef)
     }
 }

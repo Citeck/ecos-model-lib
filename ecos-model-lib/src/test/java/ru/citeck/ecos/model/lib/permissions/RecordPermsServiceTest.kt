@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records2.graphql.meta.annotation.MetaAtt
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
+import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 
 class RecordPermsServiceTest {
 
@@ -33,5 +33,5 @@ class RecordPermsServiceTest {
         services.records.recordsServiceV1.register(daoBuilder.build())
     }
 
-    data class TestDto(val id: String, @get:MetaAtt(".type") val type: RecordRef, val _status: String)
+    data class TestDto(val id: String, @AttName("?type") val type: RecordRef, val _status: String)
 }

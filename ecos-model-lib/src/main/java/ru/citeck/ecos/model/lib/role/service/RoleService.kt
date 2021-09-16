@@ -5,8 +5,8 @@ import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttDef
 import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
+import ru.citeck.ecos.records3.record.atts.computed.ComputedAttValue
 import ru.citeck.ecos.records3.record.request.RequestContext
 
 class RoleService(services: ModelServiceFactory) {
@@ -89,12 +89,12 @@ class RoleService(services: ModelServiceFactory) {
 
         if (computed.type != ComputedAttType.NONE) {
 
-            val computedAttDef = ComputedAttDef.create()
+            val computedAttValue = ComputedAttValue.create()
                 .withType(computed.type)
                 .withConfig(computed.config)
                 .build()
 
-            val authorities = RequestContext.doWithAtts(mapOf("roleAtt" to computedAttDef)) { _ ->
+            val authorities = RequestContext.doWithAtts(mapOf("roleAtt" to computedAttValue)) { _ ->
                 recordsService.getAtt(record, "\$roleAtt[]?str").asStrList()
             }
             assignees.addAll(authorities)
