@@ -32,6 +32,13 @@
         </dependency>
 
         <dependency>
+            <groupId>ru.citeck.ecos.records</groupId>
+            <artifactId>ecos-records-spring</artifactId>
+            <version>${ecos.records.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring.context.version}</version>

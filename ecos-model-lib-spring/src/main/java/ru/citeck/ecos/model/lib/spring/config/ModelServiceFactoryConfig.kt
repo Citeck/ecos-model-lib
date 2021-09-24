@@ -15,6 +15,7 @@ import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.TypeRefService
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsServiceFactory
+import ru.citeck.ecos.records3.spring.config.RecordsServiceFactoryConfiguration
 
 @Configuration
 open class ModelServiceFactoryConfig : ModelServiceFactory() {
@@ -25,7 +26,12 @@ open class ModelServiceFactoryConfig : ModelServiceFactory() {
 
     @Bean
     override fun createTypeRefService(): TypeRefService {
-        return super.createTypeRefService()
+        val service = super.createTypeRefService()
+        val recordsServices = records
+        if (recordsServices is RecordsServiceFactoryConfiguration) {
+            recordsServices.setCustomRecordTypeService(service)
+        }
+        return service
     }
 
     @Bean
