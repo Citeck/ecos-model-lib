@@ -9,6 +9,10 @@ import ru.citeck.ecos.records3.record.type.RecordTypeService
 
 class TypeRefService(services: ModelServiceFactory) : RecordTypeService {
 
+    companion object {
+        private const val SUB_TYPE_MAX_ITERATIONS = 100
+    }
+
     private val typesRepo = services.typesRepo
     private val recordsService = services.records.recordsServiceV1
 
@@ -24,9 +28,10 @@ class TypeRefService(services: ModelServiceFactory) : RecordTypeService {
         if (type == ofType) {
             return true
         }
+        var idx = 0
         var parent: RecordRef = typesRepo.getParent(type)
-        while (RecordRef.isNotEmpty(parent)) {
-            if (parent == ofType) {
+        while (idx++ < SUB_TYPE_MAX_ITERATIONS && RecordRef.isNotEmpty(parent)) {
+            if (parent.id == ofType.id) {
                 return true
             }
             parent = typesRepo.getParent(parent)
