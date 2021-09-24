@@ -20,3 +20,4 @@ nodejs/*
 node_modules/*
 rebel.xml
 dependency-reduced-pom.xml
+.flattened-pom.xml

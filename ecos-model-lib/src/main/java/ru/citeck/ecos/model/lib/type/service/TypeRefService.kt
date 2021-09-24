@@ -20,6 +20,20 @@ class TypeRefService(services: ModelServiceFactory) : RecordTypeService {
         }
     }
 
+    fun isSubType(type: RecordRef, ofType: RecordRef): Boolean {
+        if (type == ofType) {
+            return true
+        }
+        var parent: RecordRef = typesRepo.getParent(type)
+        while (RecordRef.isNotEmpty(parent)) {
+            if (parent == ofType) {
+                return true
+            }
+            parent = typesRepo.getParent(parent)
+        }
+        return false
+    }
+
     fun getTypeRef(record: Any?): RecordRef {
 
         record ?: return RecordRef.EMPTY
