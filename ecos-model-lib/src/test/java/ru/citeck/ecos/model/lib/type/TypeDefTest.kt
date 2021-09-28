@@ -9,6 +9,9 @@ import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.model.lib.attributes.dto.AttConstraintDef
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeType
+import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttDef
+import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttStoringType
+import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
 import ru.citeck.ecos.model.lib.type.dto.CreateVariantDef
@@ -16,9 +19,6 @@ import ru.citeck.ecos.model.lib.type.dto.DocLibDef
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsServiceFactory
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttDef
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
-import ru.citeck.ecos.records3.record.atts.computed.StoringType
 import java.util.*
 import kotlin.test.assertEquals
 
@@ -30,7 +30,7 @@ class TypeDefTest {
         val computedAtt = ComputedAttDef.create()
             .withType(ComputedAttType.SCRIPT)
             .withConfig(ObjectData.create("""{"fn":"return 'abc';"}"""))
-            .withStoringType(StoringType.ON_CREATE)
+            .withStoringType(ComputedAttStoringType.ON_CREATE)
             .build()
 
         val services = RecordsServiceFactory()
@@ -92,7 +92,7 @@ class TypeDefTest {
                         ComputedAttDef.create {
                             withType(ComputedAttType.VALUE)
                             withConfig(ObjectData.create("""{"aa3":"bb3","cc2":"dd2"}"""))
-                            withStoringType(StoringType.ON_CREATE)
+                            withStoringType(ComputedAttStoringType.ON_CREATE)
                         }
                     )
                     withName(MLText("Content"))
@@ -113,7 +113,7 @@ class TypeDefTest {
                         ComputedAttDef.create {
                             withType(ComputedAttType.VALUE)
                             withConfig(ObjectData.create("""{"a1a3":"bb13","c1c2":"dd12"}"""))
-                            withStoringType(StoringType.ON_CREATE)
+                            withStoringType(ComputedAttStoringType.ON_CREATE)
                         }
                     )
                     withName(MLText("Content"))

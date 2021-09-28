@@ -2,11 +2,11 @@ package ru.citeck.ecos.model.lib.role.service
 
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttValue
+import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAttValue
 import ru.citeck.ecos.records3.record.request.RequestContext
 
 class RoleService(services: ModelServiceFactory) {
@@ -27,7 +27,7 @@ class RoleService(services: ModelServiceFactory) {
         if (RecordRef.isEmpty(typeRef)) {
             return emptyList()
         }
-        return typesRepo.getModel(typeRef).roles
+        return typesRepo.getTypeInfo(typeRef)?.model?.roles ?: emptyList()
     }
 
     fun isRoleMember(record: Any?, roleId: String?): Boolean {
@@ -87,10 +87,14 @@ class RoleService(services: ModelServiceFactory) {
 
         val computed = roleDef.computed
 
-        if (computed.type != ComputedAttType.NONE) {
+        if (computed.type == ComputedAttType.SCRIPT ||
+            computed.type == ComputedAttType.VALUE ||
+            computed.type == ComputedAttType.ATTRIBUTE ||
+            computed.type == ComputedAttType.TEMPLATE
+        ) {
 
-            val computedAttValue = ComputedAttValue.create()
-                .withType(computed.type)
+            val computedAttValue = RecordComputedAttValue.create()
+                .withType(computed.type.toRecordComputedType())
                 .withConfig(computed.config)
                 .build()
 

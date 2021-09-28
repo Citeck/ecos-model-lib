@@ -7,6 +7,7 @@ import ru.citeck.ecos.model.lib.permissions.repo.PermissionsRepo
 import ru.citeck.ecos.model.lib.permissions.service.RecordPermsService
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
+import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.dto.TypePermsDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
@@ -33,17 +34,19 @@ open class PermsTestBase {
         services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
-                    override fun getModel(typeRef: RecordRef): TypeModelDef {
+                    override fun getTypeInfo(typeRef: RecordRef): TypeInfo? {
                         if (typeRef.id == "test-type") {
-                            return TypeModelDef.create()
-                                .withRoles(typeRoles.map { RoleDef.create().withId(it).build() })
-                                .withStatuses(typeStatuses.map { StatusDef.create().withId(it).build() })
-                                .build()
+                            return TypeInfo.create {
+                                withId(typeRef.id)
+                                withModel(
+                                    TypeModelDef.create()
+                                        .withRoles(typeRoles.map { RoleDef.create().withId(it).build() })
+                                        .withStatuses(typeStatuses.map { StatusDef.create().withId(it).build() })
+                                        .build()
+                                )
+                            }
                         }
-                        return TypeModelDef.EMPTY
-                    }
-                    override fun getParent(typeRef: RecordRef): RecordRef {
-                        return RecordRef.EMPTY
+                        return null
                     }
                     override fun getChildren(typeRef: RecordRef): List<RecordRef> {
                         return emptyList()

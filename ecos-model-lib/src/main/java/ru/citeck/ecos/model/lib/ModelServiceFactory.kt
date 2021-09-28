@@ -1,5 +1,11 @@
 package ru.citeck.ecos.model.lib
 
+import ru.citeck.ecos.model.lib.api.DefaultModelAppApi
+import ru.citeck.ecos.model.lib.api.EcosModelAppApi
+import ru.citeck.ecos.model.lib.attributes.computed.ComputedAttsService
+import ru.citeck.ecos.model.lib.num.repo.DefaultNumTemplatesRepo
+import ru.citeck.ecos.model.lib.num.repo.NumTemplatesRepo
+import ru.citeck.ecos.model.lib.num.service.EcosNumService
 import ru.citeck.ecos.model.lib.permissions.repo.DefaultPermissionsRepo
 import ru.citeck.ecos.model.lib.permissions.repo.PermissionsRepo
 import ru.citeck.ecos.model.lib.permissions.service.PermsEvaluator
@@ -10,6 +16,7 @@ import ru.citeck.ecos.model.lib.role.service.auth.DefaultAuthorityComponent
 import ru.citeck.ecos.model.lib.status.service.StatusService
 import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
+import ru.citeck.ecos.model.lib.type.service.RecordTypeServiceImpl
 import ru.citeck.ecos.model.lib.type.service.TypeRefService
 import ru.citeck.ecos.records3.RecordsServiceFactory
 
@@ -22,8 +29,12 @@ open class ModelServiceFactory {
     val roleService: RoleService by lazy { createRoleService() }
     val statusService: StatusService by lazy { createStatusService() }
     val authorityComponent: AuthorityComponent by lazy { createAuthorityComponent() }
+    val ecosModelAppApi: EcosModelAppApi by lazy { createEcosModelAppApi() }
+    val ecosNumService: EcosNumService by lazy { createEcosNumService() }
+    val computedAttsService: ComputedAttsService by lazy { createComputedAttsToStoreService() }
 
     val typesRepo: TypesRepo by lazy { createTypesRepo() }
+    val numTemplatesRepo: NumTemplatesRepo by lazy { createNumTemplatesRepo() }
 
     lateinit var records: RecordsServiceFactory
         private set
@@ -52,6 +63,10 @@ open class ModelServiceFactory {
         return DefaultPermissionsRepo()
     }
 
+    protected open fun createNumTemplatesRepo(): NumTemplatesRepo {
+        return DefaultNumTemplatesRepo()
+    }
+
     protected open fun createRecordPermsService(): RecordPermsService {
         return RecordPermsService(this)
     }
@@ -60,8 +75,20 @@ open class ModelServiceFactory {
         return DefaultAuthorityComponent()
     }
 
+    protected open fun createEcosModelAppApi(): EcosModelAppApi {
+        return DefaultModelAppApi()
+    }
+
+    protected open fun createEcosNumService(): EcosNumService {
+        return EcosNumService(this)
+    }
+
+    protected open fun createComputedAttsToStoreService(): ComputedAttsService {
+        return ComputedAttsService(this)
+    }
+
     open fun setRecordsServices(services: RecordsServiceFactory) {
         this.records = services
-        services.setRecordTypeService(typeRefService)
+        services.setRecordTypeService(RecordTypeServiceImpl(this))
     }
 }

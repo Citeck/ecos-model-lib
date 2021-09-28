@@ -22,7 +22,7 @@ class StatusService(services: ModelServiceFactory) {
 
         typeRef ?: return emptyMap()
 
-        val statuses = typesRepo.getModel(typeRef).statuses
+        val statuses = typesRepo.getTypeInfo(typeRef)?.model?.statuses ?: emptyList()
 
         val result = LinkedHashMap<String, StatusDef>()
         for (status in statuses) {

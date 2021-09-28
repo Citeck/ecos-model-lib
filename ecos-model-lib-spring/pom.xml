@@ -32,9 +32,15 @@
         </dependency>
 
         <dependency>
-            <groupId>ru.citeck.ecos.records</groupId>
-            <artifactId>ecos-records-spring</artifactId>
-            <version>${ecos.records.version}</version>
+            <groupId>ru.citeck.ecos.model</groupId>
+            <artifactId>ecos-model-lib-commands</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.citeck.ecos</groupId>
+            <artifactId>ecos-commands</artifactId>
+            <version>${ecos.commands.version}</version>
             <scope>provided</scope>
         </dependency>
 

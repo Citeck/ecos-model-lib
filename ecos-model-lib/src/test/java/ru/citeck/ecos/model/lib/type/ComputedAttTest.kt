@@ -5,14 +5,15 @@ import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
+import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttDef
+import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
+import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttDef
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import kotlin.test.assertEquals
 
@@ -60,13 +61,13 @@ class ComputedAttTest {
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
-
-                    override fun getParent(typeRef: RecordRef): RecordRef {
-                        return RecordRef.EMPTY
-                    }
-
-                    override fun getModel(typeRef: RecordRef): TypeModelDef {
-                        return modelByRef[typeRef.id] ?: TypeModelDef.EMPTY
+                    override fun getTypeInfo(typeRef: RecordRef): TypeInfo? {
+                        return modelByRef[typeRef.id]?.let { model ->
+                            TypeInfo.create {
+                                withId(typeRef.id)
+                                withModel(model)
+                            }
+                        }
                     }
                     override fun getChildren(typeRef: RecordRef): List<RecordRef> {
                         return emptyList()

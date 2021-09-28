@@ -4,7 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.type.api.records.TypesMixin
-import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
+import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
 import ru.citeck.ecos.records2.RecordRef
@@ -28,15 +28,20 @@ class TypesMixinTest {
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
-                    override fun getModel(typeRef: RecordRef): TypeModelDef {
-                        return TypeModelDef.EMPTY
-                    }
-                    override fun getParent(typeRef: RecordRef): RecordRef {
-                        return types.firstOrNull {
+                    override fun getTypeInfo(typeRef: RecordRef): TypeInfo? {
+                        val parentRef = types.firstOrNull {
                             it.id == typeRef.id
                         }?.let {
                             TypeUtils.getTypeRef(it.parent)
                         } ?: RecordRef.EMPTY
+
+                        return if (RecordRef.isEmpty(parentRef)) {
+                            null
+                        } else {
+                            TypeInfo.create()
+                                .withParentRef(parentRef)
+                                .build()
+                        }
                     }
                     override fun getChildren(typeRef: RecordRef): List<RecordRef> {
                         return emptyList()

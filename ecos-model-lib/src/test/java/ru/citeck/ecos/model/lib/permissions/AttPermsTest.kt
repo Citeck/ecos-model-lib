@@ -8,6 +8,7 @@ import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
 import ru.citeck.ecos.model.lib.permissions.repo.PermissionsRepo
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
+import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.dto.TypePermsDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
@@ -68,14 +69,10 @@ class AttPermsTest {
 
                 return object : TypesRepo {
 
-                    override fun getParent(typeRef: RecordRef): RecordRef {
-                        return RecordRef.EMPTY
-                    }
-
-                    override fun getModel(typeRef: RecordRef): TypeModelDef {
+                    override fun getTypeInfo(typeRef: RecordRef): TypeInfo? {
 
                         if ("test-type" == typeRef.id) {
-                            return TypeModelDef.create {
+                            val model = TypeModelDef.create {
                                 withAttributes(
                                     listOf(
                                         AttributeDef.create {
@@ -104,8 +101,12 @@ class AttPermsTest {
                                     )
                                 )
                             }
+                            return TypeInfo.create {
+                                withId(typeRef.id)
+                                withModel(model)
+                            }
                         }
-                        return TypeModelDef.EMPTY
+                        return null
                     }
 
                     override fun getChildren(typeRef: RecordRef): List<RecordRef> {

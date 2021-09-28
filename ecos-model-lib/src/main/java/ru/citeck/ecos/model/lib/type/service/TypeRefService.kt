@@ -3,11 +3,8 @@ package ru.citeck.ecos.model.lib.type.service
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAtt
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
-import ru.citeck.ecos.records3.record.type.RecordTypeService
 
-class TypeRefService(services: ModelServiceFactory) : RecordTypeService {
+class TypeRefService(services: ModelServiceFactory) {
 
     companion object {
         private const val SUB_TYPE_MAX_ITERATIONS = 100
@@ -16,25 +13,17 @@ class TypeRefService(services: ModelServiceFactory) : RecordTypeService {
     private val typesRepo = services.typesRepo
     private val recordsService = services.records.recordsServiceV1
 
-    override fun getComputedAtts(typeRef: RecordRef): List<ComputedAtt> {
-        return typesRepo.getModel(typeRef).attributes.filter {
-            it.computed.type != ComputedAttType.NONE
-        }.map {
-            ComputedAtt(it.id, it.computed)
-        }
-    }
-
     fun isSubType(type: RecordRef, ofType: RecordRef): Boolean {
         if (type == ofType) {
             return true
         }
         var idx = 0
-        var parent: RecordRef = typesRepo.getParent(type)
+        var parent: RecordRef = getParentRef(type)
         while (idx++ < SUB_TYPE_MAX_ITERATIONS && RecordRef.isNotEmpty(parent)) {
             if (parent.id == ofType.id) {
                 return true
             }
-            parent = typesRepo.getParent(parent)
+            parent = getParentRef(parent)
         }
         return false
     }
@@ -62,6 +51,10 @@ class TypeRefService(services: ModelServiceFactory) : RecordTypeService {
         return result
     }
 
+    fun getParentRef(typeRef: RecordRef): RecordRef {
+        return typesRepo.getTypeInfo(typeRef)?.parentRef ?: RecordRef.EMPTY
+    }
+
     fun <T : Any> forEachAsc(typeRef: RecordRef, action: (RecordRef) -> T?): T? {
 
         val visited = LinkedHashSet<RecordRef>()
@@ -72,7 +65,7 @@ class TypeRefService(services: ModelServiceFactory) : RecordTypeService {
             if (res != null) {
                 return res
             }
-            itTypeRef = typesRepo.getParent(itTypeRef)
+            itTypeRef = getParentRef(itTypeRef)
             if (!visited.add(itTypeRef)) {
                 error("Cyclic type references: $visited $itTypeRef")
             }

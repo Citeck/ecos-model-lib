@@ -4,14 +4,15 @@ import org.junit.jupiter.api.Test
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.model.lib.role.dto.RoleComputedDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
+import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsServiceFactory
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import kotlin.test.assertEquals
 
@@ -28,9 +29,10 @@ class RoleServiceTest {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
 
-                    override fun getModel(typeRef: RecordRef): TypeModelDef {
+                    override fun getTypeInfo(typeRef: RecordRef): TypeInfo? {
+
                         if (typeRef == RecordDto.RECORD_TYPE_REF) {
-                            return TypeModelDef.create {
+                            val model = TypeModelDef.create {
                                 roles = listOf(
                                     RoleDef.create {
                                         id = roleId
@@ -56,14 +58,13 @@ class RoleServiceTest {
                                     }
                                 )
                             }
+                            return TypeInfo.create {
+                                withId(typeRef.id)
+                                withModel(model)
+                            }
                         }
-                        return TypeModelDef.EMPTY
+                        return null
                     }
-
-                    override fun getParent(typeRef: RecordRef): RecordRef {
-                        return RecordRef.EMPTY
-                    }
-
                     override fun getChildren(typeRef: RecordRef): List<RecordRef> {
                         return emptyList()
                     }

@@ -5,6 +5,7 @@ import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
+import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
@@ -27,16 +28,9 @@ class StatusServiceTest {
 
                 return object : TypesRepo {
 
-                    override fun getParent(typeRef: RecordRef): RecordRef {
-                        if (typeRef == RecordDto.RECORD_TYPE_REF_CHILD) {
-                            return RecordDto.RECORD_TYPE_REF
-                        }
-                        return RecordRef.EMPTY
-                    }
-
-                    override fun getModel(typeRef: RecordRef): TypeModelDef {
+                    override fun getTypeInfo(typeRef: RecordRef): TypeInfo? {
                         if (typeRef == RecordDto.RECORD_TYPE_REF || typeRef == RecordDto.RECORD_TYPE_REF_CHILD) {
-                            return TypeModelDef.create {
+                            val model = TypeModelDef.create {
                                 statuses = listOf(
                                     StatusDef.create {
                                         id = statusDraft
@@ -48,8 +42,18 @@ class StatusServiceTest {
                                     }
                                 )
                             }
+                            val parentRef = if (typeRef == RecordDto.RECORD_TYPE_REF_CHILD) {
+                                RecordDto.RECORD_TYPE_REF
+                            } else {
+                                RecordRef.EMPTY
+                            }
+                            return TypeInfo.create {
+                                withId(typeRef.id)
+                                withParentRef(parentRef)
+                                withModel(model)
+                            }
                         }
-                        return TypeModelDef.EMPTY
+                        return null
                     }
                     override fun getChildren(typeRef: RecordRef): List<RecordRef> {
                         return emptyList()

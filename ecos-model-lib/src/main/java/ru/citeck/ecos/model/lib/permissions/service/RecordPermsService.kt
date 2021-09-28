@@ -8,6 +8,7 @@ import ru.citeck.ecos.model.lib.permissions.service.roles.AttributePermissionsIm
 import ru.citeck.ecos.model.lib.permissions.service.roles.RolesPermissions
 import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.status.constants.StatusConstants
+import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
 import ru.citeck.ecos.records2.RecordRef
 
@@ -81,7 +82,7 @@ class RecordPermsService(services: ModelServiceFactory) {
             return null
         }
 
-        val typeModel = typesRepo.getModel(typeRef)
+        val typeModel = typesRepo.getTypeInfo(typeRef)?.model ?: TypeModelDef.EMPTY
 
         return PermsEvalContext(
             typeRef,

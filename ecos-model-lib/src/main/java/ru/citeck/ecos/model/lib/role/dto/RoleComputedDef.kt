@@ -3,7 +3,7 @@ package ru.citeck.ecos.model.lib.role.dto
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
+import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 
 @IncludeNonDefault
 @JsonDeserialize(builder = RoleComputedDef.Builder::class)
