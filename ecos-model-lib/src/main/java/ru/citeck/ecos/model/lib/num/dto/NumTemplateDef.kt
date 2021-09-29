@@ -17,10 +17,12 @@ data class NumTemplateDef(
 
     companion object {
 
+        @JvmStatic
         fun create(): Builder {
             return Builder()
         }
 
+        @JvmStatic
         fun create(builder: Builder.() -> Unit): NumTemplateDef {
             val builderObj = Builder()
             builder.invoke(builderObj)

@@ -18,10 +18,12 @@ data class TypeInfo(
 ) {
     companion object {
 
+        @JvmStatic
         fun create(): Builder {
             return Builder()
         }
 
+        @JvmStatic
         fun create(builder: Builder.() -> Unit): TypeInfo {
             val builderObj = Builder()
             builder.invoke(builderObj)

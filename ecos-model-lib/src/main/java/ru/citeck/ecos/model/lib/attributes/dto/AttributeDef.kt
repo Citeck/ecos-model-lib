@@ -23,10 +23,12 @@ data class AttributeDef(
 
     companion object {
 
+        @JvmStatic
         fun create(): Builder {
             return Builder()
         }
 
+        @JvmStatic
         fun create(builder: Builder.() -> Unit): AttributeDef {
             val builderObj = Builder()
             builder.invoke(builderObj)
