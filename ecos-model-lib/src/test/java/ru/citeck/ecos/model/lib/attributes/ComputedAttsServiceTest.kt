@@ -77,16 +77,16 @@ class ComputedAttsServiceTest {
         }
 
         val attsWithName = attsToStore.computeAttsToStore(value, true)
-        assertThat(attsWithName.size()).isEqualTo(1)
-        assertThat(attsWithName.get("_disp").getAs(MLText::class.java)).isEqualTo(typeName)
+        assertThat(attsWithName.size()).isEqualTo(0)
+        assertThat(attsToStore.computeDisplayName(value)).isEqualTo(typeName)
 
         typeInfoByRef[testTypeRef] = TypeInfo.create {
             withId(testTypeRef.id)
         }
 
         val attsWithName2 = attsToStore.computeAttsToStore(value, true)
-        assertThat(attsWithName2.size()).isEqualTo(1)
-        assertThat(attsWithName2.get("_disp").getAs(MLText::class.java)).isEqualTo(MLText(testTypeRef.id))
+        assertThat(attsWithName2.size()).isEqualTo(0)
+        assertThat(attsToStore.computeDisplayName(value)).isEqualTo(MLText(testTypeRef.id))
 
         typeInfoByRef[testTypeRef] = TypeInfo.create {
             withId(testTypeRef.id)
@@ -94,15 +94,15 @@ class ComputedAttsServiceTest {
         }
 
         val counterAtts = attsToStore.computeAttsToStore(value, true)
-        assertThat(counterAtts.size()).isEqualTo(2)
+        assertThat(counterAtts.size()).isEqualTo(1)
         assertThat(counterAtts.get("_docNum").asLong()).isEqualTo(0L)
 
         val counterAtts2 = attsToStore.computeAttsToStore(value, true)
-        assertThat(counterAtts2.size()).isEqualTo(2)
+        assertThat(counterAtts2.size()).isEqualTo(1)
         assertThat(counterAtts2.get("_docNum").asLong()).isEqualTo(1L)
 
         val counterAtts3 = attsToStore.computeAttsToStore(value, false)
-        assertThat(counterAtts3.size()).isEqualTo(1)
+        assertThat(counterAtts3.size()).isEqualTo(0)
         assertThat(counterAtts3.get("_docNum").isNull()).isTrue
 
         typeInfoByRef[testTypeRef] = TypeInfo.create {
@@ -139,7 +139,7 @@ class ComputedAttsServiceTest {
         }
 
         val attsForNewRec = attsToStore.computeAttsToStore(value, true)
-        assertThat(attsForNewRec.size()).isEqualTo(4)
+        assertThat(attsForNewRec.size()).isEqualTo(3)
 
         assertThat(attsForNewRec.get("storing-none").asText()).isEqualTo("")
         assertThat(attsForNewRec.get("storing-on-create").asText()).isEqualTo(computedAttValue)

@@ -76,34 +76,50 @@ class ComputedAttsService(services: ModelServiceFactory) {
             }
         }
 
-        resultAtts[RecordConstants.ATT_DISP] = getDisplayName(valueToEval, typeInfo)
-
         return ObjectData.create(resultAtts)
     }
 
-    private fun getDisplayName(value: Any, typeInfo: TypeInfo): MLText {
+    fun computeDisplayName(value: Any): MLText {
+        val typeRef = recordsService.getAtt(value, "_type?id").asText()
+        if (typeRef.isBlank()) {
+            return MLText.EMPTY
+        }
+        return computeDisplayName(value, RecordRef.valueOf(typeRef))
+    }
+
+    fun computeDisplayName(value: Any, typeRef: RecordRef): MLText {
+        val typeInfo = typesRepo.getTypeInfo(typeRef) ?: return MLText.EMPTY
+        return computeDisplayName(value, typeInfo)
+    }
+
+    fun computeDisplayName(value: Any, typeInfo: TypeInfo): MLText {
 
         if (!MLText.isEmpty(typeInfo.dispNameTemplate)) {
             return recordsTemplateService.resolve(typeInfo.dispNameTemplate, value)
         }
 
-        var resName: MLText? = null
-        val valueName = recordsService.getAtt(value, "name?raw")
-        if (valueName.isObject()) {
-            resName = valueName.getAs(MLText::class.java)
-        } else if (valueName.isTextual()) {
-            val strValue = valueName.asText()
-            if (strValue.isNotBlank()) {
-                resName = MLText(strValue)
-            }
-        }
+        var resName = getMLText(value, "name")
         if (MLText.isEmpty(resName) && !MLText.isEmpty(typeInfo.name)) {
             resName = typeInfo.name
         }
         if (MLText.isEmpty(resName) && typeInfo.id.isNotBlank()) {
             resName = MLText(typeInfo.id)
         }
-        return resName ?: MLText.EMPTY
+        return resName
+    }
+
+    private fun getMLText(value: Any, attName: String): MLText {
+        var result: MLText = MLText.EMPTY
+        val valueName = recordsService.getAtt(value, "$attName?raw")
+        if (valueName.isObject()) {
+            result = valueName.getAs(MLText::class.java) ?: MLText.EMPTY
+        } else if (valueName.isTextual()) {
+            val strValue = valueName.asText()
+            if (strValue.isNotBlank()) {
+                result = MLText(strValue)
+            }
+        }
+        return result
     }
 
     private fun computeAttToStore(
