@@ -16,6 +16,7 @@ import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
 import ru.citeck.ecos.model.lib.type.dto.CreateVariantDef
 import ru.citeck.ecos.model.lib.type.dto.DocLibDef
+import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsServiceFactory
@@ -23,6 +24,34 @@ import java.util.*
 import kotlin.test.assertEquals
 
 class TypeDefTest {
+
+    @Test
+    fun typeInfoTest() {
+
+        val typeInfo = TypeInfo.create {
+            withId("some-id")
+            withName(
+                MLText(
+                    Locale.ENGLISH to "en",
+                    Locale.FRANCE to "fr"
+                )
+            )
+            withSourceId("source-id")
+            withNumTemplateRef(RecordRef.create("abc", "def", "hig"))
+            withParentRef(RecordRef.create("abc", "def", "hig"))
+            withDispNameTemplate(
+                MLText(
+                    Locale.ENGLISH to "disp-en",
+                    Locale.FRANCE to "disp-fr"
+                )
+            )
+            withModel(TypeModelDef.create().build())
+        }
+        val typeInfoFromJson = Json.mapper.convert(Json.mapper.toJson(typeInfo), TypeInfo::class.java)
+        assertThat(typeInfoFromJson).isEqualTo(typeInfo)
+        val typeInfoFromCopy = typeInfo.copy().build()
+        assertThat(typeInfoFromCopy).isEqualTo(typeInfo)
+    }
 
     @Test
     fun computedAttTest() {

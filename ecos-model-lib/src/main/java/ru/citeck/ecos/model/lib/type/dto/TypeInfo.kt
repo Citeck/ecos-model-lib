@@ -3,14 +3,14 @@ package ru.citeck.ecos.model.lib.type.dto
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
-import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.records2.RecordRef
 
 @IncludeNonDefault
-@JsonDeserialize(builder = AttributeDef.Builder::class)
+@JsonDeserialize(builder = TypeInfo.Builder::class)
 data class TypeInfo(
     val id: String,
     val name: MLText,
+    val sourceId: String,
     val parentRef: RecordRef,
     val dispNameTemplate: MLText,
     val numTemplateRef: RecordRef,
@@ -45,6 +45,7 @@ data class TypeInfo(
 
         var id: String = ""
         var name: MLText = MLText.EMPTY
+        var sourceId: String = ""
         var parentRef: RecordRef = RecordRef.EMPTY
         var dispNameTemplate: MLText = MLText.EMPTY
         var numTemplateRef: RecordRef = RecordRef.EMPTY
@@ -53,6 +54,7 @@ data class TypeInfo(
         constructor(base: TypeInfo) : this() {
             id = base.id
             name = base.name
+            sourceId = base.sourceId
             parentRef = base.parentRef
             dispNameTemplate = base.dispNameTemplate
             numTemplateRef = base.numTemplateRef
@@ -66,6 +68,11 @@ data class TypeInfo(
 
         fun withName(name: MLText): Builder {
             this.name = name
+            return this
+        }
+
+        fun withSourceId(sourceId: String): Builder {
+            this.sourceId = sourceId
             return this
         }
 
@@ -93,6 +100,7 @@ data class TypeInfo(
             return TypeInfo(
                 id,
                 name,
+                sourceId,
                 parentRef,
                 dispNameTemplate,
                 numTemplateRef,
