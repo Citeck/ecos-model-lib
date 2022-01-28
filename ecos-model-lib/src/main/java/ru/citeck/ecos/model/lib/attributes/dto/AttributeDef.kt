@@ -18,7 +18,8 @@ data class AttributeDef(
     val multiple: Boolean,
     val mandatory: Boolean,
     val computed: ComputedAttDef,
-    val constraint: AttConstraintDef
+    val constraint: AttConstraintDef,
+    val index: AttIndexDef
 ) {
 
     companion object {
@@ -56,6 +57,7 @@ data class AttributeDef(
         var mandatory: Boolean = false
         var computed: ComputedAttDef = ComputedAttDef.EMPTY
         var constraint: AttConstraintDef = AttConstraintDef.EMPTY
+        var index: AttIndexDef = AttIndexDef.EMPTY
 
         constructor(base: AttributeDef) : this() {
             id = base.id
@@ -66,6 +68,7 @@ data class AttributeDef(
             mandatory = base.mandatory
             computed = base.computed
             constraint = base.constraint
+            index = base.index
         }
 
         fun withId(id: String): Builder {
@@ -108,8 +111,23 @@ data class AttributeDef(
             return this
         }
 
+        fun withIndex(index: AttIndexDef?): Builder {
+            this.index = index ?: AttIndexDef.EMPTY
+            return this
+        }
+
         fun build(): AttributeDef {
-            return AttributeDef(id, name, type, config, multiple, mandatory, computed, constraint)
+            return AttributeDef(
+                id = id,
+                name = name,
+                type = type,
+                config = config,
+                multiple = multiple,
+                mandatory = mandatory,
+                computed = computed,
+                constraint = constraint,
+                index = index
+            )
         }
     }
 }

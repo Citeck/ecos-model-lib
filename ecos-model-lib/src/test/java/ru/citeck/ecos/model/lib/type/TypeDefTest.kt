@@ -7,6 +7,7 @@ import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.model.lib.attributes.dto.AttConstraintDef
+import ru.citeck.ecos.model.lib.attributes.dto.AttIndexDef
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeType
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttDef
@@ -24,6 +25,32 @@ import java.util.*
 import kotlin.test.assertEquals
 
 class TypeDefTest {
+
+    @Test
+    fun indexTest() {
+
+        val index = AttIndexDef.create()
+            .withEnabled(true)
+            .build()
+
+        assertThat(Json.mapper.toNonDefaultJson(index).toString()).isEqualTo("{\"enabled\":true}")
+
+        val att = AttributeDef.create()
+            .withId("id")
+            .withIndex(index)
+            .build()
+
+        assertThat(Json.mapper.toNonDefaultJson(att).toString()).isEqualTo("{\"id\":\"id\",\"index\":{\"enabled\":true}}")
+
+        val typeInfo = TypeInfo.create()
+            .withModel(
+                TypeModelDef.create()
+                    .withSystemAttributes(listOf(att))
+                    .build()
+            ).build()
+
+        println(Json.mapper.toNonDefaultJson(typeInfo))
+    }
 
     @Test
     fun typeInfoTest() {
@@ -45,7 +72,48 @@ class TypeDefTest {
                     Locale.FRANCE to "disp-fr"
                 )
             )
-            withModel(TypeModelDef.create().build())
+            withModel(
+                TypeModelDef.create()
+                    .withAttributes(
+                        listOf(
+                            AttributeDef.create {
+                                withId("abc")
+                                withType(AttributeType.AUTHORITY)
+                                withMandatory(true)
+                                withMultiple(true)
+                                withConfig(ObjectData.create("""{"aa":"bb"}"""))
+                                withComputed(
+                                    ComputedAttDef.create {
+                                        withId("com-id")
+                                        withType(ComputedAttType.SCRIPT)
+                                        withConfig(ObjectData.create("""{"cc":"dd"}"""))
+                                        withStoringType(ComputedAttStoringType.ON_CREATE)
+                                    }
+                                )
+                            }
+                        )
+                    )
+                    .withSystemAttributes(
+                        listOf(
+                            AttributeDef.create {
+                                withId("abc")
+                                withType(AttributeType.AUTHORITY)
+                                withMandatory(true)
+                                withMultiple(true)
+                                withConfig(ObjectData.create("""{"aa":"bb"}"""))
+                                withComputed(
+                                    ComputedAttDef.create {
+                                        withId("com-id")
+                                        withType(ComputedAttType.SCRIPT)
+                                        withConfig(ObjectData.create("""{"cc":"dd"}"""))
+                                        withStoringType(ComputedAttStoringType.ON_CREATE)
+                                    }
+                                )
+                            }
+                        )
+                    )
+                    .build()
+            )
         }
         val typeInfoFromJson = Json.mapper.convert(Json.mapper.toJson(typeInfo), TypeInfo::class.java)
         assertThat(typeInfoFromJson).isEqualTo(typeInfo)
@@ -155,6 +223,34 @@ class TypeDefTest {
                             "test-constraint2",
                             ObjectData.create("""{"aa3":"b4b"}""")
                         )
+                    )
+                }
+            ),
+            listOf(
+                AttributeDef.create {
+                    withId("test-att22")
+                    withComputed(
+                        ComputedAttDef.create {
+                            withType(ComputedAttType.VALUE)
+                            withConfig(ObjectData.create("""{"a1a3":"bb13","c1c2":"dd12"}"""))
+                            withStoringType(ComputedAttStoringType.ON_CREATE)
+                        }
+                    )
+                    withName(MLText("Content"))
+                    withType(AttributeType.ASSOC)
+                    withConfig(ObjectData.create("""{"a1a3":"b1b3","c1c2":"d1d2"}"""))
+                    withMultiple(true)
+                    withMandatory(true)
+                    withConstraint(
+                        AttConstraintDef(
+                            "test-constraint2",
+                            ObjectData.create("""{"aa3":"b4b"}""")
+                        )
+                    )
+                    withIndex(
+                        AttIndexDef.create()
+                            .withEnabled(true)
+                            .build()
                     )
                 }
             )

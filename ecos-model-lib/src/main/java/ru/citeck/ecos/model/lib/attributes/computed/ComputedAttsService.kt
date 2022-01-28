@@ -51,7 +51,7 @@ class ComputedAttsService(services: ModelServiceFactory) {
                 withStoringType(ComputedAttStoringType.ON_CREATE)
             }
         }
-        val attributes = typeInfo.model.attributes
+        val attributes = typeInfo.model.getAllAttributes()
         for (attribute in attributes) {
             if (attribute.computed.storingType == ComputedAttStoringType.NONE ||
                 attribute.computed.type == ComputedAttType.NONE

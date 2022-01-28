@@ -13,7 +13,7 @@ class RecordTypeServiceImpl(services: ModelServiceFactory) : RecordTypeService {
 
     override fun getComputedAtts(typeRef: RecordRef): List<RecordComputedAtt> {
         val result = mutableListOf<RecordComputedAtt>()
-        val typeAtts = typesRepo.getTypeInfo(typeRef)?.model?.attributes ?: emptyList()
+        val typeAtts = typesRepo.getTypeInfo(typeRef)?.model?.getAllAttributes() ?: emptyList()
         for (att in typeAtts) {
             val computed = att.computed
             if (computed.storingType != ComputedAttStoringType.NONE) {

@@ -16,7 +16,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 data class TypeModelDef(
     val roles: List<RoleDef>,
     val statuses: List<StatusDef>,
-    val attributes: List<AttributeDef>
+    val attributes: List<AttributeDef>,
+    val systemAttributes: List<AttributeDef>
 ) {
 
     companion object {
@@ -49,8 +50,20 @@ data class TypeModelDef(
 
     @JsonIgnore
     @JackJsonIgnore
+    fun getAllAttributes(): List<AttributeDef> {
+        val result = ArrayList<AttributeDef>()
+        result.addAll(attributes)
+        result.addAll(systemAttributes)
+        return result
+    }
+
+    @JsonIgnore
+    @JackJsonIgnore
     fun isEmpty(): Boolean {
-        return roles.isEmpty() && statuses.isEmpty() && attributes.isEmpty()
+        return roles.isEmpty() &&
+            statuses.isEmpty() &&
+            attributes.isEmpty() &&
+            systemAttributes.isEmpty()
     }
 
     class Builder() {
@@ -58,11 +71,13 @@ data class TypeModelDef(
         var roles: List<RoleDef> = emptyList()
         var statuses: List<StatusDef> = emptyList()
         var attributes: List<AttributeDef> = emptyList()
+        var systemAttributes: List<AttributeDef> = emptyList()
 
         constructor(base: TypeModelDef) : this() {
             this.roles = DataValue.create(base.roles).asList(RoleDef::class.java)
             this.statuses = DataValue.create(base.statuses).asList(StatusDef::class.java)
             this.attributes = DataValue.create(base.attributes).asList(AttributeDef::class.java)
+            this.systemAttributes = DataValue.create(base.systemAttributes).asList(AttributeDef::class.java)
         }
 
         fun withRoles(roles: List<RoleDef>?): Builder {
@@ -80,8 +95,13 @@ data class TypeModelDef(
             return this
         }
 
+        fun withSystemAttributes(systemAttributes: List<AttributeDef>?): Builder {
+            this.systemAttributes = systemAttributes?.filter { it.id.isNotBlank() } ?: emptyList()
+            return this
+        }
+
         fun build(): TypeModelDef {
-            return TypeModelDef(roles, statuses, attributes)
+            return TypeModelDef(roles, statuses, attributes, systemAttributes)
         }
     }
 }
