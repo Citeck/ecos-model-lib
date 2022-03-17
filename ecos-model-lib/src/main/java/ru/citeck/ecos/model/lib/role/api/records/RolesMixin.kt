@@ -26,7 +26,7 @@ class RolesMixin(val service: RoleService) : AttMixin {
 
     inner class RolesAttValue(private val valueRef: RecordRef) : AttValue {
 
-        override fun getAtt(name: String?): Any? {
+        override fun getAtt(name: String): Any? {
             return when (name) {
                 RoleConstants.ATT_IS_CURRENT_USER_MEMBER_OF -> IsMemberOfRoleValue(valueRef)
                 RoleConstants.ATT_ASSIGNEES_OF -> AssigneesOfRoleValue(valueRef)

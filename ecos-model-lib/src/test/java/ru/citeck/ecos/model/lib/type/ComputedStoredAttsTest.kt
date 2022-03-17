@@ -19,7 +19,6 @@ import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.schema.resolver.AttContext
 import ru.citeck.ecos.records3.record.atts.value.AttValue
 import ru.citeck.ecos.records3.record.request.RequestContext
-import kotlin.test.assertEquals
 
 class ComputedStoredAttsTest {
 
@@ -48,35 +47,43 @@ class ComputedStoredAttsTest {
             },
             AttributeDef.create {
                 withId(ON_EMPTY_ATT)
-                withComputed(ComputedAttDef.create {
-                    this.withStoringType(ComputedAttStoringType.ON_EMPTY)
-                    this.withType(ComputedAttType.TEMPLATE)
-                    this.withConfig(computedTemplateConfig)
-                })
+                withComputed(
+                    ComputedAttDef.create {
+                        this.withStoringType(ComputedAttStoringType.ON_EMPTY)
+                        this.withType(ComputedAttType.TEMPLATE)
+                        this.withConfig(computedTemplateConfig)
+                    }
+                )
             },
             AttributeDef.create {
                 withId(ON_CREATE_ATT)
-                withComputed(ComputedAttDef.create {
-                    this.withStoringType(ComputedAttStoringType.ON_CREATE)
-                    this.withType(ComputedAttType.TEMPLATE)
-                    this.withConfig(computedTemplateConfig)
-                })
+                withComputed(
+                    ComputedAttDef.create {
+                        this.withStoringType(ComputedAttStoringType.ON_CREATE)
+                        this.withType(ComputedAttType.TEMPLATE)
+                        this.withConfig(computedTemplateConfig)
+                    }
+                )
             },
             AttributeDef.create {
                 withId(ON_MUTATE_ATT)
-                withComputed(ComputedAttDef.create {
-                    this.withStoringType(ComputedAttStoringType.ON_MUTATE)
-                    this.withType(ComputedAttType.TEMPLATE)
-                    this.withConfig(computedTemplateConfig)
-                })
+                withComputed(
+                    ComputedAttDef.create {
+                        this.withStoringType(ComputedAttStoringType.ON_MUTATE)
+                        this.withType(ComputedAttType.TEMPLATE)
+                        this.withConfig(computedTemplateConfig)
+                    }
+                )
             },
             AttributeDef.create {
                 withId(NONE_ATT)
-                withComputed(ComputedAttDef.create {
-                    this.withStoringType(ComputedAttStoringType.NONE)
-                    this.withType(ComputedAttType.TEMPLATE)
-                    this.withConfig(computedTemplateConfig)
-                })
+                withComputed(
+                    ComputedAttDef.create {
+                        this.withStoringType(ComputedAttStoringType.NONE)
+                        this.withType(ComputedAttType.TEMPLATE)
+                        this.withConfig(computedTemplateConfig)
+                    }
+                )
             }
         )
 
