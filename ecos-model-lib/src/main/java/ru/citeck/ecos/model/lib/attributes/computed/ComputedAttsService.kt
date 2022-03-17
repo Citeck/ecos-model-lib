@@ -170,7 +170,7 @@ class ComputedAttsService(services: ModelServiceFactory) {
 
     private class ValueWithData(value: AttValue, val data: Map<String, Any?>) : AttValueDelegate(value) {
 
-        override fun getAtt(name: String?): Any? {
+        override fun getAtt(name: String): Any? {
             if (data.containsKey(name)) {
                 return data[name]
             }
