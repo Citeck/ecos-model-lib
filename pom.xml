@@ -12,7 +12,7 @@
 
     <properties>
 
-        <revision>2.11.0</revision>
+        <revision>2.12.0</revision>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -28,12 +28,13 @@
         <jackson.version>2.3.2</jackson.version>
 
         <ecos.jackson.version>2.10.4.3</ecos.jackson.version>
-        <ecos.commons.version>2.5.4</ecos.commons.version>
-        <ecos.records.version>3.44.0</ecos.records.version>
-        <ecos.context-lib.version>1.1.4</ecos.context-lib.version>
-        <ecos.commands.version>2.4.0</ecos.commands.version>
+        <ecos.commons.version>2.6.7</ecos.commons.version>
+        <ecos.records.version>3.47.5</ecos.records.version>
+        <ecos.context-lib.version>1.2.1</ecos.context-lib.version>
+        <ecos.commands.version>2.7.1</ecos.commands.version>
+        <ecos.webapp-api.version>1.0.5</ecos.webapp-api.version>
 
-        <kotlin.version>1.5.30</kotlin.version>
+        <kotlin.version>1.6.21</kotlin.version>
         <kotlin.logging.version>1.12.5</kotlin.logging.version>
 
     </properties>
@@ -44,6 +45,13 @@
             <groupId>ru.citeck.ecos.context</groupId>
             <artifactId>ecos-context-lib</artifactId>
             <version>${ecos.context-lib.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.citeck.ecos.webapp</groupId>
+            <artifactId>ecos-webapp-api</artifactId>
+            <version>${ecos.webapp-api.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -66,6 +74,13 @@
             <artifactId>ecos-commons</artifactId>
             <version>${ecos.commons.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.citeck.ecos.commons</groupId>
+            <artifactId>ecos-commons-test</artifactId>
+            <version>${ecos.commons.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -220,7 +235,7 @@
                 <plugin>
                     <groupId>com.github.gantsign.maven</groupId>
                     <artifactId>ktlint-maven-plugin</artifactId>
-                    <version>1.7.0</version>
+                    <version>1.13.1</version>
                     <executions>
                         <execution>
                             <id>format</id>

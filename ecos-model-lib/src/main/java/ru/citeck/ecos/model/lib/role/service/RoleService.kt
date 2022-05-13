@@ -15,7 +15,7 @@ class RoleService(services: ModelServiceFactory) {
     private val recordsService = services.records.recordsServiceV1
     private val typesRepo = services.typesRepo
     private val authorityComponent = services.authorityComponent
-    private val currentAppName = services.records.properties.appName
+    private val currentAppName = services.webappProps.appName
 
     fun getRolesId(typeRef: RecordRef?): List<String> {
         return getRoles(typeRef).map { it.id }

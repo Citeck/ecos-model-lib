@@ -36,7 +36,8 @@ class RolesMixinTest {
         val computedRoleConfigJson = """{"fn":"
             |var strVal = value.load('strAtt');
             |return ['${computedRoleAssignees.joinToString("','")}', strVal];
-        |"}""".trimMargin().replace("\n", " ")
+        |"}
+        """.trimMargin().replace("\n", " ")
 
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {

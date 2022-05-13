@@ -20,6 +20,7 @@ import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.TypeRefService
 import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsServiceFactory
+import ru.citeck.ecos.webapp.api.context.EcosWebAppContext
 
 @Configuration
 open class ModelServiceFactoryConfig : ModelServiceFactory() {
@@ -31,6 +32,7 @@ open class ModelServiceFactoryConfig : ModelServiceFactory() {
     private var authorityComponentBean: AuthorityComponent? = null
 
     private lateinit var commandsServices: CommandsServiceFactory
+    private lateinit var ecosWebAppContext: EcosWebAppContext
 
     @Bean
     override fun createTypeRefService(): TypeRefService {
@@ -115,5 +117,14 @@ open class ModelServiceFactoryConfig : ModelServiceFactory() {
     @Autowired
     fun setCommandsServices(services: CommandsServiceFactory) {
         this.commandsServices = services
+    }
+
+    @Autowired
+    fun setEcosWebAppContext(ecosWebAppContext: EcosWebAppContext) {
+        this.ecosWebAppContext = ecosWebAppContext
+    }
+
+    override fun getEcosWebAppContext(): EcosWebAppContext? {
+        return ecosWebAppContext
     }
 }

@@ -19,6 +19,8 @@ import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.RecordTypeServiceImpl
 import ru.citeck.ecos.model.lib.type.service.TypeRefService
 import ru.citeck.ecos.records3.RecordsServiceFactory
+import ru.citeck.ecos.webapp.api.context.EcosWebAppContext
+import ru.citeck.ecos.webapp.api.properties.EcosWebAppProperties
 
 open class ModelServiceFactory {
 
@@ -38,6 +40,10 @@ open class ModelServiceFactory {
 
     lateinit var records: RecordsServiceFactory
         private set
+
+    val webappProps by lazy {
+        getEcosWebAppContext()?.getProperties() ?: EcosWebAppProperties("", "")
+    }
 
     protected open fun createRoleService(): RoleService {
         return RoleService(this)
@@ -90,5 +96,9 @@ open class ModelServiceFactory {
     open fun setRecordsServices(services: RecordsServiceFactory) {
         this.records = services
         services.setRecordTypeService(RecordTypeServiceImpl(this))
+    }
+
+    open fun getEcosWebAppContext(): EcosWebAppContext? {
+        return null
     }
 }
