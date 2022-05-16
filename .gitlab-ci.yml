@@ -6,7 +6,7 @@ mirror:
     - shell
   stage: mirror
   variables:
-    TARGET_REPO: "git@github.com:Citeck/ecos-ui.git"
+    TARGET_REPO: "git@github.com:Citeck/ecos-model-lib.git"
     GIT_STRATEGY: clone
   cache: {}
   only:
