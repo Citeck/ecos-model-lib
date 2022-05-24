@@ -12,7 +12,7 @@
 
     <properties>
 
-        <revision>2.12.1</revision>
+        <revision>2.12.2</revision>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -28,11 +28,11 @@
         <jackson.version>2.3.2</jackson.version>
 
         <ecos.jackson.version>2.10.4.3</ecos.jackson.version>
-        <ecos.commons.version>2.6.7</ecos.commons.version>
-        <ecos.records.version>3.47.5</ecos.records.version>
-        <ecos.context-lib.version>1.2.1</ecos.context-lib.version>
-        <ecos.commands.version>2.7.1</ecos.commands.version>
-        <ecos.webapp-api.version>1.0.5</ecos.webapp-api.version>
+        <ecos.commons.version>2.6.9</ecos.commons.version>
+        <ecos.records.version>3.47.9</ecos.records.version>
+        <ecos.context-lib.version>1.2.2</ecos.context-lib.version>
+        <ecos.commands.version>2.7.6</ecos.commands.version>
+        <ecos.webapp-api.version>1.0.6</ecos.webapp-api.version>
 
         <kotlin.version>1.6.21</kotlin.version>
         <kotlin.logging.version>1.12.5</kotlin.logging.version>
