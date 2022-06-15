@@ -1,1 +1,1 @@
-ecosBuild('maven-lib', 0, [:])
+ecosBuild()
