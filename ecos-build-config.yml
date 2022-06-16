@@ -1,2 +1,4 @@
 ---
 type: maven-lib
+props:
+    aa: bb
