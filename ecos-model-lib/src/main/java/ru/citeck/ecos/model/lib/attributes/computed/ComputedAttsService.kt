@@ -44,7 +44,7 @@ class ComputedAttsService(services: ModelServiceFactory) {
         val attsToEval = LinkedHashMap<String, ComputedAttDef>()
         if (RecordRef.isNotEmpty(typeInfo.numTemplateRef)) {
             val config = ObjectData.create()
-            config.set(COUNTER_CONFIG_TEMPLATE_KEY, typeInfo.numTemplateRef)
+            config[COUNTER_CONFIG_TEMPLATE_KEY] = typeInfo.numTemplateRef
             attsToEval[RecordConstants.ATT_DOC_NUM] = ComputedAttDef.create {
                 withType(ComputedAttType.COUNTER)
                 withConfig(config)

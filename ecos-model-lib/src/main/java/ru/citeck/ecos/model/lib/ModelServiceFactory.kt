@@ -10,10 +10,12 @@ import ru.citeck.ecos.model.lib.permissions.repo.DefaultPermissionsRepo
 import ru.citeck.ecos.model.lib.permissions.repo.PermissionsRepo
 import ru.citeck.ecos.model.lib.permissions.service.PermsEvaluator
 import ru.citeck.ecos.model.lib.permissions.service.RecordPermsService
+import ru.citeck.ecos.model.lib.role.api.records.RolesMixin
 import ru.citeck.ecos.model.lib.role.service.RoleService
 import ru.citeck.ecos.model.lib.role.service.auth.AuthorityComponent
 import ru.citeck.ecos.model.lib.role.service.auth.DefaultAuthorityComponent
 import ru.citeck.ecos.model.lib.status.service.StatusService
+import ru.citeck.ecos.model.lib.type.api.records.TypesMixin
 import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.RecordTypeServiceImpl
@@ -96,6 +98,12 @@ open class ModelServiceFactory {
     open fun setRecordsServices(services: RecordsServiceFactory) {
         this.records = services
         services.setRecordTypeService(RecordTypeServiceImpl(this))
+        services.globalAttMixinsProvider.addMixins(
+            listOf(
+                TypesMixin(this),
+                RolesMixin(roleService)
+            )
+        )
     }
 
     open fun getEcosWebAppContext(): EcosWebAppContext? {
