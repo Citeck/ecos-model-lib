@@ -2,20 +2,35 @@ package ru.citeck.ecos.model.lib.role.service
 
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.ModelServiceFactoryAware
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
+import ru.citeck.ecos.model.lib.role.api.records.RolesMixin
 import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
+import ru.citeck.ecos.model.lib.type.repo.TypesRepo
+import ru.citeck.ecos.model.lib.type.service.TypeRefService
 import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAttValue
 import ru.citeck.ecos.records3.record.request.RequestContext
+import ru.citeck.ecos.webapp.api.authority.EcosAuthorityService
 
-class RoleService(services: ModelServiceFactory) {
+class RoleService : ModelServiceFactoryAware {
 
-    private val typeDefService = services.typeRefService
-    private val recordsService = services.records.recordsServiceV1
-    private val typesRepo = services.typesRepo
-    private val authorityComponent = services.authorityComponent
-    private val currentAppName = services.webappProps.appName
+    private lateinit var typeRefService: TypeRefService
+    private lateinit var recordsService: RecordsService
+    private lateinit var typesRepo: TypesRepo
+    private lateinit var currentAppName: String
+    private var authorityService: EcosAuthorityService? = null
+
+    override fun setModelServiceFactory(services: ModelServiceFactory) {
+        typeRefService = services.typeRefService
+        recordsService = services.records.recordsServiceV1
+        typesRepo = services.typesRepo
+        authorityService = services.getEcosWebAppContext()?.getAuthorityService()
+        currentAppName = services.webappProps.appName
+        services.records.globalAttMixinsProvider.addMixin(RolesMixin(this))
+    }
 
     fun getRolesId(typeRef: RecordRef?): List<String> {
         return getRoles(typeRef).map { it.id }
@@ -44,7 +59,7 @@ class RoleService(services: ModelServiceFactory) {
         roleId ?: return emptyList()
         record ?: return emptyList()
 
-        return getAssignees(record, typeDefService.getTypeRef(record), roleId)
+        return getAssignees(record, typeRefService.getTypeRef(record), roleId)
     }
 
     fun getAssignees(record: Any?, typeRef: RecordRef?, roleId: String?): List<String> {
@@ -106,7 +121,9 @@ class RoleService(services: ModelServiceFactory) {
 
         val assigneesSet = HashSet<String>()
         val uniqueAssignees = assignees.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
-        val names = authorityComponent.getAuthorityNames(uniqueAssignees)
+
+        val names = authorityService?.getAuthorityNames(uniqueAssignees) ?: uniqueAssignees
+
         if (names.size != uniqueAssignees.size) {
             error(
                 "Authority component should return list with same length from method getAuthorityNames. " +

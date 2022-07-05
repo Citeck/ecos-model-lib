@@ -10,12 +10,8 @@ import ru.citeck.ecos.model.lib.permissions.repo.DefaultPermissionsRepo
 import ru.citeck.ecos.model.lib.permissions.repo.PermissionsRepo
 import ru.citeck.ecos.model.lib.permissions.service.PermsEvaluator
 import ru.citeck.ecos.model.lib.permissions.service.RecordPermsService
-import ru.citeck.ecos.model.lib.role.api.records.RolesMixin
 import ru.citeck.ecos.model.lib.role.service.RoleService
-import ru.citeck.ecos.model.lib.role.service.auth.AuthorityComponent
-import ru.citeck.ecos.model.lib.role.service.auth.DefaultAuthorityComponent
 import ru.citeck.ecos.model.lib.status.service.StatusService
-import ru.citeck.ecos.model.lib.type.api.records.TypesMixin
 import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.RecordTypeServiceImpl
@@ -23,22 +19,22 @@ import ru.citeck.ecos.model.lib.type.service.TypeRefService
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.webapp.api.context.EcosWebAppContext
 import ru.citeck.ecos.webapp.api.properties.EcosWebAppProperties
+import java.util.concurrent.atomic.AtomicBoolean
 
 open class ModelServiceFactory {
 
-    val permsEvaluator: PermsEvaluator by lazy { createPermsEvaluator() }
-    val typeRefService: TypeRefService by lazy { createTypeRefService() }
-    val permissionsRepo: PermissionsRepo by lazy { createPermissionsRepo() }
-    val recordPermsService: RecordPermsService by lazy { createRecordPermsService() }
-    val roleService: RoleService by lazy { createRoleService() }
-    val statusService: StatusService by lazy { createStatusService() }
-    val authorityComponent: AuthorityComponent by lazy { createAuthorityComponent() }
-    val ecosModelAppApi: EcosModelAppApi by lazy { createEcosModelAppApi() }
-    val ecosNumService: EcosNumService by lazy { createEcosNumService() }
-    val computedAttsService: ComputedAttsService by lazy { createComputedAttsToStoreService() }
+    val permsEvaluator: PermsEvaluator by lazySingleton { createPermsEvaluator() }
+    val typeRefService: TypeRefService by lazySingleton { createTypeRefService() }
+    val permissionsRepo: PermissionsRepo by lazySingleton { createPermissionsRepo() }
+    val recordPermsService: RecordPermsService by lazySingleton { createRecordPermsService() }
+    val roleService: RoleService by lazySingleton { createRoleService() }
+    val statusService: StatusService by lazySingleton { createStatusService() }
+    val ecosModelAppApi: EcosModelAppApi by lazySingleton { createEcosModelAppApi() }
+    val ecosNumService: EcosNumService by lazySingleton { createEcosNumService() }
+    val computedAttsService: ComputedAttsService by lazySingleton { createComputedAttsToStoreService() }
 
-    val typesRepo: TypesRepo by lazy { createTypesRepo() }
-    val numTemplatesRepo: NumTemplatesRepo by lazy { createNumTemplatesRepo() }
+    val typesRepo: TypesRepo by lazySingleton { createTypesRepo() }
+    val numTemplatesRepo: NumTemplatesRepo by lazySingleton { createNumTemplatesRepo() }
 
     lateinit var records: RecordsServiceFactory
         private set
@@ -48,7 +44,7 @@ open class ModelServiceFactory {
     }
 
     protected open fun createRoleService(): RoleService {
-        return RoleService(this)
+        return RoleService()
     }
 
     protected open fun createStatusService(): StatusService {
@@ -79,10 +75,6 @@ open class ModelServiceFactory {
         return RecordPermsService(this)
     }
 
-    protected open fun createAuthorityComponent(): AuthorityComponent {
-        return DefaultAuthorityComponent()
-    }
-
     protected open fun createEcosModelAppApi(): EcosModelAppApi {
         return DefaultModelAppApi()
     }
@@ -98,15 +90,26 @@ open class ModelServiceFactory {
     open fun setRecordsServices(services: RecordsServiceFactory) {
         this.records = services
         services.setRecordTypeService(RecordTypeServiceImpl(this))
-        services.globalAttMixinsProvider.addMixins(
-            listOf(
-                TypesMixin(this),
-                RolesMixin(roleService)
-            )
-        )
     }
 
     open fun getEcosWebAppContext(): EcosWebAppContext? {
         return null
+    }
+
+    private fun <T> lazySingleton(initializer: () -> T): Lazy<T> {
+        val initializationInProgress = AtomicBoolean()
+        var createdValue: T? = null
+        return lazy {
+            if (initializationInProgress.compareAndSet(false, true)) {
+                val value = initializer()
+                createdValue = value
+                if (value is ModelServiceFactoryAware) {
+                    value.setModelServiceFactory(this)
+                }
+                value
+            } else {
+                createdValue ?: error("Cyclic reference")
+            }
+        }
     }
 }
