@@ -14,7 +14,7 @@ import ru.citeck.ecos.model.lib.role.service.RoleService
 import ru.citeck.ecos.model.lib.status.service.StatusService
 import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
-import ru.citeck.ecos.model.lib.type.service.RecordTypeServiceImpl
+import ru.citeck.ecos.model.lib.type.service.RecordTypeComponentImpl
 import ru.citeck.ecos.model.lib.type.service.TypeRefService
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.webapp.api.context.EcosWebAppContext
@@ -89,7 +89,7 @@ open class ModelServiceFactory {
 
     open fun setRecordsServices(services: RecordsServiceFactory) {
         this.records = services
-        services.setRecordTypeService(RecordTypeServiceImpl(this))
+        services.setRecordTypeComponent(RecordTypeComponentImpl(this))
     }
 
     open fun getEcosWebAppContext(): EcosWebAppContext? {

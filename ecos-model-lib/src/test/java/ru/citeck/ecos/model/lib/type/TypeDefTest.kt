@@ -19,8 +19,8 @@ import ru.citeck.ecos.model.lib.type.dto.CreateVariantDef
 import ru.citeck.ecos.model.lib.type.dto.DocLibDef
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsServiceFactory
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import java.util.*
 import kotlin.test.assertEquals
 
@@ -64,8 +64,8 @@ class TypeDefTest {
                 )
             )
             withSourceId("source-id")
-            withNumTemplateRef(RecordRef.create("abc", "def", "hig"))
-            withParentRef(RecordRef.create("abc", "def", "hig"))
+            withNumTemplateRef(EntityRef.create("abc", "def", "hig"))
+            withParentRef(EntityRef.create("abc", "def", "hig"))
             withDispNameTemplate(
                 MLText(
                     Locale.ENGLISH to "disp-en",
@@ -261,11 +261,11 @@ class TypeDefTest {
 
         val docLib = DocLibDef.create {
             withEnabled(true)
-            withDirTypeRef(RecordRef.create("a", "b", "c"))
+            withDirTypeRef(EntityRef.create("a", "b", "c"))
             withFileTypeRefs(
                 listOf(
-                    RecordRef.valueOf("aa@bb"),
-                    RecordRef.valueOf("cc@dd")
+                    EntityRef.valueOf("aa@bb"),
+                    EntityRef.valueOf("cc@dd")
                 )
             )
         }
@@ -279,9 +279,9 @@ class TypeDefTest {
                     withId("create-test-id")
                     withName(MLText("asadasd"))
                     withSourceId("sourceid")
-                    withTypeRef(RecordRef.valueOf("aa/bb@cc"))
-                    withFormRef(RecordRef.valueOf("dd/ee@ff"))
-                    withPostActionRef(RecordRef.valueOf("gg/hh@ii"))
+                    withTypeRef(EntityRef.valueOf("aa/bb@cc"))
+                    withFormRef(EntityRef.valueOf("dd/ee@ff"))
+                    withPostActionRef(EntityRef.valueOf("gg/hh@ii"))
                     withFormOptions(ObjectData.create("""{"aa":"bb"}"""))
                     withAttributes(ObjectData.create("""{"aa":"bb"}"""))
                     withProperties(ObjectData.create("""{"aa":"bb"}"""))
@@ -290,9 +290,9 @@ class TypeDefTest {
                     withId("create-test-id22")
                     withName(MLText("asadasd22"))
                     withSourceId("sourceid22")
-                    withTypeRef(RecordRef.valueOf("aa/bb@cc22"))
-                    withFormRef(RecordRef.valueOf("dd/ee@ff22"))
-                    withPostActionRef(RecordRef.valueOf("gg/hh@ii22"))
+                    withTypeRef(EntityRef.valueOf("aa/bb@cc22"))
+                    withFormRef(EntityRef.valueOf("dd/ee@ff22"))
+                    withPostActionRef(EntityRef.valueOf("gg/hh@ii22"))
                     withFormOptions(ObjectData.create("""{"aa":"bb22"}"""))
                     withAttributes(ObjectData.create("""{"aa":"bb24"}"""))
                     withProperties(ObjectData.create("""{"aa":"bb3"}"""))

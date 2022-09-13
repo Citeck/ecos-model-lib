@@ -10,12 +10,12 @@ import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.value.AttValueCtx
 import ru.citeck.ecos.records3.record.dao.impl.mem.InMemDataRecordsDao
 import ru.citeck.ecos.records3.record.mixin.AttMixin
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class RoleServiceTest2 {
 
@@ -56,10 +56,10 @@ class RoleServiceTest2 {
 
         val types = mutableMapOf<String, TypeInfo>()
         val typesRepo = object : TypesRepo {
-            override fun getTypeInfo(typeRef: RecordRef): TypeInfo? {
-                return types[typeRef.id]
+            override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
+                return types[typeRef.getLocalId()]
             }
-            override fun getChildren(typeRef: RecordRef): List<RecordRef> {
+            override fun getChildren(typeRef: EntityRef): List<EntityRef> {
                 return emptyList()
             }
         }
@@ -67,18 +67,20 @@ class RoleServiceTest2 {
             withId(TYPE_ID)
             withModel(
                 TypeModelDef.create()
-                    .withRoles(listOf(
-                        RoleDef.create()
-                            .withId("role0")
-                            .withAssignees(listOf("user0"))
-                            .withAttributes(listOf("att0"))
-                            .build(),
-                        RoleDef.create()
-                            .withId("role1")
-                            .withAssignees(listOf("user1"))
-                            .withAttributes(listOf("att1"))
-                            .build()
-                    ))
+                    .withRoles(
+                        listOf(
+                            RoleDef.create()
+                                .withId("role0")
+                                .withAssignees(listOf("user0"))
+                                .withAttributes(listOf("att0"))
+                                .build(),
+                            RoleDef.create()
+                                .withId("role1")
+                                .withAssignees(listOf("user1"))
+                                .withAttributes(listOf("att1"))
+                                .build()
+                        )
+                    )
                     .build()
             )
         }

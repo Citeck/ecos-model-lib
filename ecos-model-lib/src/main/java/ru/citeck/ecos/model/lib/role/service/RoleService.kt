@@ -10,11 +10,11 @@ import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.TypeRefService
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAttValue
 import ru.citeck.ecos.records3.record.request.RequestContext
 import ru.citeck.ecos.webapp.api.authority.EcosAuthorityService
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class RoleService : ModelServiceFactoryAware {
 
@@ -37,7 +37,7 @@ class RoleService : ModelServiceFactoryAware {
         return getCurrentUserRoles(record, typeRefService.getTypeRef(record))
     }
 
-    fun getCurrentUserRoles(record: Any?, typeRef: RecordRef?): List<String> {
+    fun getCurrentUserRoles(record: Any?, typeRef: EntityRef?): List<String> {
         return getRolesForAuthorities(record, typeRef, AuthContext.getCurrentUserWithAuthorities())
     }
 
@@ -45,7 +45,7 @@ class RoleService : ModelServiceFactoryAware {
         return getRolesForAuthorities(record, typeRefService.getTypeRef(record), authorities)
     }
 
-    fun getRolesForAuthorities(record: Any?, typeRef: RecordRef?, authorities: Collection<String>?): List<String> {
+    fun getRolesForAuthorities(record: Any?, typeRef: EntityRef?, authorities: Collection<String>?): List<String> {
 
         record ?: return emptyList()
 
@@ -66,14 +66,14 @@ class RoleService : ModelServiceFactoryAware {
         return result
     }
 
-    fun getRolesId(typeRef: RecordRef?): List<String> {
+    fun getRolesId(typeRef: EntityRef?): List<String> {
         return getRoles(typeRef).map { it.id }
     }
 
-    fun getRoles(typeRef: RecordRef?): List<RoleDef> {
+    fun getRoles(typeRef: EntityRef?): List<RoleDef> {
 
         typeRef ?: return emptyList()
-        if (RecordRef.isEmpty(typeRef)) {
+        if (EntityRef.isEmpty(typeRef)) {
             return emptyList()
         }
         return typesRepo.getTypeInfo(typeRef)?.model?.roles ?: emptyList()
@@ -96,16 +96,16 @@ class RoleService : ModelServiceFactoryAware {
         return getAssignees(record, typeRefService.getTypeRef(record), roleId)
     }
 
-    fun getAssignees(record: Any?, typeRef: RecordRef?, roleId: String?): List<String> {
+    fun getAssignees(record: Any?, typeRef: EntityRef?, roleId: String?): List<String> {
         if (record == null || typeRef == null || roleId.isNullOrBlank()) {
             return emptyList()
         }
         return getAssignees(record, typeRef, listOf(roleId)).getOrDefault(roleId, emptyList())
     }
 
-    fun getAssignees(record: Any?, typeRef: RecordRef?, roles: Collection<String>?): Map<String, List<String>> {
+    fun getAssignees(record: Any?, typeRef: EntityRef?, roles: Collection<String>?): Map<String, List<String>> {
 
-        if (roles.isNullOrEmpty() || record == null || typeRef == null || typeRef.id.isBlank()) {
+        if (roles.isNullOrEmpty() || record == null || typeRef == null || typeRef.getLocalId().isBlank()) {
             return roles?.associateWith { emptyList() } ?: emptyMap()
         }
 
@@ -128,7 +128,7 @@ class RoleService : ModelServiceFactoryAware {
             return result
         }
 
-        if (record is RecordRef && record.appName.isNotEmpty() && record.appName != currentAppName) {
+        if (record is EntityRef && record.getAppName().isNotEmpty() && record.getAppName() != currentAppName) {
             val assigneesAtts = rolesToEval.associateWith {
                 RoleConstants.ATT_ROLES + "." + RoleConstants.ATT_ASSIGNEES_OF + ".$it[]?str"
             }
@@ -207,12 +207,12 @@ class RoleService : ModelServiceFactoryAware {
         return result
     }
 
-    fun getRoleDef(typeRef: RecordRef?, roleId: String?): RoleDef {
+    fun getRoleDef(typeRef: EntityRef?, roleId: String?): RoleDef {
 
         typeRef ?: return RoleDef.EMPTY
         roleId ?: return RoleDef.EMPTY
 
-        if (RecordRef.isEmpty(typeRef) || roleId.isBlank()) {
+        if (EntityRef.isEmpty(typeRef) || roleId.isBlank()) {
             return RoleDef.EMPTY
         }
 

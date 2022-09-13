@@ -3,7 +3,7 @@ package ru.citeck.ecos.model.lib.type.dto
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 @IncludeNonDefault
 @JsonDeserialize(builder = TypeInfo.Builder::class)
@@ -11,9 +11,9 @@ data class TypeInfo(
     val id: String,
     val name: MLText,
     val sourceId: String,
-    val parentRef: RecordRef,
+    val parentRef: EntityRef,
     val dispNameTemplate: MLText,
-    val numTemplateRef: RecordRef,
+    val numTemplateRef: EntityRef,
     val model: TypeModelDef
 ) {
     companion object {
@@ -46,9 +46,9 @@ data class TypeInfo(
         var id: String = ""
         var name: MLText = MLText.EMPTY
         var sourceId: String = ""
-        var parentRef: RecordRef = RecordRef.EMPTY
+        var parentRef: EntityRef = EntityRef.EMPTY
         var dispNameTemplate: MLText = MLText.EMPTY
-        var numTemplateRef: RecordRef = RecordRef.EMPTY
+        var numTemplateRef: EntityRef = EntityRef.EMPTY
         var model: TypeModelDef = TypeModelDef.EMPTY
 
         constructor(base: TypeInfo) : this() {
@@ -76,8 +76,8 @@ data class TypeInfo(
             return this
         }
 
-        fun withParentRef(parentRef: RecordRef?): Builder {
-            this.parentRef = parentRef ?: RecordRef.EMPTY
+        fun withParentRef(parentRef: EntityRef?): Builder {
+            this.parentRef = parentRef ?: EntityRef.EMPTY
             return this
         }
 
@@ -86,8 +86,8 @@ data class TypeInfo(
             return this
         }
 
-        fun withNumTemplateRef(numTemplateRef: RecordRef?): Builder {
-            this.numTemplateRef = numTemplateRef ?: RecordRef.EMPTY
+        fun withNumTemplateRef(numTemplateRef: EntityRef?): Builder {
+            this.numTemplateRef = numTemplateRef ?: EntityRef.EMPTY
             return this
         }
 

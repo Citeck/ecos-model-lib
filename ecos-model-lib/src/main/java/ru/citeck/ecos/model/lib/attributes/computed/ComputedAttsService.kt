@@ -9,11 +9,11 @@ import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttStoringType
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.records2.RecordConstants
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAtt
 import ru.citeck.ecos.records3.record.atts.schema.ScalarType
 import ru.citeck.ecos.records3.record.atts.value.AttValue
 import ru.citeck.ecos.records3.record.atts.value.impl.AttValueDelegate
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class ComputedAttsService(services: ModelServiceFactory) {
 
@@ -30,19 +30,19 @@ class ComputedAttsService(services: ModelServiceFactory) {
 
     fun computeAttsToStore(value: Any, isNewRecord: Boolean): ObjectData {
         val typeStr = recordsService.getAtt(value, RecordConstants.ATT_TYPE + ScalarType.ID.schema).asText()
-        return computeAttsToStore(value, isNewRecord, RecordRef.valueOf(typeStr))
+        return computeAttsToStore(value, isNewRecord, EntityRef.valueOf(typeStr))
     }
 
-    fun computeAttsToStore(value: Any, isNewRecord: Boolean, typeRef: RecordRef): ObjectData {
+    fun computeAttsToStore(value: Any, isNewRecord: Boolean, typeRef: EntityRef): ObjectData {
 
-        if (typeRef.id.isEmpty()) {
+        if (typeRef.getLocalId().isEmpty()) {
             return ObjectData.create()
         }
 
         val typeInfo = typesRepo.getTypeInfo(typeRef) ?: return ObjectData.create()
 
         val attsToEval = LinkedHashMap<String, ComputedAttDef>()
-        if (RecordRef.isNotEmpty(typeInfo.numTemplateRef)) {
+        if (EntityRef.isNotEmpty(typeInfo.numTemplateRef)) {
             val config = ObjectData.create()
             config[COUNTER_CONFIG_TEMPLATE_KEY] = typeInfo.numTemplateRef
             attsToEval[RecordConstants.ATT_DOC_NUM] = ComputedAttDef.create {
@@ -84,10 +84,10 @@ class ComputedAttsService(services: ModelServiceFactory) {
         if (typeRef.isBlank()) {
             return MLText.EMPTY
         }
-        return computeDisplayName(value, RecordRef.valueOf(typeRef))
+        return computeDisplayName(value, EntityRef.valueOf(typeRef))
     }
 
-    fun computeDisplayName(value: Any, typeRef: RecordRef): MLText {
+    fun computeDisplayName(value: Any, typeRef: EntityRef): MLText {
         val typeInfo = typesRepo.getTypeInfo(typeRef) ?: return MLText.EMPTY
         return computeDisplayName(value, typeInfo)
     }
@@ -145,8 +145,8 @@ class ComputedAttsService(services: ModelServiceFactory) {
             if (!isNewRecord) {
                 return
             }
-            val templateRef = RecordRef.valueOf(computed.config.get(COUNTER_CONFIG_TEMPLATE_KEY).asText())
-            if (RecordRef.isNotEmpty(templateRef)) {
+            val templateRef = EntityRef.valueOf(computed.config[COUNTER_CONFIG_TEMPLATE_KEY].asText())
+            if (EntityRef.isNotEmpty(templateRef)) {
                 result[attId] = ecosNumService.getNextNumberForRecord(value, templateRef)
                 return
             }

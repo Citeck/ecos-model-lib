@@ -10,23 +10,23 @@ import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.status.constants.StatusConstants
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class RecordPermsService(services: ModelServiceFactory) {
 
     private val permsRepo: PermissionsRepo = services.permissionsRepo
     private val permsEvaluator: PermsEvaluator = services.permsEvaluator
 
-    private val recordsService = services.records.recordsService
+    private val recordsService = services.records.recordsServiceV1
     private val typeRefService = services.typeRefService
     private val typesRepo = services.typesRepo
 
-    fun getRecordPerms(recordRef: RecordRef): RolesPermissions? {
+    fun getRecordPerms(entityRef: EntityRef): RolesPermissions? {
 
-        val context = getPermsEvalContextForRecord(recordRef) ?: return null
+        val context = getPermsEvalContextForRecord(entityRef) ?: return null
 
         val typePerms: PermissionsDef = typeRefService.forEachAsc(context.typeRef) {
-            val permissions = permsRepo.getPermissionsForType(TypeUtils.getTypeRef(it.id))
+            val permissions = permsRepo.getPermissionsForType(TypeUtils.getTypeRef(it.getLocalId()))
             if (permissions == null || permissions.permissions.isEmpty()) {
                 null
             } else {
@@ -34,19 +34,19 @@ class RecordPermsService(services: ModelServiceFactory) {
             }
         } ?: return null
 
-        return permsEvaluator.getPermissions(recordRef, context.roles, context.statuses, listOf(typePerms))[0]
+        return permsEvaluator.getPermissions(entityRef, context.roles, context.statuses, listOf(typePerms))[0]
     }
 
-    fun getRecordAttsPerms(recordRef: RecordRef): AttributePermissions? {
+    fun getRecordAttsPerms(entityRef: EntityRef): AttributePermissions? {
 
-        val context = getPermsEvalContextForRecord(recordRef) ?: return null
+        val context = getPermsEvalContextForRecord(entityRef) ?: return null
 
         if (context.attributes.isEmpty()) {
             return null
         }
 
         val typeAttsPerms: Map<String, PermissionsDef> = typeRefService.forEachAsc(context.typeRef) {
-            val permissions = permsRepo.getPermissionsForType(TypeUtils.getTypeRef(it.id))
+            val permissions = permsRepo.getPermissionsForType(TypeUtils.getTypeRef(it.getLocalId()))
             if (permissions == null || permissions.attributes.isEmpty()) {
                 null
             } else {
@@ -56,7 +56,7 @@ class RecordPermsService(services: ModelServiceFactory) {
 
         val permsList = typeAttsPerms.toList().filter { context.attributes.contains(it.first) }
         val rolePerms = permsEvaluator.getPermissions(
-            recordRef,
+            entityRef,
             context.roles,
             context.statuses,
             permsList.map { it.second }
@@ -71,14 +71,14 @@ class RecordPermsService(services: ModelServiceFactory) {
         )
     }
 
-    private fun getPermsEvalContextForRecord(recordRef: RecordRef): PermsEvalContext? {
-        val typeRefStr = recordsService.getAtt(recordRef, "_type?id").asText()
-        return getPermsEvalContextForTypeRef(RecordRef.valueOf(typeRefStr))
+    private fun getPermsEvalContextForRecord(entityRef: EntityRef): PermsEvalContext? {
+        val typeRefStr = recordsService.getAtt(entityRef, "_type?id").asText()
+        return getPermsEvalContextForTypeRef(EntityRef.valueOf(typeRefStr))
     }
 
-    private fun getPermsEvalContextForTypeRef(typeRef: RecordRef): PermsEvalContext? {
+    private fun getPermsEvalContextForTypeRef(typeRef: EntityRef): PermsEvalContext? {
 
-        if (RecordRef.isEmpty(typeRef)) {
+        if (EntityRef.isEmpty(typeRef)) {
             return null
         }
 
@@ -111,7 +111,7 @@ class RecordPermsService(services: ModelServiceFactory) {
     }
 
     private data class PermsEvalContext(
-        val typeRef: RecordRef,
+        val typeRef: EntityRef,
         val roles: Set<String>,
         val statuses: Set<String>,
         val attributes: Set<String>

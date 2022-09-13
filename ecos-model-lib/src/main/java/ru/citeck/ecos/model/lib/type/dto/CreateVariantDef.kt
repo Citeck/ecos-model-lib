@@ -4,7 +4,7 @@ import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @JsonDeserialize(builder = CreateVariantDef.Builder::class)
@@ -14,9 +14,9 @@ data class CreateVariantDef(
     val id: String,
     val name: MLText,
     val sourceId: String,
-    val typeRef: RecordRef,
-    val formRef: RecordRef,
-    val postActionRef: RecordRef,
+    val typeRef: EntityRef,
+    val formRef: EntityRef,
+    val postActionRef: EntityRef,
     val formOptions: ObjectData,
     val attributes: ObjectData,
     val allowedFor: List<String>,
@@ -56,9 +56,9 @@ data class CreateVariantDef(
         var id: String = ""
         var name: MLText = MLText.EMPTY
         var sourceId: String = ""
-        var typeRef: RecordRef = RecordRef.EMPTY
-        var formRef: RecordRef = RecordRef.EMPTY
-        var postActionRef: RecordRef = RecordRef.EMPTY
+        var typeRef: EntityRef = EntityRef.EMPTY
+        var formRef: EntityRef = EntityRef.EMPTY
+        var postActionRef: EntityRef = EntityRef.EMPTY
         var formOptions: ObjectData = ObjectData.create()
         var attributes: ObjectData = ObjectData.create()
         var allowedFor: List<String> = emptyList()
@@ -92,18 +92,18 @@ data class CreateVariantDef(
             return this
         }
 
-        fun withTypeRef(typeRef: RecordRef?): Builder {
-            this.typeRef = typeRef ?: RecordRef.EMPTY
+        fun withTypeRef(typeRef: EntityRef?): Builder {
+            this.typeRef = typeRef ?: EntityRef.EMPTY
             return this
         }
 
-        fun withFormRef(formRef: RecordRef?): Builder {
-            this.formRef = formRef ?: RecordRef.EMPTY
+        fun withFormRef(formRef: EntityRef?): Builder {
+            this.formRef = formRef ?: EntityRef.EMPTY
             return this
         }
 
-        fun withPostActionRef(postActionRef: RecordRef?): Builder {
-            this.postActionRef = postActionRef ?: RecordRef.EMPTY
+        fun withPostActionRef(postActionRef: EntityRef?): Builder {
+            this.postActionRef = postActionRef ?: EntityRef.EMPTY
             return this
         }
 

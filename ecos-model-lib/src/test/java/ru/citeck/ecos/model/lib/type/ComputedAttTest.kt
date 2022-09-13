@@ -11,10 +11,10 @@ import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import kotlin.test.assertEquals
 
 class ComputedAttTest {
@@ -61,15 +61,15 @@ class ComputedAttTest {
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
-                    override fun getTypeInfo(typeRef: RecordRef): TypeInfo? {
-                        return modelByRef[typeRef.id]?.let { model ->
+                    override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
+                        return modelByRef[typeRef.getLocalId()]?.let { model ->
                             TypeInfo.create {
-                                withId(typeRef.id)
+                                withId(typeRef.getLocalId())
                                 withModel(model)
                             }
                         }
                     }
-                    override fun getChildren(typeRef: RecordRef): List<RecordRef> {
+                    override fun getChildren(typeRef: EntityRef): List<EntityRef> {
                         return emptyList()
                     }
                 }
@@ -77,8 +77,8 @@ class ComputedAttTest {
         }
         services.setRecordsServices(RecordsServiceFactory())
 
-        val typeRef0 = RecordRef.valueOf(TypeUtils.getTypeRef("testparent"))
-        val typeRef1 = RecordRef.valueOf(TypeUtils.getTypeRef("otherRef"))
+        val typeRef0 = EntityRef.valueOf(TypeUtils.getTypeRef("testparent"))
+        val typeRef1 = EntityRef.valueOf(TypeUtils.getTypeRef("otherRef"))
 
         services.records.recordsServiceV1.register(
             RecordsDaoBuilder.create("test")
@@ -87,20 +87,20 @@ class ComputedAttTest {
                 .build()
         )
 
-        val value0 = services.records.recordsServiceV1.getAtt(RecordRef.valueOf("test@test0record"), "computedTestAtt")
+        val value0 = services.records.recordsServiceV1.getAtt(EntityRef.valueOf("test@test0record"), "computedTestAtt")
         assertEquals(DataValue.create("abc"), value0)
 
-        val value1 = services.records.recordsServiceV1.getAtt(RecordRef.valueOf("test@test0record"), "computedTestParentAtt?num")
+        val value1 = services.records.recordsServiceV1.getAtt(EntityRef.valueOf("test@test0record"), "computedTestParentAtt?num")
         assertEquals(DataValue.create(123.0), value1)
 
-        val value2 = services.records.recordsServiceV1.getAtt(RecordRef.valueOf("test@test1record"), "computedTestAtt")
+        val value2 = services.records.recordsServiceV1.getAtt(EntityRef.valueOf("test@test1record"), "computedTestAtt")
         assertEquals(DataValue.NULL, value2)
     }
 
-    class RecordData(private val typeRef: RecordRef) {
+    class RecordData(private val typeRef: EntityRef) {
 
         @AttName("_type")
-        fun getType(): RecordRef {
+        fun getType(): EntityRef {
             return typeRef
         }
     }

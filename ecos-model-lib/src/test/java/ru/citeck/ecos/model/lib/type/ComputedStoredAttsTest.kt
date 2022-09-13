@@ -13,12 +13,12 @@ import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.schema.resolver.AttContext
 import ru.citeck.ecos.records3.record.atts.value.AttValue
 import ru.citeck.ecos.records3.record.request.RequestContext
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class ComputedStoredAttsTest {
 
@@ -95,14 +95,14 @@ class ComputedStoredAttsTest {
         services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
-                    override fun getTypeInfo(typeRef: RecordRef): TypeInfo? {
-                        return if (typeRef.id != type.id) {
+                    override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
+                        return if (typeRef.getLocalId() != type.id) {
                             null
                         } else {
                             type
                         }
                     }
-                    override fun getChildren(typeRef: RecordRef): List<RecordRef> {
+                    override fun getChildren(typeRef: EntityRef): List<EntityRef> {
                         return emptyList()
                     }
                 }
@@ -120,7 +120,7 @@ class ComputedStoredAttsTest {
                 .addRecord("test", record)
                 .build()
         )
-        val testRef = RecordRef.create("test", "test")
+        val testRef = EntityRef.create("test", "test")
 
         val assertAtts = { onEmptyValue: String?, isNewRec: Boolean ->
             record.onEmptyVal = onEmptyValue
@@ -175,7 +175,7 @@ class ComputedStoredAttsTest {
             }
         }
 
-        override fun getType(): RecordRef {
+        override fun getType(): EntityRef {
             return TypeUtils.getTypeRef(TEST_TYPE_ID)
         }
     }

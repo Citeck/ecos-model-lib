@@ -14,11 +14,11 @@ import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
 import ru.citeck.ecos.records3.record.dao.impl.proxy.RecordsDaoProxy
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class RolesMixinTest {
 
@@ -43,7 +43,7 @@ class RolesMixinTest {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
 
-                    override fun getTypeInfo(typeRef: RecordRef): TypeInfo? {
+                    override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
                         if (typeRef == testTypeRef) {
                             val model = TypeModelDef.create {
                                 roles = listOf(
@@ -68,13 +68,13 @@ class RolesMixinTest {
                                 )
                             }
                             return TypeInfo.create {
-                                withId(typeRef.id)
+                                withId(typeRef.getLocalId())
                                 withModel(model)
                             }
                         }
                         return null
                     }
-                    override fun getChildren(typeRef: RecordRef): List<RecordRef> {
+                    override fun getChildren(typeRef: EntityRef): List<EntityRef> {
                         return emptyList()
                     }
                 }
@@ -85,8 +85,8 @@ class RolesMixinTest {
         val sourceId = "test"
         val proxyId = "test-proxy"
         val recRefs = listOf(
-            RecordRef.create(sourceId, recId),
-            RecordRef.create(proxyId, recId)
+            EntityRef.create(sourceId, recId),
+            EntityRef.create(proxyId, recId)
         )
 
         val recordsServices = RecordsServiceFactory()
@@ -122,9 +122,9 @@ class RolesMixinTest {
     }
 
     data class TestDto(
-        val typeRef: RecordRef
+        val typeRef: EntityRef
     ) {
-        fun getEcosType(): RecordRef {
+        fun getEcosType(): EntityRef {
             return typeRef
         }
 

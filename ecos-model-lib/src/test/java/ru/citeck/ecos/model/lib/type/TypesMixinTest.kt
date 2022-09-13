@@ -7,9 +7,9 @@ import ru.citeck.ecos.model.lib.type.api.records.TypesMixin
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class TypesMixinTest {
 
@@ -28,14 +28,14 @@ class TypesMixinTest {
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
-                    override fun getTypeInfo(typeRef: RecordRef): TypeInfo? {
+                    override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
                         val parentRef = types.firstOrNull {
-                            it.id == typeRef.id
+                            it.id == typeRef.getLocalId()
                         }?.let {
                             TypeUtils.getTypeRef(it.parent)
-                        } ?: RecordRef.EMPTY
+                        } ?: EntityRef.EMPTY
 
-                        return if (RecordRef.isEmpty(parentRef)) {
+                        return if (EntityRef.isEmpty(parentRef)) {
                             null
                         } else {
                             TypeInfo.create()
@@ -43,7 +43,7 @@ class TypesMixinTest {
                                 .build()
                         }
                     }
-                    override fun getChildren(typeRef: RecordRef): List<RecordRef> {
+                    override fun getChildren(typeRef: EntityRef): List<EntityRef> {
                         return emptyList()
                     }
                 }
@@ -86,7 +86,7 @@ class TypesMixinTest {
 
     data class RecordValue(val type: String) {
 
-        fun getEcosType(): RecordRef {
+        fun getEcosType(): EntityRef {
             return TypeUtils.getTypeRef(type)
         }
     }

@@ -11,9 +11,9 @@ import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import kotlin.test.assertEquals
 
 class RoleServiceTest {
@@ -29,7 +29,7 @@ class RoleServiceTest {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
 
-                    override fun getTypeInfo(typeRef: RecordRef): TypeInfo? {
+                    override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
 
                         if (typeRef == RecordDto.RECORD_TYPE_REF) {
                             val model = TypeModelDef.create {
@@ -59,13 +59,13 @@ class RoleServiceTest {
                                 )
                             }
                             return TypeInfo.create {
-                                withId(typeRef.id)
+                                withId(typeRef.getLocalId())
                                 withModel(model)
                             }
                         }
                         return null
                     }
-                    override fun getChildren(typeRef: RecordRef): List<RecordRef> {
+                    override fun getChildren(typeRef: EntityRef): List<EntityRef> {
                         return emptyList()
                     }
                 }
@@ -107,7 +107,7 @@ class RoleServiceTest {
         val customAtt: List<String>,
         val otherAtt: List<String> = emptyList(),
         @AttName("_type")
-        val type: RecordRef = RECORD_TYPE_REF
+        val type: EntityRef = RECORD_TYPE_REF
     ) {
         companion object {
             val RECORD_TYPE_REF = TypeUtils.getTypeRef("custom-type")
