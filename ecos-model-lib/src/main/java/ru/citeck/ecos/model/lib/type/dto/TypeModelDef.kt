@@ -6,8 +6,8 @@ import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
-import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.procstages.dto.ProcStageDef
+import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
 import com.fasterxml.jackson.annotation.JsonIgnore as JackJsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
@@ -96,7 +96,11 @@ data class TypeModelDef(
         }
 
         fun withStages(stages: List<ProcStageDef>?): Builder {
-            this.stages = stages?.filter { !MLText.isEmpty(it.name) || it.statuses.isNotEmpty() } ?: emptyList()
+            this.stages = stages?.filter { stage ->
+                stage.id.isNotBlank() ||
+                    !MLText.isEmpty(stage.name) ||
+                    stage.statuses.any { it.isNotBlank() }
+            } ?: emptyList()
             return this
         }
 
@@ -118,10 +122,10 @@ data class TypeModelDef(
                 for (stage in stages) {
                     stage.statuses.forEach {
                         val stageByStatus = stagesByStatus.putIfAbsent(it, stage)
-                        if (stageByStatus !== stage) {
+                        if (stageByStatus != null) {
                             errorMessages.add(
                                 "Status $it exists in multiple " +
-                                "stages: $stage and $stageByStatus"
+                                    "stages: $stage and $stageByStatus"
                             )
                         }
                         if (!statusIds.contains(it)) {

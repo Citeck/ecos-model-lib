@@ -13,6 +13,7 @@ import ru.citeck.ecos.model.lib.attributes.dto.AttributeType
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttDef
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttStoringType
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
+import ru.citeck.ecos.model.lib.procstages.dto.ProcStageDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
 import ru.citeck.ecos.model.lib.type.dto.CreateVariantDef
@@ -180,6 +181,12 @@ class TypeDefTest {
                     withId("status1234567")
                     withName(MLText.EMPTY.withValue(Locale.ENGLISH, "status-name22"))
                     withConfig(ObjectData.create("""{"aa3":"bb3","cc2":"dd2"}"""))
+                }
+            ),
+            listOf(
+                ProcStageDef.create {
+                    withId("custom")
+                    withStatuses(listOf("status123"))
                 }
             ),
             listOf(
