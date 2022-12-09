@@ -3,9 +3,11 @@ package ru.citeck.ecos.model.lib.type.dto
 import ecos.com.fasterxml.jackson210.annotation.JsonIgnore
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.DataValue
+import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
+import ru.citeck.ecos.model.lib.procstages.dto.ProcStageDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
 import com.fasterxml.jackson.annotation.JsonIgnore as JackJsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
@@ -16,6 +18,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 data class TypeModelDef(
     val roles: List<RoleDef>,
     val statuses: List<StatusDef>,
+    val stages: List<ProcStageDef>,
     val attributes: List<AttributeDef>,
     val systemAttributes: List<AttributeDef>
 ) {
@@ -70,11 +73,13 @@ data class TypeModelDef(
 
         var roles: List<RoleDef> = emptyList()
         var statuses: List<StatusDef> = emptyList()
+        var stages: List<ProcStageDef> = emptyList()
         var attributes: List<AttributeDef> = emptyList()
         var systemAttributes: List<AttributeDef> = emptyList()
 
         constructor(base: TypeModelDef) : this() {
             this.roles = DataValue.create(base.roles).asList(RoleDef::class.java)
+            this.stages = DataValue.create(base.stages).asList(ProcStageDef::class.java)
             this.statuses = DataValue.create(base.statuses).asList(StatusDef::class.java)
             this.attributes = DataValue.create(base.attributes).asList(AttributeDef::class.java)
             this.systemAttributes = DataValue.create(base.systemAttributes).asList(AttributeDef::class.java)
@@ -90,6 +95,11 @@ data class TypeModelDef(
             return this
         }
 
+        fun withStages(stages: List<ProcStageDef>?): Builder {
+            this.stages = stages?.filter { !MLText.isEmpty(it.name) || it.statuses.isNotEmpty() } ?: emptyList()
+            return this
+        }
+
         fun withAttributes(attributes: List<AttributeDef>?): Builder {
             this.attributes = attributes?.filter { it.id.isNotBlank() } ?: emptyList()
             return this
@@ -101,7 +111,29 @@ data class TypeModelDef(
         }
 
         fun build(): TypeModelDef {
-            return TypeModelDef(roles, statuses, attributes, systemAttributes)
+            if (stages.isNotEmpty()) {
+                val statusIds = statuses.mapTo(HashSet()) { it.id }
+                val errorMessages = ArrayList<String>()
+                val stagesByStatus = HashMap<String, ProcStageDef>()
+                for (stage in stages) {
+                    stage.statuses.forEach {
+                        val stageByStatus = stagesByStatus.putIfAbsent(it, stage)
+                        if (stageByStatus !== stage) {
+                            errorMessages.add(
+                                "Status $it exists in multiple " +
+                                "stages: $stage and $stageByStatus"
+                            )
+                        }
+                        if (!statusIds.contains(it)) {
+                            errorMessages.add("Status $it not found in model")
+                        }
+                    }
+                }
+                if (errorMessages.isNotEmpty()) {
+                    error("Invalid stages config: \n${errorMessages.joinToString("\n")}")
+                }
+            }
+            return TypeModelDef(roles, statuses, stages, attributes, systemAttributes)
         }
     }
 }
