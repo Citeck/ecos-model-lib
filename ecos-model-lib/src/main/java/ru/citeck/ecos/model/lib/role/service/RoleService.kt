@@ -13,7 +13,7 @@ import ru.citeck.ecos.model.lib.type.service.TypeRefService
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAttValue
 import ru.citeck.ecos.records3.record.request.RequestContext
-import ru.citeck.ecos.webapp.api.authority.EcosAuthorityService
+import ru.citeck.ecos.webapp.api.authority.EcosAuthoritiesApi
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class RoleService : ModelServiceFactoryAware {
@@ -22,13 +22,13 @@ class RoleService : ModelServiceFactoryAware {
     private lateinit var recordsService: RecordsService
     private lateinit var typesRepo: TypesRepo
     private lateinit var currentAppName: String
-    private var authorityService: EcosAuthorityService? = null
+    private var authoritiesApi: EcosAuthoritiesApi? = null
 
     override fun setModelServiceFactory(services: ModelServiceFactory) {
         typeRefService = services.typeRefService
         recordsService = services.records.recordsServiceV1
         typesRepo = services.typesRepo
-        authorityService = services.getEcosWebAppContext()?.getAuthorityService()
+        authoritiesApi = services.getEcosWebAppApi()?.getAuthoritiesApi()
         currentAppName = services.webappProps.appName
         services.records.globalAttMixinsProvider.addMixin(RolesMixin(this))
     }
@@ -190,7 +190,7 @@ class RoleService : ModelServiceFactoryAware {
             val assigneesSet = HashSet<String>()
             val uniqueAssignees = assignees.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
 
-            val names = authorityService?.getAuthorityNames(uniqueAssignees) ?: uniqueAssignees
+            val names = authoritiesApi?.getAuthorityNames(uniqueAssignees) ?: uniqueAssignees
 
             if (names.size != uniqueAssignees.size) {
                 error(

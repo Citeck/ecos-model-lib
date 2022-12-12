@@ -14,7 +14,8 @@ data class TypeInfo(
     val parentRef: EntityRef,
     val dispNameTemplate: MLText,
     val numTemplateRef: EntityRef,
-    val model: TypeModelDef
+    val model: TypeModelDef,
+    val contentConfig: TypeContentConfig
 ) {
     companion object {
 
@@ -50,6 +51,7 @@ data class TypeInfo(
         var dispNameTemplate: MLText = MLText.EMPTY
         var numTemplateRef: EntityRef = EntityRef.EMPTY
         var model: TypeModelDef = TypeModelDef.EMPTY
+        var contentConfig: TypeContentConfig = TypeContentConfig.EMPTY
 
         constructor(base: TypeInfo) : this() {
             id = base.id
@@ -59,6 +61,7 @@ data class TypeInfo(
             dispNameTemplate = base.dispNameTemplate
             numTemplateRef = base.numTemplateRef
             model = base.model
+            contentConfig = base.contentConfig
         }
 
         fun withId(id: String): Builder {
@@ -96,6 +99,11 @@ data class TypeInfo(
             return this
         }
 
+        fun withContentConfig(contentConfig: TypeContentConfig?): Builder {
+            this.contentConfig = contentConfig ?: TypeContentConfig.EMPTY
+            return this
+        }
+
         fun build(): TypeInfo {
             return TypeInfo(
                 id,
@@ -104,7 +112,8 @@ data class TypeInfo(
                 parentRef,
                 dispNameTemplate,
                 numTemplateRef,
-                model
+                model,
+                contentConfig
             )
         }
     }

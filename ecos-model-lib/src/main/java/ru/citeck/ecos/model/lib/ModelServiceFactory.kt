@@ -17,8 +17,8 @@ import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.RecordTypeComponentImpl
 import ru.citeck.ecos.model.lib.type.service.TypeRefService
 import ru.citeck.ecos.records3.RecordsServiceFactory
-import ru.citeck.ecos.webapp.api.context.EcosWebAppContext
-import ru.citeck.ecos.webapp.api.properties.EcosWebAppProperties
+import ru.citeck.ecos.webapp.api.EcosWebAppApi
+import ru.citeck.ecos.webapp.api.properties.EcosWebAppProps
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class ModelServiceFactory {
@@ -40,7 +40,7 @@ open class ModelServiceFactory {
         private set
 
     val webappProps by lazy {
-        getEcosWebAppContext()?.getProperties() ?: EcosWebAppProperties("", "")
+        getEcosWebAppApi()?.getProperties() ?: EcosWebAppProps("", "")
     }
 
     protected open fun createRoleService(): RoleService {
@@ -92,7 +92,7 @@ open class ModelServiceFactory {
         services.setRecordTypeComponent(RecordTypeComponentImpl(this))
     }
 
-    open fun getEcosWebAppContext(): EcosWebAppContext? {
+    open fun getEcosWebAppApi(): EcosWebAppApi? {
         return null
     }
 
