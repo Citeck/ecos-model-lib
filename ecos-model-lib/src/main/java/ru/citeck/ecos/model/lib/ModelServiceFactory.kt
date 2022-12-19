@@ -40,7 +40,7 @@ open class ModelServiceFactory {
         private set
 
     val webappProps by lazy {
-        getEcosWebAppApi()?.getProperties() ?: EcosWebAppProps("", "")
+        getEcosWebAppApi()?.getProperties() ?: EcosWebAppProps.EMPTY
     }
 
     protected open fun createRoleService(): RoleService {
