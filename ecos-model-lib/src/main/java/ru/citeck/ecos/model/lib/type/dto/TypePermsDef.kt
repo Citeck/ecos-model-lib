@@ -3,7 +3,7 @@ package ru.citeck.ecos.model.lib.type.dto
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @IncludeNonDefault
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 @JackJsonDeserialize(builder = TypeModelDef.Builder::class)
 data class TypePermsDef(
     val id: String,
-    val typeRef: RecordRef,
+    val typeRef: EntityRef,
     val permissions: PermissionsDef,
     val attributes: Map<String, PermissionsDef>
 ) {
@@ -47,7 +47,7 @@ data class TypePermsDef(
     class Builder() {
 
         var id: String = ""
-        var typeRef: RecordRef = RecordRef.EMPTY
+        var typeRef: EntityRef = EntityRef.EMPTY
         var permissions: PermissionsDef = PermissionsDef.EMPTY
         var attributes: Map<String, PermissionsDef> = emptyMap()
 
@@ -63,7 +63,7 @@ data class TypePermsDef(
             return this
         }
 
-        fun withTypeRef(typeRef: RecordRef): Builder {
+        fun withTypeRef(typeRef: EntityRef): Builder {
             this.typeRef = typeRef
             return this
         }

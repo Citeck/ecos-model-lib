@@ -6,17 +6,17 @@ import ru.citeck.ecos.model.lib.permissions.dto.PermissionRule
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
 import ru.citeck.ecos.model.lib.permissions.service.PermsEvaluator
 import ru.citeck.ecos.model.lib.permissions.service.roles.RolesPermissions
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.value.AttValueCtx
 import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
 import ru.citeck.ecos.records3.record.dao.atts.RecordAttsDao
 import ru.citeck.ecos.records3.record.mixin.AttMixin
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 abstract class PermsEvaluatorTestBase {
 
     companion object {
-        private val EMPTY_TEST_REF = RecordRef.create("test", "")
+        private val EMPTY_TEST_REF = EntityRef.create("test", "")
     }
 
     protected val evaluator: PermsEvaluator
@@ -74,7 +74,7 @@ abstract class PermsEvaluatorTestBase {
 
     fun getPerms(recordId: String, permsDef: PermissionsDef): RolesPermissions {
 
-        return evaluator.getPermissions(RecordRef.create("test", recordId), roles, statuses, permsDef)
+        return evaluator.getPermissions(EntityRef.create("test", recordId), roles, statuses, permsDef)
     }
 
     fun getPerms(permsDef: PermissionsDef): RolesPermissions {

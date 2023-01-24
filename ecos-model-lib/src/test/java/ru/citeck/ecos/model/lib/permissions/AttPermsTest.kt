@@ -8,14 +8,15 @@ import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
 import ru.citeck.ecos.model.lib.permissions.repo.PermissionsRepo
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
+import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.dto.TypePermsDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import kotlin.test.assertEquals
 
 class AttPermsTest {
@@ -68,14 +69,10 @@ class AttPermsTest {
 
                 return object : TypesRepo {
 
-                    override fun getParent(typeRef: RecordRef): RecordRef {
-                        return RecordRef.EMPTY
-                    }
+                    override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
 
-                    override fun getModel(typeRef: RecordRef): TypeModelDef {
-
-                        if ("test-type" == typeRef.id) {
-                            return TypeModelDef.create {
+                        if ("test-type" == typeRef.getLocalId()) {
+                            val model = TypeModelDef.create {
                                 withAttributes(
                                     listOf(
                                         AttributeDef.create {
@@ -104,19 +101,23 @@ class AttPermsTest {
                                     )
                                 )
                             }
+                            return TypeInfo.create {
+                                withId(typeRef.getLocalId())
+                                withModel(model)
+                            }
                         }
-                        return TypeModelDef.EMPTY
+                        return null
                     }
 
-                    override fun getChildren(typeRef: RecordRef): List<RecordRef> {
+                    override fun getChildren(typeRef: EntityRef): List<EntityRef> {
                         return emptyList()
                     }
                 }
             }
             override fun createPermissionsRepo(): PermissionsRepo {
                 return object : PermissionsRepo {
-                    override fun getPermissionsForType(typeRef: RecordRef): TypePermsDef? {
-                        if ("test-type" == typeRef.id) {
+                    override fun getPermissionsForType(typeRef: EntityRef): TypePermsDef? {
+                        if ("test-type" == typeRef.getLocalId()) {
                             return typePermsDef
                         }
                         return null
@@ -134,7 +135,7 @@ class AttPermsTest {
                 .build()
         )
 
-        val attPerms = modelServiceFactory.recordPermsService.getRecordAttsPerms(RecordRef.valueOf("test@test-draft"))!!
+        val attPerms = modelServiceFactory.recordPermsService.getRecordAttsPerms(EntityRef.valueOf("test@test-draft"))!!
         val perms = attPerms.getPermissions("att0")
 
         assertEquals(true, perms.isReadAllowed(listOf("initiator")))
@@ -185,7 +186,7 @@ class AttPermsTest {
         private val status: String
     ) {
         @AttName("_type")
-        fun getType(): RecordRef {
+        fun getType(): EntityRef {
             return TypeUtils.getTypeRef("test-type")
         }
         @AttName("_status")

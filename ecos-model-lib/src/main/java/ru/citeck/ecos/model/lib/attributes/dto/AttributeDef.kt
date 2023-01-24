@@ -4,7 +4,7 @@ import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttDef
+import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttDef
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @IncludeNonDefault
@@ -18,15 +18,18 @@ data class AttributeDef(
     val multiple: Boolean,
     val mandatory: Boolean,
     val computed: ComputedAttDef,
-    val constraint: AttConstraintDef
+    val constraint: AttConstraintDef,
+    val index: AttIndexDef
 ) {
 
     companion object {
 
+        @JvmStatic
         fun create(): Builder {
             return Builder()
         }
 
+        @JvmStatic
         fun create(builder: Builder.() -> Unit): AttributeDef {
             val builderObj = Builder()
             builder.invoke(builderObj)
@@ -54,6 +57,7 @@ data class AttributeDef(
         var mandatory: Boolean = false
         var computed: ComputedAttDef = ComputedAttDef.EMPTY
         var constraint: AttConstraintDef = AttConstraintDef.EMPTY
+        var index: AttIndexDef = AttIndexDef.EMPTY
 
         constructor(base: AttributeDef) : this() {
             id = base.id
@@ -64,6 +68,7 @@ data class AttributeDef(
             mandatory = base.mandatory
             computed = base.computed
             constraint = base.constraint
+            index = base.index
         }
 
         fun withId(id: String): Builder {
@@ -106,8 +111,23 @@ data class AttributeDef(
             return this
         }
 
+        fun withIndex(index: AttIndexDef?): Builder {
+            this.index = index ?: AttIndexDef.EMPTY
+            return this
+        }
+
         fun build(): AttributeDef {
-            return AttributeDef(id, name, type, config, multiple, mandatory, computed, constraint)
+            return AttributeDef(
+                id = id,
+                name = name,
+                type = type,
+                config = config,
+                multiple = multiple,
+                mandatory = mandatory,
+                computed = computed,
+                constraint = constraint,
+                index = index
+            )
         }
     }
 }

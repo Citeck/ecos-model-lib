@@ -3,7 +3,7 @@ package ru.citeck.ecos.model.lib.type.dto
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @IncludeNonDefault
@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 @JackJsonDeserialize(builder = DocLibDef.Builder::class)
 data class DocLibDef(
     val enabled: Boolean,
-    val dirTypeRef: RecordRef,
-    val fileTypeRefs: List<RecordRef>
+    val dirTypeRef: EntityRef,
+    val fileTypeRefs: List<EntityRef>
 ) {
 
     companion object {
@@ -46,13 +46,13 @@ data class DocLibDef(
     class Builder() {
 
         var enabled: Boolean = false
-        var dirTypeRef: RecordRef = RecordRef.EMPTY
-        var fileTypeRefs: List<RecordRef> = emptyList()
+        var dirTypeRef: EntityRef = EntityRef.EMPTY
+        var fileTypeRefs: List<EntityRef> = emptyList()
 
         constructor(base: DocLibDef) : this() {
             this.enabled = base.enabled
             this.dirTypeRef = base.dirTypeRef
-            this.fileTypeRefs = DataValue.create(base.fileTypeRefs).asList(RecordRef::class.java)
+            this.fileTypeRefs = DataValue.create(base.fileTypeRefs).asList(EntityRef::class.java)
         }
 
         fun withEnabled(enabled: Boolean?): Builder {
@@ -60,13 +60,13 @@ data class DocLibDef(
             return this
         }
 
-        fun withDirTypeRef(dirTypeRef: RecordRef?): Builder {
-            this.dirTypeRef = dirTypeRef ?: RecordRef.EMPTY
+        fun withDirTypeRef(dirTypeRef: EntityRef?): Builder {
+            this.dirTypeRef = dirTypeRef ?: EntityRef.EMPTY
             return this
         }
 
-        fun withFileTypeRefs(fileTypeRefs: List<RecordRef>?): Builder {
-            this.fileTypeRefs = fileTypeRefs?.filter { RecordRef.isNotEmpty(it) } ?: emptyList()
+        fun withFileTypeRefs(fileTypeRefs: List<EntityRef>?): Builder {
+            this.fileTypeRefs = fileTypeRefs?.filter { EntityRef.isNotEmpty(it) } ?: emptyList()
             return this
         }
 

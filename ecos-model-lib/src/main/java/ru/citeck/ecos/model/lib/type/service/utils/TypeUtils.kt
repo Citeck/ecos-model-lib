@@ -9,6 +9,9 @@ object TypeUtils {
 
     @JvmStatic
     fun getTypeRef(typeId: String): RecordRef {
+        if (typeId.isBlank()) {
+            return RecordRef.EMPTY
+        }
         return RecordRef.create(TypeConstants.TYPE_APP, TypeConstants.TYPE_SOURCE, typeId)
     }
 }

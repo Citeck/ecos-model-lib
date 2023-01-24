@@ -4,15 +4,16 @@ import org.junit.jupiter.api.Test
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.model.lib.role.dto.RoleComputedDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
+import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records3.RecordsServiceFactory
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import kotlin.test.assertEquals
 
 class RoleServiceTest {
@@ -28,9 +29,10 @@ class RoleServiceTest {
             override fun createTypesRepo(): TypesRepo {
                 return object : TypesRepo {
 
-                    override fun getModel(typeRef: RecordRef): TypeModelDef {
+                    override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
+
                         if (typeRef == RecordDto.RECORD_TYPE_REF) {
-                            return TypeModelDef.create {
+                            val model = TypeModelDef.create {
                                 roles = listOf(
                                     RoleDef.create {
                                         id = roleId
@@ -56,15 +58,14 @@ class RoleServiceTest {
                                     }
                                 )
                             }
+                            return TypeInfo.create {
+                                withId(typeRef.getLocalId())
+                                withModel(model)
+                            }
                         }
-                        return TypeModelDef.EMPTY
+                        return null
                     }
-
-                    override fun getParent(typeRef: RecordRef): RecordRef {
-                        return RecordRef.EMPTY
-                    }
-
-                    override fun getChildren(typeRef: RecordRef): List<RecordRef> {
+                    override fun getChildren(typeRef: EntityRef): List<EntityRef> {
                         return emptyList()
                     }
                 }
@@ -106,7 +107,7 @@ class RoleServiceTest {
         val customAtt: List<String>,
         val otherAtt: List<String> = emptyList(),
         @AttName("_type")
-        val type: RecordRef = RECORD_TYPE_REF
+        val type: EntityRef = RECORD_TYPE_REF
     ) {
         companion object {
             val RECORD_TYPE_REF = TypeUtils.getTypeRef("custom-type")

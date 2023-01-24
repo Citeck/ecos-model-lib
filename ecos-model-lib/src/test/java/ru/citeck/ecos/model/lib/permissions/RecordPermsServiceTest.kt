@@ -3,17 +3,17 @@ package ru.citeck.ecos.model.lib.permissions
 import org.junit.jupiter.api.Test
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
-import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records2.graphql.meta.annotation.MetaAtt
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
+import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class RecordPermsServiceTest {
 
     @Test
     fun test() {
 
-        val types = Array(3) { RecordRef.valueOf(TypeUtils.getTypeRef("type-$it")) }
+        val types = Array(3) { EntityRef.valueOf(TypeUtils.getTypeRef("type-$it")) }
         val statuses = Array(3) { "status-$it" }
 
         val sourceId = "test"
@@ -21,7 +21,7 @@ class RecordPermsServiceTest {
         val records = ArrayList<TestDto>()
         for (type in types) {
             for (status in statuses) {
-                records.add(TestDto("${type.id}-$status", type, status))
+                records.add(TestDto("${type.getLocalId()}-$status", type, status))
             }
         }
 
@@ -33,5 +33,5 @@ class RecordPermsServiceTest {
         services.records.recordsServiceV1.register(daoBuilder.build())
     }
 
-    data class TestDto(val id: String, @get:MetaAtt(".type") val type: RecordRef, val _status: String)
+    data class TestDto(val id: String, @AttName("?type") val type: EntityRef, val _status: String)
 }

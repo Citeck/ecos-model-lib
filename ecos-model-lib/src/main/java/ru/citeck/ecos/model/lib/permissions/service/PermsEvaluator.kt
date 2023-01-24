@@ -6,10 +6,10 @@ import ru.citeck.ecos.model.lib.permissions.dto.*
 import ru.citeck.ecos.model.lib.permissions.service.roles.RolesPermissions
 import ru.citeck.ecos.model.lib.permissions.service.roles.RolesPermissionsImpl
 import ru.citeck.ecos.model.lib.status.constants.StatusConstants
-import ru.citeck.ecos.records2.RecordRef
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.element.elematts.RecordAttsElement
 import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class PermsEvaluator(services: ModelServiceFactory) {
 
@@ -17,17 +17,17 @@ class PermsEvaluator(services: ModelServiceFactory) {
     private val predicateService = services.records.predicateService
 
     fun getPermissions(
-        recordRef: RecordRef,
+        entityRef: EntityRef,
         roles: Collection<String>,
         statuses: Collection<String>,
         permissions: PermissionsDef
     ): RolesPermissions {
 
-        return getPermissions(recordRef, roles, statuses, listOf(permissions))[0]
+        return getPermissions(entityRef, roles, statuses, listOf(permissions))[0]
     }
 
     fun getPermissions(
-        recordRef: RecordRef,
+        entityRef: EntityRef,
         roles: Collection<String>,
         statuses: Collection<String>,
         permissions: List<PermissionsDef>
@@ -36,7 +36,7 @@ class PermsEvaluator(services: ModelServiceFactory) {
         val attsToLoad = permissions.flatMap { getAttributesToLoad(it.rules) }.toMutableList()
         attsToLoad.add(StatusConstants.ATT_STATUS_STR)
 
-        val recordAtts = recordsService.getAtts(recordRef, attsToLoad)
+        val recordAtts = recordsService.getAtts(entityRef, attsToLoad)
         return permissions.map { RolesPermissionsImpl(getPermissionsImpl(recordAtts, roles, statuses, it)) }
     }
 

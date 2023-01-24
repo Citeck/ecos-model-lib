@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
+import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
+import ru.citeck.ecos.records3.RecordsServiceFactory
 import java.util.*
 
 class RoleDefTest {
@@ -80,5 +81,14 @@ class RoleDefTest {
         )!!
 
         assertThat(defFromStrArrayAtt.attributes).containsExactly(attribute0, attribute1)
+    }
+
+    @Test
+    fun recordAttsTest() {
+
+        val reader = RecordsServiceFactory().dtoSchemaReader
+        val atts = reader.read(RoleDef::class.java)
+
+        println(atts)
     }
 }

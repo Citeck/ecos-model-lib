@@ -35,7 +35,7 @@ class RecordWithoutStatusPermsTest : PermsTestBase() {
 
         setTypeRoles(listOf("initiator", "approver"))
 
-        val perms = recordPermsService.getRecordPerms(getRecordRef())!!
+        val perms = recordPermsService.getRecordPerms(getEntityRef())!!
 
         assertTrue(perms.isWriteAllowed(listOf("initiator")))
         assertTrue(perms.isReadAllowed(listOf("initiator")))
@@ -67,7 +67,7 @@ class RecordWithoutStatusPermsTest : PermsTestBase() {
 
         setTypeRoles(listOf("initiator", "approver", RoleConstants.ROLE_EVERYONE))
 
-        val perms = recordPermsService.getRecordPerms(getRecordRef())!!
+        val perms = recordPermsService.getRecordPerms(getEntityRef())!!
 
         assertTrue(perms.isWriteAllowed(listOf(RoleConstants.ROLE_EVERYONE, "initiator")))
         assertTrue(perms.isReadAllowed(listOf(RoleConstants.ROLE_EVERYONE, "initiator")))
@@ -85,7 +85,7 @@ class RecordWithoutStatusPermsTest : PermsTestBase() {
         val testWith = { status: String, roles: List<String>, expectedLevel: PermissionLevel ->
 
             setRecordStatus(status)
-            val perms = recordPermsService.getRecordPerms(getRecordRef())!!
+            val perms = recordPermsService.getRecordPerms(getEntityRef())!!
 
             if (expectedLevel == PermissionLevel.WRITE) {
                 assertTrue(perms.isWriteAllowed(roles))

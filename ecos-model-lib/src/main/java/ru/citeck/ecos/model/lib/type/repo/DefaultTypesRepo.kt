@@ -1,13 +1,11 @@
 package ru.citeck.ecos.model.lib.type.repo
 
-import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
-import ru.citeck.ecos.records2.RecordRef
+import ru.citeck.ecos.model.lib.type.dto.TypeInfo
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class DefaultTypesRepo : TypesRepo {
 
-    override fun getModel(typeRef: RecordRef): TypeModelDef = TypeModelDef.EMPTY
+    override fun getTypeInfo(typeRef: EntityRef): TypeInfo? = null
 
-    override fun getParent(typeRef: RecordRef): RecordRef = RecordRef.EMPTY
-
-    override fun getChildren(typeRef: RecordRef): List<RecordRef> = emptyList()
+    override fun getChildren(typeRef: EntityRef): List<EntityRef> = emptyList()
 }

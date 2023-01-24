@@ -2,58 +2,70 @@ package ru.citeck.ecos.model.lib.type.service
 
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.records2.RecordConstants
-import ru.citeck.ecos.records2.RecordRef
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAtt
-import ru.citeck.ecos.records3.record.atts.computed.ComputedAttType
-import ru.citeck.ecos.records3.record.type.RecordTypeService
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 
-class TypeRefService(services: ModelServiceFactory) : RecordTypeService {
+class TypeRefService(services: ModelServiceFactory) {
+
+    companion object {
+        private const val SUB_TYPE_MAX_ITERATIONS = 100
+    }
 
     private val typesRepo = services.typesRepo
     private val recordsService = services.records.recordsServiceV1
 
-    override fun getComputedAtts(typeRef: RecordRef): List<ComputedAtt> {
-        return typesRepo.getModel(typeRef).attributes.filter {
-            it.computed.type != ComputedAttType.NONE
-        }.map {
-            ComputedAtt(it.id, it.computed)
+    fun isSubType(type: EntityRef, ofType: EntityRef): Boolean {
+        if (type == ofType) {
+            return true
         }
+        var idx = 0
+        var parent: EntityRef = getParentRef(type)
+        while (idx++ < SUB_TYPE_MAX_ITERATIONS && EntityRef.isNotEmpty(parent)) {
+            if (parent.getLocalId() == ofType.getLocalId()) {
+                return true
+            }
+            parent = getParentRef(parent)
+        }
+        return false
     }
 
-    fun getTypeRef(record: Any?): RecordRef {
+    fun getTypeRef(record: Any?): EntityRef {
 
-        record ?: return RecordRef.EMPTY
+        record ?: return EntityRef.EMPTY
 
-        if (record is RecordRef && RecordRef.isEmpty(record)) {
-            return RecordRef.EMPTY
+        if (record is EntityRef && EntityRef.isEmpty(record)) {
+            return EntityRef.EMPTY
         }
         val typeStr = recordsService.getAtt(record, "${RecordConstants.ATT_TYPE}?id").asText()
-        return RecordRef.valueOf(typeStr)
+        return EntityRef.valueOf(typeStr)
     }
 
-    fun expandWithChildren(typeRef: RecordRef?): List<RecordRef> {
+    fun expandWithChildren(typeRef: EntityRef?): List<EntityRef> {
 
-        if (typeRef == null || RecordRef.isEmpty(typeRef)) {
+        if (typeRef == null || EntityRef.isEmpty(typeRef)) {
             return emptyList()
         }
 
-        val result = ArrayList<RecordRef>()
+        val result = ArrayList<EntityRef>()
         forEachDesc(typeRef) { result.add(it); null }
 
         return result
     }
 
-    fun <T : Any> forEachAsc(typeRef: RecordRef, action: (RecordRef) -> T?): T? {
+    fun getParentRef(typeRef: EntityRef): EntityRef {
+        return typesRepo.getTypeInfo(typeRef)?.parentRef ?: EntityRef.EMPTY
+    }
 
-        val visited = LinkedHashSet<RecordRef>()
+    fun <T : Any> forEachAsc(typeRef: EntityRef, action: (EntityRef) -> T?): T? {
+
+        val visited = LinkedHashSet<EntityRef>()
 
         var itTypeRef = typeRef
-        while (RecordRef.isNotEmpty(itTypeRef)) {
+        while (EntityRef.isNotEmpty(itTypeRef)) {
             val res = action.invoke(itTypeRef)
             if (res != null) {
                 return res
             }
-            itTypeRef = typesRepo.getParent(itTypeRef)
+            itTypeRef = getParentRef(itTypeRef)
             if (!visited.add(itTypeRef)) {
                 error("Cyclic type references: $visited $itTypeRef")
             }
@@ -61,9 +73,9 @@ class TypeRefService(services: ModelServiceFactory) : RecordTypeService {
         return null
     }
 
-    fun <T : Any> forEachAscInv(typeRef: RecordRef, action: (RecordRef) -> T?): T? {
+    fun <T : Any> forEachAscInv(typeRef: EntityRef, action: (EntityRef) -> T?): T? {
 
-        val types = ArrayList<RecordRef>()
+        val types = ArrayList<EntityRef>()
         forEachAsc(typeRef) { types.add(it); null }
 
         for (i in types.size - 1 downTo 0) {
@@ -76,14 +88,14 @@ class TypeRefService(services: ModelServiceFactory) : RecordTypeService {
         return null
     }
 
-    fun <T : Any> forEachDesc(typeRef: RecordRef, action: (RecordRef) -> T?): T? {
+    fun <T : Any> forEachDesc(typeRef: EntityRef, action: (EntityRef) -> T?): T? {
         return forEachDesc(typeRef, action, LinkedHashSet())
     }
 
     private fun <T : Any> forEachDesc(
-        typeRef: RecordRef,
-        action: (RecordRef) -> T?,
-        visited: MutableSet<RecordRef>
+        typeRef: EntityRef,
+        action: (EntityRef) -> T?,
+        visited: MutableSet<EntityRef>
     ): T? {
 
         if (!visited.add(typeRef)) {
