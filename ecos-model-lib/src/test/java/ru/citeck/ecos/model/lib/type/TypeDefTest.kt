@@ -16,12 +16,10 @@ import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.model.lib.procstages.dto.ProcStageDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
-import ru.citeck.ecos.model.lib.type.dto.CreateVariantDef
-import ru.citeck.ecos.model.lib.type.dto.DocLibDef
-import ru.citeck.ecos.model.lib.type.dto.TypeInfo
-import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
+import ru.citeck.ecos.model.lib.type.dto.*
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.webapp.api.entity.EntityRef
+import ru.citeck.ecos.webapp.api.entity.toEntityRef
 import java.util.*
 import kotlin.test.assertEquals
 
@@ -73,6 +71,16 @@ class TypeDefTest {
                     Locale.FRANCE to "disp-fr"
                 )
             )
+            withAspects(listOf(
+                TypeAspectDef.create()
+                    .withRef("emodel/aspect@some-aspect".toEntityRef())
+                    .withConfig(ObjectData.create("""{"aa":"bb"}"""))
+                    .build(),
+                TypeAspectDef.create()
+                    .withRef("emodel/aspect@some-aspect2".toEntityRef())
+                    .withConfig(ObjectData.create("""{"cc":"dd"}"""))
+                    .build()
+            ))
             withModel(
                 TypeModelDef.create()
                     .withAttributes(

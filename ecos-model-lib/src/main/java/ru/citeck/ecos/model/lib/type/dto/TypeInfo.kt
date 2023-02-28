@@ -15,7 +15,8 @@ data class TypeInfo(
     val dispNameTemplate: MLText,
     val numTemplateRef: EntityRef,
     val model: TypeModelDef,
-    val contentConfig: TypeContentConfig
+    val contentConfig: TypeContentConfig,
+    val aspects: List<TypeAspectDef>
 ) {
     companion object {
 
@@ -52,6 +53,7 @@ data class TypeInfo(
         var numTemplateRef: EntityRef = EntityRef.EMPTY
         var model: TypeModelDef = TypeModelDef.EMPTY
         var contentConfig: TypeContentConfig = TypeContentConfig.EMPTY
+        var aspects: List<TypeAspectDef> = emptyList()
 
         constructor(base: TypeInfo) : this() {
             id = base.id
@@ -62,6 +64,7 @@ data class TypeInfo(
             numTemplateRef = base.numTemplateRef
             model = base.model
             contentConfig = base.contentConfig
+            aspects = base.aspects
         }
 
         fun withId(id: String): Builder {
@@ -104,6 +107,11 @@ data class TypeInfo(
             return this
         }
 
+        fun withAspects(aspects: List<TypeAspectDef>?): Builder {
+            this.aspects = aspects?.filter { it.ref.isNotEmpty() } ?: emptyList()
+            return this
+        }
+
         fun build(): TypeInfo {
             return TypeInfo(
                 id,
@@ -113,7 +121,8 @@ data class TypeInfo(
                 dispNameTemplate,
                 numTemplateRef,
                 model,
-                contentConfig
+                contentConfig,
+                aspects
             )
         }
     }
