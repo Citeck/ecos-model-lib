@@ -10,7 +10,7 @@ import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
-import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
+import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
@@ -77,8 +77,8 @@ class ComputedAttTest {
         }
         services.setRecordsServices(RecordsServiceFactory())
 
-        val typeRef0 = EntityRef.valueOf(TypeUtils.getTypeRef("testparent"))
-        val typeRef1 = EntityRef.valueOf(TypeUtils.getTypeRef("otherRef"))
+        val typeRef0 = EntityRef.valueOf(ModelUtils.getTypeRef("testparent"))
+        val typeRef1 = EntityRef.valueOf(ModelUtils.getTypeRef("otherRef"))
 
         services.records.recordsServiceV1.register(
             RecordsDaoBuilder.create("test")

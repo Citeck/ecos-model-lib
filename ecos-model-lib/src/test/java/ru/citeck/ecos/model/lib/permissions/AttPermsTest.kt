@@ -12,7 +12,7 @@ import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.dto.TypePermsDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
-import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
+import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
@@ -187,7 +187,7 @@ class AttPermsTest {
     ) {
         @AttName("_type")
         fun getType(): EntityRef {
-            return TypeUtils.getTypeRef("test-type")
+            return ModelUtils.getTypeRef("test-type")
         }
         @AttName("_status")
         fun getStatus(): String {

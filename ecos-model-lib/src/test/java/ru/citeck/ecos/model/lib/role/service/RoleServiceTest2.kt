@@ -9,7 +9,7 @@ import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
-import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
+import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.value.AttValueCtx
@@ -102,7 +102,7 @@ class RoleServiceTest2 {
 
     class Mixin : AttMixin {
         override fun getAtt(path: String, value: AttValueCtx): Any? {
-            return TypeUtils.getTypeRef(TYPE_ID)
+            return ModelUtils.getTypeRef(TYPE_ID)
         }
         override fun getProvidedAtts() = listOf("_type")
     }

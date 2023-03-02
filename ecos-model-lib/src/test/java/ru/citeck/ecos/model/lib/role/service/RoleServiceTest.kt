@@ -10,7 +10,7 @@ import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
-import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
+import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.schema.annotation.AttName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
@@ -110,7 +110,7 @@ class RoleServiceTest {
         val type: EntityRef = RECORD_TYPE_REF
     ) {
         companion object {
-            val RECORD_TYPE_REF = TypeUtils.getTypeRef("custom-type")
+            val RECORD_TYPE_REF = ModelUtils.getTypeRef("custom-type")
             val CUSTOM_ATT_VALUE_0 = arrayListOf("first", "second")
             val CUSTOM_ATT_VALUE_1 = arrayListOf("third", "fourth")
             val OTHER_ATT_VALUE_0 = arrayListOf("five", "six")

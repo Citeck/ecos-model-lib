@@ -113,6 +113,15 @@ data class TypeInfo(
         }
 
         fun build(): TypeInfo {
+
+            val aspects = if (aspects.isEmpty()) {
+                emptyList()
+            } else {
+                val aspectsMap = LinkedHashMap<EntityRef, TypeAspectDef>()
+                aspects.forEach { aspectsMap[it.ref] = it }
+                aspectsMap.values.toList()
+            }
+
             return TypeInfo(
                 id,
                 name,

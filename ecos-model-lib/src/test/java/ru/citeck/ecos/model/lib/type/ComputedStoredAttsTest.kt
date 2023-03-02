@@ -12,7 +12,7 @@ import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
-import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
+import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.atts.schema.resolver.AttContext
@@ -176,7 +176,7 @@ class ComputedStoredAttsTest {
         }
 
         override fun getType(): EntityRef {
-            return TypeUtils.getTypeRef(TEST_TYPE_ID)
+            return ModelUtils.getTypeRef(TEST_TYPE_ID)
         }
     }
 }

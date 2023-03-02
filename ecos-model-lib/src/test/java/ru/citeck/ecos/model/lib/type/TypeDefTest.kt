@@ -26,6 +26,28 @@ import kotlin.test.assertEquals
 class TypeDefTest {
 
     @Test
+    fun modelDefTest() {
+
+        val modelDef = TypeModelDef.create()
+            .withStatuses(
+                listOf(
+                    StatusDef.create().withId("status-0").withName(MLText("status-0-name-0")).build(),
+                    StatusDef.create().withId("status-1").withName(MLText("status-1-name-1")).build(),
+                    StatusDef.create().withId("status-2").withName(MLText("status-2-name-2")).build(),
+                    StatusDef.create().withId("status-3").withName(MLText("status-3-name-3")).build(),
+                    StatusDef.create().withId("status-1").withName(MLText("status-1-name-4")).build()
+                )
+            ).build()
+
+        assertThat(modelDef.statuses.map { it.id to it.name.getClosestValue() }).containsExactly(
+            "status-0" to "status-0-name-0",
+            "status-1" to "status-1-name-4",
+            "status-2" to "status-2-name-2",
+            "status-3" to "status-3-name-3"
+        )
+    }
+
+    @Test
     fun indexTest() {
 
         val index = AttIndexDef.create()
@@ -71,16 +93,18 @@ class TypeDefTest {
                     Locale.FRANCE to "disp-fr"
                 )
             )
-            withAspects(listOf(
-                TypeAspectDef.create()
-                    .withRef("emodel/aspect@some-aspect".toEntityRef())
-                    .withConfig(ObjectData.create("""{"aa":"bb"}"""))
-                    .build(),
-                TypeAspectDef.create()
-                    .withRef("emodel/aspect@some-aspect2".toEntityRef())
-                    .withConfig(ObjectData.create("""{"cc":"dd"}"""))
-                    .build()
-            ))
+            withAspects(
+                listOf(
+                    TypeAspectDef.create()
+                        .withRef("emodel/aspect@some-aspect".toEntityRef())
+                        .withConfig(ObjectData.create("""{"aa":"bb"}"""))
+                        .build(),
+                    TypeAspectDef.create()
+                        .withRef("emodel/aspect@some-aspect2".toEntityRef())
+                        .withConfig(ObjectData.create("""{"cc":"dd"}"""))
+                        .build()
+                )
+            )
             withModel(
                 TypeModelDef.create()
                     .withAttributes(
@@ -243,7 +267,7 @@ class TypeDefTest {
             ),
             listOf(
                 AttributeDef.create {
-                    withId("test-att22")
+                    withId("test-att223")
                     withComputed(
                         ComputedAttDef.create {
                             withType(ComputedAttType.VALUE)

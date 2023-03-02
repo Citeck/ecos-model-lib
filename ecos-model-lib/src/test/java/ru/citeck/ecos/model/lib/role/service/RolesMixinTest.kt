@@ -13,7 +13,7 @@ import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
-import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
+import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.record.dao.AbstractRecordsDao
@@ -24,7 +24,7 @@ class RolesMixinTest {
 
     @Test
     fun test() {
-        val testTypeRef = TypeUtils.getTypeRef("test-type")
+        val testTypeRef = ModelUtils.getTypeRef("test-type")
 
         val explicitAssignees = listOf("GROUP_EXP_FIRST", "GROUP_EXP_SECOND")
         val roleId = "ROLE_ID"

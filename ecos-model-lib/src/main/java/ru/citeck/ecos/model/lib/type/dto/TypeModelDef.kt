@@ -9,6 +9,7 @@ import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.model.lib.procstages.dto.ProcStageDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
+import ru.citeck.ecos.model.lib.utils.ModelUtils
 import com.fasterxml.jackson.annotation.JsonIgnore as JackJsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
@@ -115,6 +116,16 @@ data class TypeModelDef(
         }
 
         fun build(): TypeModelDef {
+
+            val statuses = ModelUtils.mergeElementsById(statuses) { it.id }
+            val stages = ModelUtils.mergeElementsById(stages) { it.id }
+            val roles = ModelUtils.mergeElementsById(roles) { it.id }
+
+            val (attributes, systemAttributes) = ModelUtils.getMergedModelAtts(
+                attributes,
+                systemAttributes
+            )
+
             if (stages.isNotEmpty()) {
                 val statusIds = statuses.mapTo(HashSet()) { it.id }
                 val errorMessages = ArrayList<String>()

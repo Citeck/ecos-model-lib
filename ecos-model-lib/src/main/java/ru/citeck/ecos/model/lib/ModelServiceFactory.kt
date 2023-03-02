@@ -2,6 +2,8 @@ package ru.citeck.ecos.model.lib
 
 import ru.citeck.ecos.model.lib.api.DefaultModelAppApi
 import ru.citeck.ecos.model.lib.api.EcosModelAppApi
+import ru.citeck.ecos.model.lib.aspect.repo.AspectsRepo
+import ru.citeck.ecos.model.lib.aspect.repo.DefaultAspectsRepo
 import ru.citeck.ecos.model.lib.attributes.computed.ComputedAttsService
 import ru.citeck.ecos.model.lib.num.repo.DefaultNumTemplatesRepo
 import ru.citeck.ecos.model.lib.num.repo.NumTemplatesRepo
@@ -34,6 +36,7 @@ open class ModelServiceFactory {
     val computedAttsService: ComputedAttsService by lazySingleton { createComputedAttsToStoreService() }
 
     val typesRepo: TypesRepo by lazySingleton { createTypesRepo() }
+    val aspectsRepo: AspectsRepo by lazySingleton { createAspectsRepo() }
     val numTemplatesRepo: NumTemplatesRepo by lazySingleton { createNumTemplatesRepo() }
 
     lateinit var records: RecordsServiceFactory
@@ -57,6 +60,10 @@ open class ModelServiceFactory {
 
     protected open fun createTypesRepo(): TypesRepo {
         return DefaultTypesRepo()
+    }
+
+    protected open fun createAspectsRepo(): AspectsRepo {
+        return DefaultAspectsRepo()
     }
 
     protected open fun createTypeRefService(): TypeRefService {

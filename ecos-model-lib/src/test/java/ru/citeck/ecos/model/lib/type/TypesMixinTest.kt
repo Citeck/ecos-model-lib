@@ -6,7 +6,7 @@ import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.type.api.records.TypesMixin
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
-import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
+import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.webapp.api.entity.EntityRef
@@ -32,7 +32,7 @@ class TypesMixinTest {
                         val parentRef = types.firstOrNull {
                             it.id == typeRef.getLocalId()
                         }?.let {
-                            TypeUtils.getTypeRef(it.parent)
+                            ModelUtils.getTypeRef(it.parent)
                         } ?: EntityRef.EMPTY
 
                         return if (EntityRef.isEmpty(parentRef)) {
@@ -87,7 +87,7 @@ class TypesMixinTest {
     data class RecordValue(val type: String) {
 
         fun getEcosType(): EntityRef {
-            return TypeUtils.getTypeRef(type)
+            return ModelUtils.getTypeRef(type)
         }
     }
 

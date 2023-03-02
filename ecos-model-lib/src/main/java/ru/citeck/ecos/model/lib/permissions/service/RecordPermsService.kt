@@ -9,7 +9,7 @@ import ru.citeck.ecos.model.lib.permissions.service.roles.RolesPermissions
 import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.status.constants.StatusConstants
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
-import ru.citeck.ecos.model.lib.type.service.utils.TypeUtils
+import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class RecordPermsService(services: ModelServiceFactory) {
@@ -26,7 +26,7 @@ class RecordPermsService(services: ModelServiceFactory) {
         val context = getPermsEvalContextForRecord(entityRef) ?: return null
 
         val typePerms: PermissionsDef = typeRefService.forEachAsc(context.typeRef) {
-            val permissions = permsRepo.getPermissionsForType(TypeUtils.getTypeRef(it.getLocalId()))
+            val permissions = permsRepo.getPermissionsForType(ModelUtils.getTypeRef(it.getLocalId()))
             if (permissions == null || permissions.permissions.isEmpty()) {
                 null
             } else {
@@ -46,7 +46,7 @@ class RecordPermsService(services: ModelServiceFactory) {
         }
 
         val typeAttsPerms: Map<String, PermissionsDef> = typeRefService.forEachAsc(context.typeRef) {
-            val permissions = permsRepo.getPermissionsForType(TypeUtils.getTypeRef(it.getLocalId()))
+            val permissions = permsRepo.getPermissionsForType(ModelUtils.getTypeRef(it.getLocalId()))
             if (permissions == null || permissions.attributes.isEmpty()) {
                 null
             } else {
