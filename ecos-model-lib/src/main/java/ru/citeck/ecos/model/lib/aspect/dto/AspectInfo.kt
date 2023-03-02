@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 @JsonDeserialize(builder = AspectInfo.Builder::class)
 @JackJsonDeserialize(builder = AspectInfo.Builder::class)
 @IncludeNonDefault
-class AspectInfo(
+data class AspectInfo(
     val id: String,
     val prefix: String,
     val attributes: List<AttributeDef>,

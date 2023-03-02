@@ -47,6 +47,10 @@ data class AttributeDef(
         return builderObj.build()
     }
 
+    fun withPrefixedId(prefix: String): AttributeDef {
+        return copy().withId("$prefix:$id").build()
+    }
+
     class Builder() {
 
         var id: String = ""
