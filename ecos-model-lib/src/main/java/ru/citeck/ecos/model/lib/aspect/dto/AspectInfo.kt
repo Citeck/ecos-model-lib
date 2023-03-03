@@ -3,6 +3,7 @@ package ru.citeck.ecos.model.lib.aspect.dto
 import ecos.com.fasterxml.jackson210.annotation.JsonIgnore
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.DataValue
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.model.lib.utils.ModelUtils
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 data class AspectInfo(
     val id: String,
     val prefix: String,
+    val defaultConfig: ObjectData,
     val attributes: List<AttributeDef>,
     val systemAttributes: List<AttributeDef>
 ) {
@@ -66,12 +68,14 @@ data class AspectInfo(
         var id: String = ""
         var prefix: String = ""
 
+        var defaultConfig: ObjectData = ObjectData.create()
         var attributes: List<AttributeDef> = emptyList()
         var systemAttributes: List<AttributeDef> = emptyList()
 
         constructor(base: AspectInfo) : this() {
             this.id = base.id
             this.prefix = base.prefix
+            this.defaultConfig = base.defaultConfig.deepCopy()
             this.attributes = DataValue.create(base.attributes).asList(AttributeDef::class.java)
             this.systemAttributes = DataValue.create(base.systemAttributes).asList(AttributeDef::class.java)
         }
@@ -83,6 +87,11 @@ data class AspectInfo(
 
         fun withPrefix(prefix: String?): Builder {
             this.prefix = prefix ?: ""
+            return this
+        }
+
+        fun withDefaultConfig(defaultConfig: ObjectData?): Builder {
+            this.defaultConfig = defaultConfig ?: ObjectData.create()
             return this
         }
 
@@ -103,7 +112,7 @@ data class AspectInfo(
                 systemAttributes
             )
 
-            return AspectInfo(id, prefix, attributes, systemAttributes)
+            return AspectInfo(id, prefix, defaultConfig, attributes, systemAttributes)
         }
     }
 }
