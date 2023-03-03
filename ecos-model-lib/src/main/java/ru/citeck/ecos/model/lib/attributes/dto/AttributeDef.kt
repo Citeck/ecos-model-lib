@@ -75,18 +75,18 @@ data class AttributeDef(
             index = base.index
         }
 
-        fun withId(id: String): Builder {
-            this.id = id
+        fun withId(id: String?): Builder {
+            this.id = id ?: ""
             return this
         }
 
-        fun withName(name: MLText): Builder {
-            this.name = name
+        fun withName(name: MLText?): Builder {
+            this.name = name ?: MLText.EMPTY
             return this
         }
 
-        fun withType(type: AttributeType): Builder {
-            this.type = type
+        fun withType(type: AttributeType?): Builder {
+            this.type = type ?: AttributeType.TEXT
             return this
         }
 

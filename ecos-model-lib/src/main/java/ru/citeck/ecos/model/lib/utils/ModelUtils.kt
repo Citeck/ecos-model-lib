@@ -56,8 +56,11 @@ object ModelUtils {
     ): List<T> {
         val result = LinkedHashMap<String, T>()
         for (element in elements) {
-            if (filter(element)) {
-                result[getId(element)] = element
+            val id = getId(element)
+            if (id.isNotBlank()) {
+                if (filter(element)) {
+                    result[id] = element
+                }
             }
         }
         return result.values.toList()
