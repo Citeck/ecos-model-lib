@@ -45,6 +45,41 @@ class TypeDefTest {
             "status-2" to "status-2-name-2",
             "status-3" to "status-3-name-3"
         )
+
+        val modelDef2 = TypeModelDef.create()
+            .withStatuses(
+                listOf(
+                    StatusDef.create().withId("status-0").build(),
+                    StatusDef.create().build()
+                )
+            )
+            .withAttributes(
+                listOf(
+                    AttributeDef.create().withId("att-0").build(),
+                    AttributeDef.create().build()
+                )
+            )
+            .withStages(
+                listOf(
+                    ProcStageDef.create().withId("stage-0").build(),
+                    ProcStageDef.create().withId("stage-1").withName(MLText("stage-1")).build(),
+                    ProcStageDef.create().withName(MLText("stage-2")).build()
+                )
+            )
+            .build()
+
+        assertThat(modelDef2.statuses).hasSize(1)
+        assertThat(modelDef2.statuses[0]).isEqualTo(StatusDef.create().withId("status-0").build())
+
+        assertThat(modelDef2.attributes).hasSize(1)
+        assertThat(modelDef2.attributes[0]).isEqualTo(AttributeDef.create().withId("att-0").build())
+
+        assertThat(modelDef2.stages).hasSize(3)
+        assertThat(modelDef2.stages).containsExactly(
+            ProcStageDef.create().withId("stage-0").build(),
+            ProcStageDef.create().withId("stage-1").withName(MLText("stage-1")).build(),
+            ProcStageDef.create().withName(MLText("stage-2")).build()
+        )
     }
 
     @Test

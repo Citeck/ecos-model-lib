@@ -118,7 +118,6 @@ data class TypeModelDef(
         fun build(): TypeModelDef {
 
             val statuses = ModelUtils.mergeElementsById(statuses) { it.id }
-            val stages = ModelUtils.mergeElementsById(stages) { it.id }
             val roles = ModelUtils.mergeElementsById(roles) { it.id }
 
             val (attributes, systemAttributes) = ModelUtils.getMergedModelAtts(
