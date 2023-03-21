@@ -16,7 +16,8 @@ data class TypeInfo(
     val numTemplateRef: EntityRef,
     val model: TypeModelDef,
     val contentConfig: TypeContentConfig,
-    val aspects: List<TypeAspectDef>
+    val aspects: List<TypeAspectDef>,
+    val permsPolicy: TypePermsPolicy
 ) {
     companion object {
 
@@ -54,6 +55,7 @@ data class TypeInfo(
         var model: TypeModelDef = TypeModelDef.EMPTY
         var contentConfig: TypeContentConfig = TypeContentConfig.EMPTY
         var aspects: List<TypeAspectDef> = emptyList()
+        var permsPolicy: TypePermsPolicy = TypePermsPolicy.OWN
 
         constructor(base: TypeInfo) : this() {
             id = base.id
@@ -65,6 +67,7 @@ data class TypeInfo(
             model = base.model
             contentConfig = base.contentConfig
             aspects = base.aspects
+            permsPolicy = base.permsPolicy
         }
 
         fun withId(id: String): Builder {
@@ -112,6 +115,11 @@ data class TypeInfo(
             return this
         }
 
+        fun withPermsPolicy(permsPolicy: TypePermsPolicy?): Builder {
+            this.permsPolicy = permsPolicy ?: TypePermsPolicy.OWN
+            return this
+        }
+
         fun build(): TypeInfo {
 
             val aspects = if (aspects.isEmpty()) {
@@ -131,7 +139,8 @@ data class TypeInfo(
                 numTemplateRef,
                 model,
                 contentConfig,
-                aspects
+                aspects,
+                permsPolicy
             )
         }
     }
