@@ -55,7 +55,7 @@ data class TypeInfo(
         var model: TypeModelDef = TypeModelDef.EMPTY
         var contentConfig: TypeContentConfig = TypeContentConfig.EMPTY
         var aspects: List<TypeAspectDef> = emptyList()
-        var permsPolicy: TypePermsPolicy = TypePermsPolicy.OWN
+        var permsPolicy: TypePermsPolicy = TypePermsPolicy.DEFAULT
 
         constructor(base: TypeInfo) : this() {
             id = base.id
@@ -116,7 +116,7 @@ data class TypeInfo(
         }
 
         fun withPermsPolicy(permsPolicy: TypePermsPolicy?): Builder {
-            this.permsPolicy = permsPolicy ?: TypePermsPolicy.OWN
+            this.permsPolicy = permsPolicy ?: TypePermsPolicy.DEFAULT
             return this
         }
 
