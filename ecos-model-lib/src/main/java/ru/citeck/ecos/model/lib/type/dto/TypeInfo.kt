@@ -17,7 +17,7 @@ data class TypeInfo(
     val model: TypeModelDef,
     val contentConfig: TypeContentConfig,
     val aspects: List<TypeAspectDef>,
-    val permsPolicy: TypePermsPolicy
+    val queryPermsPolicy: QueryPermsPolicy
 ) {
     companion object {
 
@@ -55,7 +55,7 @@ data class TypeInfo(
         var model: TypeModelDef = TypeModelDef.EMPTY
         var contentConfig: TypeContentConfig = TypeContentConfig.EMPTY
         var aspects: List<TypeAspectDef> = emptyList()
-        var permsPolicy: TypePermsPolicy = TypePermsPolicy.DEFAULT
+        var queryPermsPolicy: QueryPermsPolicy = QueryPermsPolicy.DEFAULT
 
         constructor(base: TypeInfo) : this() {
             id = base.id
@@ -67,7 +67,7 @@ data class TypeInfo(
             model = base.model
             contentConfig = base.contentConfig
             aspects = base.aspects
-            permsPolicy = base.permsPolicy
+            queryPermsPolicy = base.queryPermsPolicy
         }
 
         fun withId(id: String): Builder {
@@ -115,8 +115,8 @@ data class TypeInfo(
             return this
         }
 
-        fun withPermsPolicy(permsPolicy: TypePermsPolicy?): Builder {
-            this.permsPolicy = permsPolicy ?: TypePermsPolicy.DEFAULT
+        fun withQueryPermsPolicy(queryPermsPolicy: QueryPermsPolicy?): Builder {
+            this.queryPermsPolicy = queryPermsPolicy ?: QueryPermsPolicy.DEFAULT
             return this
         }
 
@@ -140,7 +140,7 @@ data class TypeInfo(
                 model,
                 contentConfig,
                 aspects,
-                permsPolicy
+                queryPermsPolicy
             )
         }
     }
