@@ -14,6 +14,7 @@ data class TypeInfo(
     val parentRef: EntityRef,
     val dispNameTemplate: MLText,
     val numTemplateRef: EntityRef,
+    val defaultStatus: String,
     val model: TypeModelDef,
     val contentConfig: TypeContentConfig,
     val aspects: List<TypeAspectDef>,
@@ -52,6 +53,7 @@ data class TypeInfo(
         var parentRef: EntityRef = EntityRef.EMPTY
         var dispNameTemplate: MLText = MLText.EMPTY
         var numTemplateRef: EntityRef = EntityRef.EMPTY
+        var defaultStatus: String = ""
         var model: TypeModelDef = TypeModelDef.EMPTY
         var contentConfig: TypeContentConfig = TypeContentConfig.EMPTY
         var aspects: List<TypeAspectDef> = emptyList()
@@ -64,6 +66,7 @@ data class TypeInfo(
             parentRef = base.parentRef
             dispNameTemplate = base.dispNameTemplate
             numTemplateRef = base.numTemplateRef
+            defaultStatus = base.defaultStatus
             model = base.model
             contentConfig = base.contentConfig
             aspects = base.aspects
@@ -97,6 +100,11 @@ data class TypeInfo(
 
         fun withNumTemplateRef(numTemplateRef: EntityRef?): Builder {
             this.numTemplateRef = numTemplateRef ?: EntityRef.EMPTY
+            return this
+        }
+
+        fun withDefaultStatus(defaultStatus: String?): Builder {
+            this.defaultStatus = defaultStatus ?: ""
             return this
         }
 
@@ -137,6 +145,7 @@ data class TypeInfo(
                 parentRef,
                 dispNameTemplate,
                 numTemplateRef,
+                defaultStatus,
                 model,
                 contentConfig,
                 aspects,
