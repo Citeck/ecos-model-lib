@@ -9,7 +9,6 @@ import ru.citeck.ecos.model.lib.status.constants.StatusConstants
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.element.elematts.RecordAttsElement
 import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
-import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class PermsEvaluator(services: ModelServiceFactory) {
 
@@ -17,17 +16,17 @@ class PermsEvaluator(services: ModelServiceFactory) {
     private val predicateService = services.records.predicateService
 
     fun getPermissions(
-        entityRef: EntityRef,
+        record: Any,
         roles: Collection<String>,
         statuses: Collection<String>,
         permissions: PermissionsDef
     ): RolesPermissions {
 
-        return getPermissions(entityRef, roles, statuses, listOf(permissions))[0]
+        return getPermissions(record, roles, statuses, listOf(permissions))[0]
     }
 
     fun getPermissions(
-        entityRef: EntityRef,
+        record: Any,
         roles: Collection<String>,
         statuses: Collection<String>,
         permissions: List<PermissionsDef>
@@ -36,7 +35,7 @@ class PermsEvaluator(services: ModelServiceFactory) {
         val attsToLoad = permissions.flatMap { getAttributesToLoad(it.rules) }.toMutableList()
         attsToLoad.add(StatusConstants.ATT_STATUS_STR)
 
-        val recordAtts = recordsService.getAtts(entityRef, attsToLoad)
+        val recordAtts = recordsService.getAtts(record, attsToLoad)
         return permissions.map { RolesPermissionsImpl(getPermissionsImpl(recordAtts, roles, statuses, it)) }
     }
 
@@ -107,7 +106,7 @@ class PermsEvaluator(services: ModelServiceFactory) {
     }
 
     private fun getStatusFromData(data: ObjectData): String {
-        val status = data.get(StatusConstants.ATT_STATUS_STR).asText()
+        val status = data[StatusConstants.ATT_STATUS_STR].asText()
         if (status.isBlank()) {
             return StatusConstants.STATUS_EMPTY
         }

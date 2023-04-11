@@ -21,9 +21,10 @@ class RecordPermsService(services: ModelServiceFactory) {
     private val typeRefService = services.typeRefService
     private val typesRepo = services.typesRepo
 
-    fun getRecordPerms(entityRef: EntityRef): RolesPermissions? {
+    fun getRecordPerms(record: Any?): RolesPermissions? {
 
-        val context = getPermsEvalContextForRecord(entityRef) ?: return null
+        record ?: return null
+        val context = getPermsEvalContextForRecord(record) ?: return null
 
         val typePerms: PermissionsDef = typeRefService.forEachAsc(context.typeRef) {
             val permissions = permsRepo.getPermissionsForType(ModelUtils.getTypeRef(it.getLocalId()))
@@ -34,12 +35,13 @@ class RecordPermsService(services: ModelServiceFactory) {
             }
         } ?: return null
 
-        return permsEvaluator.getPermissions(entityRef, context.roles, context.statuses, listOf(typePerms))[0]
+        return permsEvaluator.getPermissions(record, context.roles, context.statuses, listOf(typePerms))[0]
     }
 
-    fun getRecordAttsPerms(entityRef: EntityRef): AttributePermissions? {
+    fun getRecordAttsPerms(record: Any?): AttributePermissions? {
 
-        val context = getPermsEvalContextForRecord(entityRef) ?: return null
+        record ?: return null
+        val context = getPermsEvalContextForRecord(record) ?: return null
 
         if (context.attributes.isEmpty()) {
             return null
@@ -56,7 +58,7 @@ class RecordPermsService(services: ModelServiceFactory) {
 
         val permsList = typeAttsPerms.toList().filter { context.attributes.contains(it.first) }
         val rolePerms = permsEvaluator.getPermissions(
-            entityRef,
+            record,
             context.roles,
             context.statuses,
             permsList.map { it.second }
@@ -71,8 +73,8 @@ class RecordPermsService(services: ModelServiceFactory) {
         )
     }
 
-    private fun getPermsEvalContextForRecord(entityRef: EntityRef): PermsEvalContext? {
-        val typeRefStr = recordsService.getAtt(entityRef, "_type?id").asText()
+    private fun getPermsEvalContextForRecord(record: Any): PermsEvalContext? {
+        val typeRefStr = recordsService.getAtt(record, "_type?id").asText()
         return getPermsEvalContextForTypeRef(EntityRef.valueOf(typeRefStr))
     }
 
