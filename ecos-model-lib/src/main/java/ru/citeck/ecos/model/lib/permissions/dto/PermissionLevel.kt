@@ -1,5 +1,7 @@
 package ru.citeck.ecos.model.lib.permissions.dto
 
+import ru.citeck.ecos.webapp.api.perms.PermissionType
+
 enum class PermissionLevel(val permissions: Set<PermissionType>) {
 
     NONE(emptySet()),

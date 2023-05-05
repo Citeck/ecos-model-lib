@@ -1,6 +1,6 @@
 package ru.citeck.ecos.model.lib.permissions.service.roles
 
-import ru.citeck.ecos.model.lib.permissions.dto.PermissionType
+import ru.citeck.ecos.webapp.api.perms.PermissionType
 
 class RolesPermissionsImpl(private val permissions: Map<String, Set<String>>) : RolesPermissions {
 
