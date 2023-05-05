@@ -5,6 +5,8 @@ import ru.citeck.ecos.model.lib.api.EcosModelAppApi
 import ru.citeck.ecos.model.lib.aspect.repo.AspectsRepo
 import ru.citeck.ecos.model.lib.aspect.repo.DefaultAspectsRepo
 import ru.citeck.ecos.model.lib.attributes.computed.ComputedAttsService
+import ru.citeck.ecos.model.lib.delegation.service.DefaultDelegationService
+import ru.citeck.ecos.model.lib.delegation.service.DelegationService
 import ru.citeck.ecos.model.lib.num.repo.DefaultNumTemplatesRepo
 import ru.citeck.ecos.model.lib.num.repo.NumTemplatesRepo
 import ru.citeck.ecos.model.lib.num.service.EcosNumService
@@ -38,6 +40,7 @@ open class ModelServiceFactory {
     val typesRepo: TypesRepo by lazySingleton { createTypesRepo() }
     val aspectsRepo: AspectsRepo by lazySingleton { createAspectsRepo() }
     val numTemplatesRepo: NumTemplatesRepo by lazySingleton { createNumTemplatesRepo() }
+    val delegationService: DelegationService by lazySingleton { createDelegationService() }
 
     lateinit var records: RecordsServiceFactory
         private set
@@ -76,6 +79,10 @@ open class ModelServiceFactory {
 
     protected open fun createNumTemplatesRepo(): NumTemplatesRepo {
         return DefaultNumTemplatesRepo()
+    }
+
+    protected open fun createDelegationService(): DelegationService {
+        return DefaultDelegationService()
     }
 
     protected open fun createRecordPermsService(): RecordPermsService {
