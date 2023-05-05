@@ -3,10 +3,10 @@ package ru.citeck.ecos.model.lib.permissions
 import org.junit.jupiter.api.Test
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionLevel
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionRule
+import ru.citeck.ecos.model.lib.permissions.dto.PermissionType
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionsDef
 import ru.citeck.ecos.model.lib.type.dto.TypePermsDef
 import ru.citeck.ecos.records3.RecordsServiceFactory
-import ru.citeck.ecos.webapp.api.perms.PermissionType
 import kotlin.test.assertEquals
 
 class PermsDefTest {
