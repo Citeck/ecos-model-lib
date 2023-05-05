@@ -1,7 +1,7 @@
 package ru.citeck.ecos.model.lib.permissions.service.roles
 
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionLevel
-import ru.citeck.ecos.model.lib.permissions.dto.PermissionType
+import ru.citeck.ecos.webapp.api.perms.PermissionType
 
 object ReadPermissions : RolesPermissions {
 

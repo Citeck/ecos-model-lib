@@ -3,8 +3,8 @@ package ru.citeck.ecos.model.lib.permissions.evaluator
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionRule
-import ru.citeck.ecos.model.lib.permissions.dto.PermissionType
 import ru.citeck.ecos.records2.predicate.model.Predicates
+import ru.citeck.ecos.webapp.api.perms.PermissionType
 
 class PermsRulesTest : PermsEvaluatorTestBase() {
 
