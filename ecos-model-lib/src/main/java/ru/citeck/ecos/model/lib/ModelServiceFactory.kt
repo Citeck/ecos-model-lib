@@ -82,7 +82,7 @@ open class ModelServiceFactory {
     }
 
     protected open fun createDelegationService(): DelegationService {
-        return DefaultDelegationService()
+        return DefaultDelegationService(this)
     }
 
     protected open fun createRecordPermsService(): RecordPermsService {
