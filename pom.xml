@@ -28,7 +28,7 @@
         <ecos.records.version>3.56.4</ecos.records.version>
         <ecos.context-lib.version>1.3.5</ecos.context-lib.version>
         <ecos.commands.version>2.9.1</ecos.commands.version>
-        <ecos.webapp-api.version>1.6.8-SNAPSHOT</ecos.webapp-api.version>
+        <ecos.webapp-api.version>1.7.0</ecos.webapp-api.version>
 
         <ecos.test-commons.version>1.0.5</ecos.test-commons.version>
 
