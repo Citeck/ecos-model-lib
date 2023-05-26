@@ -1,14 +1,14 @@
 package ru.citeck.ecos.model.lib.role.dto
 
+import ecos.com.fasterxml.jackson210.annotation.JsonEnumDefaultValue
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
-import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 
 @IncludeNonDefault
 @JsonDeserialize(builder = RoleComputedDef.Builder::class)
 data class RoleComputedDef(
-    val type: ComputedAttType,
+    val type: ComputedRoleType,
     val config: ObjectData
 ) {
     companion object {
@@ -41,7 +41,7 @@ data class RoleComputedDef(
 
     class Builder() {
 
-        var type: ComputedAttType = ComputedAttType.NONE
+        var type: ComputedRoleType = ComputedRoleType.NONE
         var config: ObjectData = ObjectData.create()
 
         constructor(base: RoleComputedDef) : this() {
@@ -49,8 +49,8 @@ data class RoleComputedDef(
             this.config = base.config
         }
 
-        fun withType(type: ComputedAttType?): Builder {
-            this.type = type ?: ComputedAttType.NONE
+        fun withType(type: ComputedRoleType?): Builder {
+            this.type = type ?: ComputedRoleType.NONE
             return this
         }
 
@@ -63,4 +63,14 @@ data class RoleComputedDef(
             return RoleComputedDef(type, config)
         }
     }
+}
+
+enum class ComputedRoleType {
+    SCRIPT,
+    ATTRIBUTE,
+    VALUE,
+    DMN,
+
+    @JsonEnumDefaultValue
+    NONE;
 }
