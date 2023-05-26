@@ -6,8 +6,8 @@ import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
-import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.model.lib.role.api.records.RolesMixin
+import ru.citeck.ecos.model.lib.role.dto.ComputedRoleType
 import ru.citeck.ecos.model.lib.role.dto.RoleComputedDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
@@ -61,7 +61,7 @@ class RolesMixinTest {
                                         id = computedRoleId
                                         name = MLText(computedRoleId)
                                         computed = RoleComputedDef.create {
-                                            withType(ComputedAttType.SCRIPT)
+                                            withType(ComputedRoleType.SCRIPT)
                                             withConfig(ObjectData.create(computedRoleConfigJson))
                                         }
                                     }

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.Json
-import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import java.util.*
 
@@ -20,7 +19,7 @@ class RoleDefTest {
             listOf("attribute0", "attribute1"),
             listOf("assignee0", "assignee1"),
             RoleComputedDef.create {
-                withType(ComputedAttType.SCRIPT)
+                withType(ComputedRoleType.SCRIPT)
                 withConfig(ObjectData.create("""{"fn":"return 'abc';"}"""))
             }
         )
