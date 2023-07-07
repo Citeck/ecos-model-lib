@@ -1,7 +1,9 @@
 package ru.citeck.ecos.model.lib.type.dto
 
 import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
+import ru.citeck.ecos.webapp.api.entity.EntityRef
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @IncludeNonDefault
@@ -10,7 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDese
 data class TypeContentConfig(
     val path: String,
     val previewPath: String,
-    val storageType: String
+    val storageRef: EntityRef,
+    val storageConfig: ObjectData
 ) {
 
     companion object {
@@ -45,11 +48,14 @@ data class TypeContentConfig(
 
         var path: String = ""
         var previewPath: String = ""
-        var storageType: String = ""
+        var storageRef: EntityRef = EntityRef.EMPTY
+        var storageConfig: ObjectData = ObjectData.create()
 
         constructor(base: TypeContentConfig) : this() {
             this.path = base.path
             this.previewPath = base.previewPath
+            this.storageRef = base.storageRef
+            this.storageConfig = base.storageConfig.deepCopy()
         }
 
         fun withPath(path: String?): Builder {
@@ -62,13 +68,23 @@ data class TypeContentConfig(
             return this
         }
 
-        fun withStorageType(storageType: String): Builder {
-            this.storageType = storageType
+        fun withStorageRef(storageRef: EntityRef?): Builder {
+            this.storageRef = storageRef ?: EntityRef.EMPTY
+            return this
+        }
+
+        fun withStorageConfig(storageConfig: ObjectData?): Builder {
+            this.storageConfig = storageConfig ?: ObjectData.create()
             return this
         }
 
         fun build(): TypeContentConfig {
-            return TypeContentConfig(path, previewPath, storageType)
+            return TypeContentConfig(
+                path,
+                previewPath,
+                storageRef,
+                storageConfig
+            )
         }
     }
 }
