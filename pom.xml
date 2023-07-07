@@ -12,7 +12,7 @@
 
     <properties>
 
-        <revision>2.27.0</revision>
+        <revision>2.28.0-SNAPSHOT</revision>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
