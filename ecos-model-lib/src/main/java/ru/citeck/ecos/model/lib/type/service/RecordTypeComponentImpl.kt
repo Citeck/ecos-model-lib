@@ -1,6 +1,7 @@
 package ru.citeck.ecos.model.lib.type.service
 
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.attributes.computed.ComputedAttsService
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttStoringType
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAtt
@@ -36,7 +37,14 @@ class RecordTypeComponentImpl(services: ModelServiceFactory) : RecordTypeCompone
                 if (recCompType == RecordComputedAttType.NONE) {
                     continue
                 }
-                result.add(RecordComputedAtt(att.id, recCompType, computed.config))
+                result.add(
+                    RecordComputedAtt.create()
+                        .withId(att.id)
+                        .withType(recCompType)
+                        .withConfig(computed.config)
+                        .withResultType(ComputedAttsService.mapAttributeTypeToRecordComputedResType(att.type))
+                        .build()
+                )
             }
             result
         }

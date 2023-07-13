@@ -4,12 +4,14 @@ import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.attributes.dto.AttributeType
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttDef
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttStoringType
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.records2.RecordConstants
 import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAtt
+import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAttResType
 import ru.citeck.ecos.records3.record.atts.schema.ScalarType
 import ru.citeck.ecos.records3.record.atts.value.AttValue
 import ru.citeck.ecos.records3.record.atts.value.impl.AttValueDelegate
@@ -19,6 +21,25 @@ class ComputedAttsService(services: ModelServiceFactory) {
 
     companion object {
         private const val COUNTER_CONFIG_TEMPLATE_KEY = "numTemplateRef"
+
+        fun mapAttributeTypeToRecordComputedResType(type: AttributeType?): RecordComputedAttResType {
+            type ?: return RecordComputedAttResType.ANY
+            return when (type) {
+                AttributeType.ASSOC -> RecordComputedAttResType.REF
+                AttributeType.PERSON,
+                AttributeType.AUTHORITY_GROUP,
+                AttributeType.AUTHORITY -> RecordComputedAttResType.AUTHORITY
+                AttributeType.TEXT -> RecordComputedAttResType.TEXT
+                AttributeType.MLTEXT -> RecordComputedAttResType.MLTEXT
+                AttributeType.NUMBER,
+                AttributeType.BOOLEAN,
+                AttributeType.DATE,
+                AttributeType.DATETIME,
+                AttributeType.CONTENT,
+                AttributeType.JSON,
+                AttributeType.BINARY -> RecordComputedAttResType.ANY
+            }
+        }
     }
 
     private val recordComputedAttsService = services.records.recordComputedAttsService
@@ -42,6 +63,7 @@ class ComputedAttsService(services: ModelServiceFactory) {
         val typeInfo = typesRepo.getTypeInfo(typeRef) ?: return ObjectData.create()
 
         val attsToEval = LinkedHashMap<String, ComputedAttDef>()
+        val attsTypeById = HashMap<String, AttributeType>()
         if (EntityRef.isNotEmpty(typeInfo.numTemplateRef)) {
             val config = ObjectData.create()
             config[COUNTER_CONFIG_TEMPLATE_KEY] = typeInfo.numTemplateRef
@@ -59,6 +81,7 @@ class ComputedAttsService(services: ModelServiceFactory) {
                 continue
             }
             attsToEval.putIfAbsent(attribute.id, attribute.computed)
+            attsTypeById.putIfAbsent(attribute.id, attribute.type)
         }
 
         val resultAtts = linkedMapOf<String, Any?>()
@@ -66,13 +89,13 @@ class ComputedAttsService(services: ModelServiceFactory) {
         if (isNewRecord) {
             for ((attId, computed) in attsToEval) {
                 if (computed.type == ComputedAttType.COUNTER) {
-                    computeAttToStore(resultAtts, valueToEval, attId, computed, isNewRecord)
+                    computeAttToStore(resultAtts, valueToEval, attId, attsTypeById[attId], computed, isNewRecord)
                 }
             }
         }
         for ((attId, computed) in attsToEval) {
             if (computed.type != ComputedAttType.COUNTER) {
-                computeAttToStore(resultAtts, valueToEval, attId, computed, isNewRecord)
+                computeAttToStore(resultAtts, valueToEval, attId, attsTypeById[attId], computed, isNewRecord)
             }
         }
 
@@ -126,6 +149,7 @@ class ComputedAttsService(services: ModelServiceFactory) {
         result: MutableMap<String, Any?>,
         value: Any,
         attId: String,
+        attType: AttributeType?,
         computed: ComputedAttDef,
         isNewRecord: Boolean
     ) {
@@ -151,7 +175,12 @@ class ComputedAttsService(services: ModelServiceFactory) {
                 return
             }
         }
-        val recordComputedAtt = RecordComputedAtt(attId, computed.type.toRecordComputedType(), computed.config)
+        val recordComputedAtt = RecordComputedAtt.create()
+            .withId(attId)
+            .withType(computed.type.toRecordComputedType())
+            .withConfig(computed.config)
+            .withResultType(mapAttributeTypeToRecordComputedResType(attType))
+            .build()
         result[attId] = recordComputedAttsService.compute(value, recordComputedAtt) { null }
     }
 
