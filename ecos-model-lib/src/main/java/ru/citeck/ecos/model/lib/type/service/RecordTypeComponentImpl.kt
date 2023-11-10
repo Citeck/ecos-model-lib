@@ -49,6 +49,10 @@ class RecordTypeComponentImpl(services: ModelServiceFactory) : RecordTypeCompone
             result
         }
 
+        override fun getParentId(): String {
+            return typeInfo?.parentRef?.getLocalId() ?: ""
+        }
+
         override fun getComputedAtts(): List<RecordComputedAtt> {
             return computedAttsValue
         }
