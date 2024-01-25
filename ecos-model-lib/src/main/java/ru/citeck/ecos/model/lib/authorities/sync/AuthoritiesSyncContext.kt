@@ -8,4 +8,6 @@ interface AuthoritiesSyncContext<T> {
     fun setState(state: T?)
 
     fun updateAuthorities(type: AuthorityType, authorities: List<ObjectData>)
+
+    fun deleteAuthorities(type: AuthorityType, authorities: List<String>)
 }
