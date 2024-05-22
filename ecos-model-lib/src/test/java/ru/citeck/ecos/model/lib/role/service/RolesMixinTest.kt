@@ -27,7 +27,7 @@ class RolesMixinTest {
         val testTypeRef = ModelUtils.getTypeRef("test-type")
 
         val explicitAssignees = listOf("GROUP_EXP_FIRST", "GROUP_EXP_SECOND")
-        val roleId = "ROLE_ID"
+        val roleId = "role_id"
 
         val roleWithUserId = "roleWithUser"
         val roleWithUserAssignees = listOf("user0")

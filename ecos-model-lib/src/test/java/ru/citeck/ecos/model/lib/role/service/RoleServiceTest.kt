@@ -27,7 +27,7 @@ class RoleServiceTest {
 
         val explicitAssignees = listOf("GROUP_EXP_FIRST", "GROUP_EXP_SECOND")
         val assigneesFromDmn = listOf("user1", "user2")
-        val roleId = "ROLE_ID"
+        val roleId = "role_id"
         val computedRoleId = "computedRoleId"
         val computedRoleDmnId = "computedRoleDmnId"
 

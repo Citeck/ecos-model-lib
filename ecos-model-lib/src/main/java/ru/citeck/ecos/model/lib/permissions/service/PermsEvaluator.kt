@@ -1,10 +1,12 @@
 package ru.citeck.ecos.model.lib.permissions.service
 
 import ru.citeck.ecos.commons.data.ObjectData
+import ru.citeck.ecos.context.lib.auth.AuthRole
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.permissions.dto.*
 import ru.citeck.ecos.model.lib.permissions.service.roles.RolesPermissions
 import ru.citeck.ecos.model.lib.permissions.service.roles.RolesPermissionsImpl
+import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.status.constants.StatusConstants
 import ru.citeck.ecos.records2.predicate.PredicateUtils
 import ru.citeck.ecos.records2.predicate.element.elematts.RecordAttsElement
@@ -52,26 +54,27 @@ class PermsEvaluator(services: ModelServiceFactory) {
 
     private fun getPermissionsImpl(
         recordData: RecordAtts,
-        roles: Collection<String>,
-        statuses: Collection<String>,
+        typeRoles: Collection<String>,
+        typeStatuses: Collection<String>,
         permissions: PermissionsDef
     ): Map<String, Set<String>> {
+
+        val fullRoles = LinkedHashSet(typeRoles)
+        permissions.matrix.forEach { (roleId, _) ->
+            if (roleId == RoleConstants.ROLE_EVERYONE || roleId.startsWith(AuthRole.PREFIX)) {
+                fullRoles.add(roleId)
+            }
+        }
 
         val permissionsByRole = HashMap<String, MutableSet<String>>()
         val status = getStatusFromData(recordData.getAtts())
 
-        if (!statuses.contains(status)) {
-            if (status == StatusConstants.STATUS_EMPTY) {
-                for (role in roles) {
-                    permissionsByRole[role] = PermissionLevel.READ.permissions.map { it.name }.toHashSet()
-                }
-            } else {
-                for (role in roles) {
-                    permissionsByRole[role] = hashSetOf()
-                }
+        if (!typeStatuses.contains(status) && status != StatusConstants.STATUS_EMPTY) {
+            for (role in fullRoles) {
+                permissionsByRole[role] = hashSetOf()
             }
         } else {
-            for (role in roles) {
+            for (role in fullRoles) {
                 val rolePerms = permissions.matrix[role]
                 val level = if (rolePerms != null) {
                     val statusPerms = rolePerms[status] ?: PermissionLevel.READ // status perms is not set

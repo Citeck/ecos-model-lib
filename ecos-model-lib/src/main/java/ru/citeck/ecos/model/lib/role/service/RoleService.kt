@@ -2,6 +2,7 @@ package ru.citeck.ecos.model.lib.role.service
 
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.context.lib.auth.AuthGroup
+import ru.citeck.ecos.context.lib.auth.AuthRole
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.ModelServiceFactoryAware
 import ru.citeck.ecos.model.lib.role.api.records.RolesMixin
@@ -19,15 +20,15 @@ import ru.citeck.ecos.webapp.api.authority.EcosAuthoritiesApi
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.api.entity.toEntityRef
 
-private lateinit var recordsService: RecordsService
-private lateinit var computedRoleProcessor: ComputedRoleProcessor
-
 class RoleService : ModelServiceFactoryAware {
 
     private lateinit var typeRefService: TypeRefService
     private lateinit var typesRepo: TypesRepo
     private lateinit var currentAppName: String
     private var authoritiesApi: EcosAuthoritiesApi? = null
+
+    private lateinit var recordsService: RecordsService
+    private lateinit var computedRoleProcessor: ComputedRoleProcessor
 
     override fun setModelServiceFactory(services: ModelServiceFactory) {
         recordsService = services.records.recordsServiceV1
@@ -64,13 +65,20 @@ class RoleService : ModelServiceFactoryAware {
         val assigneesByRoleId = getAssignees(record, typeRef, roles)
         val currentUserAuthorities = authorities?.toSet() ?: emptySet()
 
-        val result = mutableListOf<String>()
+        val result = LinkedHashSet<String>()
         assigneesByRoleId.forEach { (roleId, assignees) ->
-            if (roleId == RoleConstants.ROLE_EVERYONE || assignees.any { currentUserAuthorities.contains(it) }) {
+            if (assignees.any { currentUserAuthorities.contains(it) }) {
                 result.add(roleId)
             }
         }
-        return result
+        result.add(RoleConstants.ROLE_EVERYONE)
+        currentUserAuthorities.forEach {
+            if (it.startsWith(AuthRole.PREFIX)) {
+                result.add(it)
+            }
+        }
+
+        return result.toList()
     }
 
     fun getRolesId(typeRef: EntityRef?): List<String> {
@@ -87,10 +95,14 @@ class RoleService : ModelServiceFactoryAware {
     }
 
     fun isRoleMember(record: Any?, roleId: String?): Boolean {
+        roleId ?: return false
         if (roleId == RoleConstants.ROLE_EVERYONE) {
             return true
         }
         val currentUserAuthorities = AuthContext.getCurrentUserWithAuthorities()
+        if (roleId.startsWith(AuthRole.PREFIX)) {
+            return currentUserAuthorities.contains(roleId)
+        }
         val assignees = getAssignees(record, roleId)
         return assignees.any { currentUserAuthorities.contains(it) }
     }
@@ -126,7 +138,7 @@ class RoleService : ModelServiceFactoryAware {
                 // Role 'EVERYONE' should always contain GROUP_EVERYONE
                 result[roleId] = arrayListOf(AuthGroup.EVERYONE)
                 it.remove()
-            } else if (roleId.isBlank()) {
+            } else if (roleId.isBlank() || roleId.startsWith(AuthRole.PREFIX)) {
                 result[roleId] = emptyList()
                 it.remove()
             }
@@ -213,47 +225,47 @@ class RoleService : ModelServiceFactoryAware {
 
         return getRoles(typeRef).firstOrNull { it.id == roleId } ?: RoleDef.EMPTY
     }
-}
 
-private fun RoleComputedDef.compute(record: Any?): List<String> {
-    val assignees: MutableList<String> = mutableListOf()
+    private fun RoleComputedDef.compute(record: Any?): List<String> {
+        val assignees: MutableList<String> = mutableListOf()
 
-    when (type) {
-        // TODO: Compute [ComputedRoleType.VALUE] and [ComputedRoleType.ATTRIBUTE] explicit,
-        //  dont use [RecordComputedAttValue]. Remove toRecordComputedType() extension function
-        ComputedRoleType.SCRIPT, ComputedRoleType.VALUE, ComputedRoleType.ATTRIBUTE -> {
-            val computedAttValue = RecordComputedAttValue.create()
-                .withType(type.toRecordComputedType())
-                .withConfig(config)
-                .build()
+        when (type) {
+            // TODO: Compute [ComputedRoleType.VALUE] and [ComputedRoleType.ATTRIBUTE] explicit,
+            //  dont use [RecordComputedAttValue]. Remove toRecordComputedType() extension function
+            ComputedRoleType.SCRIPT, ComputedRoleType.VALUE, ComputedRoleType.ATTRIBUTE -> {
+                val computedAttValue = RecordComputedAttValue.create()
+                    .withType(type.toRecordComputedType())
+                    .withConfig(config)
+                    .build()
 
-            val authorities = RequestContext.doWithAtts(mapOf("roleAtt" to computedAttValue)) { _ ->
-                recordsService.getAtt(record, "\$roleAtt[]?str").asStrList()
+                val authorities = RequestContext.doWithAtts(mapOf("roleAtt" to computedAttValue)) { _ ->
+                    recordsService.getAtt(record, "\$roleAtt[]?str").asStrList()
+                }
+
+                assignees.addAll(authorities)
             }
 
-            assignees.addAll(authorities)
+            ComputedRoleType.DMN -> {
+                val decisionRef = config["decisionRef"].asText().toEntityRef()
+                val assigneesFromDmn = computedRoleProcessor.computeRoleAssigneesFromDmn(decisionRef, record)
+                assignees.addAll(assigneesFromDmn)
+            }
+
+            else -> {
+                // do nothing
+            }
         }
 
-        ComputedRoleType.DMN -> {
-            val decisionRef = config["decisionRef"].asText().toEntityRef()
-            val assigneesFromDmn = computedRoleProcessor.computeRoleAssigneesFromDmn(decisionRef, record)
-            assignees.addAll(assigneesFromDmn)
-        }
-
-        else -> {
-            // do nothing
-        }
+        return assignees
     }
 
-    return assignees
-}
-
-private fun ComputedRoleType.toRecordComputedType(): RecordComputedAttType {
-    return when (this) {
-        ComputedRoleType.SCRIPT -> RecordComputedAttType.SCRIPT
-        ComputedRoleType.ATTRIBUTE -> RecordComputedAttType.ATTRIBUTE
-        ComputedRoleType.VALUE -> RecordComputedAttType.VALUE
-        ComputedRoleType.DMN -> RecordComputedAttType.NONE
-        ComputedRoleType.NONE -> RecordComputedAttType.NONE
+    private fun ComputedRoleType.toRecordComputedType(): RecordComputedAttType {
+        return when (this) {
+            ComputedRoleType.SCRIPT -> RecordComputedAttType.SCRIPT
+            ComputedRoleType.ATTRIBUTE -> RecordComputedAttType.ATTRIBUTE
+            ComputedRoleType.VALUE -> RecordComputedAttType.VALUE
+            ComputedRoleType.DMN -> RecordComputedAttType.NONE
+            ComputedRoleType.NONE -> RecordComputedAttType.NONE
+        }
     }
 }
