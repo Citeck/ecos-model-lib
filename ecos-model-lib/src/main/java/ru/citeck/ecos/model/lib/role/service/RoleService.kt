@@ -57,18 +57,17 @@ class RoleService : ModelServiceFactoryAware {
 
         record ?: return emptyList()
 
-        val roles = getRolesId(typeRef)
-        if (roles.isEmpty()) {
-            return emptyList()
-        }
+        val result = LinkedHashSet<String>()
 
-        val assigneesByRoleId = getAssignees(record, typeRef, roles)
         val currentUserAuthorities = authorities?.toSet() ?: emptySet()
 
-        val result = LinkedHashSet<String>()
-        assigneesByRoleId.forEach { (roleId, assignees) ->
-            if (assignees.any { currentUserAuthorities.contains(it) }) {
-                result.add(roleId)
+        val roles = getRolesId(typeRef)
+        if (roles.isNotEmpty()) {
+            val assigneesByRoleId = getAssignees(record, typeRef, roles)
+            assigneesByRoleId.forEach { (roleId, assignees) ->
+                if (assignees.any { currentUserAuthorities.contains(it) }) {
+                    result.add(roleId)
+                }
             }
         }
         result.add(RoleConstants.ROLE_EVERYONE)
