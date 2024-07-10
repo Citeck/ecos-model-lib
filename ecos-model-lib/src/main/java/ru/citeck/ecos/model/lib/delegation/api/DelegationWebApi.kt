@@ -4,13 +4,13 @@ import ru.citeck.ecos.model.lib.delegation.dto.AuthDelegation
 import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.web.client.EcosWebClientApi
 
-class DelegationWebApi(private val webClient: EcosWebClientApi?) {
+class DelegationWebApi(private val webClient: EcosWebClientApi?) : DelegationApi {
 
     companion object {
         const val AUTH_DELEGATIONS_GET_PATH = "/delegation/auth-delegations/get"
     }
 
-    fun getAuthDelegations(user: String, types: Collection<String>): List<AuthDelegation> {
+    override fun getActiveAuthDelegations(user: String, types: Collection<String>): List<AuthDelegation> {
 
         webClient ?: return emptyList()
         val apiVersion = webClient.getApiVersion(AppName.EMODEL, AUTH_DELEGATIONS_GET_PATH, 0)
