@@ -3,7 +3,6 @@ package ru.citeck.ecos.model.lib.delegation.service
 import mu.KotlinLogging
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
-import ru.citeck.ecos.model.lib.delegation.api.DelegationWebApi
 import ru.citeck.ecos.model.lib.delegation.dto.AuthDelegation
 import ru.citeck.ecos.model.lib.delegation.dto.PermissionDelegateData
 import ru.citeck.ecos.model.lib.permissions.dto.PermissionType
@@ -19,14 +18,14 @@ private const val PERMISSION_DELEGATE_TO_ATT = "to"
 open class DefaultDelegationService(services: ModelServiceFactory) : DelegationService {
 
     private val recordsService = services.records.recordsServiceV1
-    private val webApi = DelegationWebApi(services.getEcosWebAppApi()?.getWebClientApi())
+    private val delegationApi = services.delegationApi
 
     companion object {
         private val log = KotlinLogging.logger {}
     }
 
     override fun getActiveAuthDelegations(user: String, types: Collection<String>): List<AuthDelegation> {
-        return webApi.getAuthDelegations(user, types)
+        return delegationApi.getActiveAuthDelegations(user, types)
     }
 
     override fun getPermissionDelegates(record: Any, permission: PermissionType): List<PermissionDelegateData> {

@@ -7,6 +7,9 @@ import ru.citeck.ecos.model.lib.aspect.repo.DefaultAspectsRepo
 import ru.citeck.ecos.model.lib.attributes.computed.ComputedAttsService
 import ru.citeck.ecos.model.lib.comments.service.CommentsService
 import ru.citeck.ecos.model.lib.comments.service.DefaultCommentsService
+import ru.citeck.ecos.model.lib.delegation.api.DelegationApi
+import ru.citeck.ecos.model.lib.delegation.api.DelegationWebApi
+import ru.citeck.ecos.model.lib.delegation.dto.AuthDelegation
 import ru.citeck.ecos.model.lib.delegation.service.DefaultDelegationService
 import ru.citeck.ecos.model.lib.delegation.service.DelegationService
 import ru.citeck.ecos.model.lib.num.repo.DefaultNumTemplatesRepo
@@ -44,6 +47,9 @@ open class ModelServiceFactory {
     val numTemplatesRepo: NumTemplatesRepo by lazySingleton { createNumTemplatesRepo() }
     val delegationService: DelegationService by lazySingleton { createDelegationService() }
     val commentsService: CommentsService by lazySingleton { createCommentsService() }
+    val delegationApi: DelegationApi by lazySingleton { createDelegationApi() }
+
+    private var customDelegationApi: DelegationApi? = null
 
     lateinit var records: RecordsServiceFactory
         private set
@@ -84,6 +90,15 @@ open class ModelServiceFactory {
         return DefaultNumTemplatesRepo()
     }
 
+    protected open fun createDelegationApi(): DelegationApi {
+        val delegationWebApi = DelegationWebApi(getEcosWebAppApi()?.getWebClientApi())
+        return object : DelegationApi {
+            override fun getActiveAuthDelegations(user: String, types: Collection<String>): List<AuthDelegation> {
+                return (customDelegationApi ?: delegationWebApi).getActiveAuthDelegations(user, types)
+            }
+        }
+    }
+
     protected open fun createDelegationService(): DelegationService {
         return DefaultDelegationService(this)
     }
@@ -111,6 +126,10 @@ open class ModelServiceFactory {
     open fun setRecordsServices(services: RecordsServiceFactory) {
         this.records = services
         services.setRecordTypeComponent(RecordTypeComponentImpl(this))
+    }
+
+    open fun setDelegationApi(delegationApi: DelegationApi) {
+        this.customDelegationApi = delegationApi
     }
 
     open fun getEcosWebAppApi(): EcosWebAppApi? {
