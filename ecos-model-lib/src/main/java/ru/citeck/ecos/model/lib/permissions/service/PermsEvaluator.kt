@@ -14,7 +14,7 @@ import ru.citeck.ecos.records3.record.atts.dto.RecordAtts
 
 class PermsEvaluator(services: ModelServiceFactory) {
 
-    private val recordsService = services.records.recordsServiceV1
+    private val recordsService = services.records.recordsService
     private val predicateService = services.records.predicateService
 
     fun getPermissions(

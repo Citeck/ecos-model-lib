@@ -1,6 +1,6 @@
 package ru.citeck.ecos.model.lib.role.service
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.computed.ComputeDmnDecisionWebApi
@@ -11,7 +11,7 @@ import ru.citeck.ecos.webapp.api.entity.EntityRef
 class ComputedRoleProcessor(
     private val services: ModelServiceFactory,
     private val computeDmnDecisionWebApi: ComputeDmnDecisionWebApi = ComputeDmnDecisionWebApi(services),
-    private val recordsService: RecordsService = services.records.recordsServiceV1
+    private val recordsService: RecordsService = services.records.recordsService
 ) {
 
     companion object {

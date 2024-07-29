@@ -93,11 +93,11 @@ class RoleServiceTest2 {
         }
         services.setRecordsServices(recordsServices)
         val dao = InMemDataRecordsDao(SRC_ID)
-        recordsServices.recordsServiceV1.register(dao)
+        recordsServices.recordsService.register(dao)
         dao.addAttributesMixin(Mixin())
 
         this.roleService = services.roleService
-        this.records = recordsServices.recordsServiceV1
+        this.records = recordsServices.recordsService
     }
 
     class Mixin : AttMixin {

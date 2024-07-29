@@ -115,7 +115,7 @@ class ComputedStoredAttsTest {
     fun test() {
 
         val record = RecordData()
-        services.records.recordsServiceV1.register(
+        services.records.recordsService.register(
             RecordsDaoBuilder.create("test")
                 .addRecord("test", record)
                 .build()

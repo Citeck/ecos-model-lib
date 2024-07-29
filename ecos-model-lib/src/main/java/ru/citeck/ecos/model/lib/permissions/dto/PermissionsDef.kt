@@ -1,18 +1,15 @@
 package ru.citeck.ecos.model.lib.permissions.dto
 
-import ecos.com.fasterxml.jackson210.annotation.JsonIgnore
-import ecos.com.fasterxml.jackson210.annotation.JsonSetter
-import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonSetter
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import kotlin.collections.ArrayList
 import kotlin.collections.LinkedHashMap
-import com.fasterxml.jackson.annotation.JsonIgnore as JackJsonIgnore
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @IncludeNonDefault
 @JsonDeserialize(builder = PermissionsDef.Builder::class)
-@JackJsonDeserialize(builder = PermissionsDef.Builder::class)
 data class PermissionsDef(
     val matrix: Matrix,
     val rules: List<PermissionRule>
@@ -46,7 +43,6 @@ data class PermissionsDef(
     }
 
     @JsonIgnore
-    @JackJsonIgnore
     fun isEmpty(): Boolean {
         return rules.isEmpty() && matrix.isEmpty()
     }

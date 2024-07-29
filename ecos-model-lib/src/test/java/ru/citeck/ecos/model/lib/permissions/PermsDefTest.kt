@@ -58,7 +58,7 @@ class PermsDefTest {
         }
 
         val recordsServices = RecordsServiceFactory()
-        val records = recordsServices.recordsServiceV1
+        val records = recordsServices.recordsService
         val defFromRecords = records.getAtts(permsDef, PermissionsDef::class.java)
         assertEquals(permsDef, defFromRecords)
 

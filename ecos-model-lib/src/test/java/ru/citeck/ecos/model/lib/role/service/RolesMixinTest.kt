@@ -90,7 +90,7 @@ class RolesMixinTest {
         )
 
         val recordsServices = RecordsServiceFactory()
-        val records = recordsServices.recordsServiceV1
+        val records = recordsServices.recordsService
         services.setRecordsServices(recordsServices)
         records.register(RecordsDaoProxy(proxyId, sourceId))
 

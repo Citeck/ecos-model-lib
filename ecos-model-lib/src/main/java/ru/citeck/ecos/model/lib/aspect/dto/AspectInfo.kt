@@ -1,16 +1,14 @@
 package ru.citeck.ecos.model.lib.aspect.dto
 
-import ecos.com.fasterxml.jackson210.annotation.JsonIgnore
-import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.model.lib.utils.ModelUtils
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @JsonDeserialize(builder = AspectInfo.Builder::class)
-@JackJsonDeserialize(builder = AspectInfo.Builder::class)
 @IncludeNonDefault
 data class AspectInfo(
     val id: String,
@@ -49,7 +47,6 @@ data class AspectInfo(
     }
 
     @JsonIgnore
-    @com.fasterxml.jackson.annotation.JsonIgnore
     fun getAllAttributes(): List<AttributeDef> {
         val result = ArrayList<AttributeDef>()
         result.addAll(attributes)
@@ -58,7 +55,6 @@ data class AspectInfo(
     }
 
     @JsonIgnore
-    @com.fasterxml.jackson.annotation.JsonIgnore
     fun isEmpty(): Boolean {
         return attributes.isEmpty() && systemAttributes.isEmpty()
     }

@@ -11,7 +11,7 @@ class TypeRefService(services: ModelServiceFactory) {
     }
 
     private val typesRepo = services.typesRepo
-    private val recordsService = services.records.recordsServiceV1
+    private val recordsService = services.records.recordsService
 
     fun isSubType(type: EntityRef, ofType: EntityRef): Boolean {
         if (type == ofType) {
@@ -46,7 +46,10 @@ class TypeRefService(services: ModelServiceFactory) {
         }
 
         val result = ArrayList<EntityRef>()
-        forEachDesc(typeRef) { result.add(it); null }
+        forEachDesc(typeRef) {
+            result.add(it)
+            null
+        }
 
         return result
     }
@@ -76,7 +79,10 @@ class TypeRefService(services: ModelServiceFactory) {
     fun <T : Any> forEachAscInv(typeRef: EntityRef, action: (EntityRef) -> T?): T? {
 
         val types = ArrayList<EntityRef>()
-        forEachAsc(typeRef) { types.add(it); null }
+        forEachAsc(typeRef) {
+            types.add(it)
+            null
+        }
 
         for (i in types.size - 1 downTo 0) {
             val type = types[i]

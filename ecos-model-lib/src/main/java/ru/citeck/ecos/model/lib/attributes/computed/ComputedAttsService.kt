@@ -45,7 +45,7 @@ class ComputedAttsService(services: ModelServiceFactory) {
     private val recordComputedAttsService = services.records.recordComputedAttsService
     private val typesRepo = services.typesRepo
     private val recordsTemplateService = services.records.recordsTemplateService
-    private val recordsService = services.records.recordsServiceV1
+    private val recordsService = services.records.recordsService
     private val ecosNumService = services.ecosNumService
     private val attValuesConverter = services.records.attValuesConverter
 

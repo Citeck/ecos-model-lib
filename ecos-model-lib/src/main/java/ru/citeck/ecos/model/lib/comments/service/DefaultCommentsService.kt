@@ -1,6 +1,6 @@
 package ru.citeck.ecos.model.lib.comments.service
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.comments.COMMENT_ATT_RECORD
 import ru.citeck.ecos.model.lib.comments.COMMENT_ATT_TAGS
@@ -12,7 +12,7 @@ import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 class DefaultCommentsService(services: ModelServiceFactory) : CommentsService {
 
-    private val recordsService = services.records.recordsServiceV1
+    private val recordsService = services.records.recordsService
 
     companion object {
         private val log = KotlinLogging.logger {}

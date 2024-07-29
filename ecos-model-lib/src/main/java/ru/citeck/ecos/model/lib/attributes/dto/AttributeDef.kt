@@ -1,15 +1,13 @@
 package ru.citeck.ecos.model.lib.attributes.dto
 
-import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttDef
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @IncludeNonDefault
 @JsonDeserialize(builder = AttributeDef.Builder::class)
-@JackJsonDeserialize(builder = AttributeDef.Builder::class)
 data class AttributeDef(
     val id: String,
     val name: MLText,

@@ -80,20 +80,20 @@ class ComputedAttTest {
         val typeRef0 = EntityRef.valueOf(ModelUtils.getTypeRef("testparent"))
         val typeRef1 = EntityRef.valueOf(ModelUtils.getTypeRef("otherRef"))
 
-        services.records.recordsServiceV1.register(
+        services.records.recordsService.register(
             RecordsDaoBuilder.create("test")
                 .addRecord("test0record", RecordData(typeRef0))
                 .addRecord("test1record", RecordData(typeRef1))
                 .build()
         )
 
-        val value0 = services.records.recordsServiceV1.getAtt(EntityRef.valueOf("test@test0record"), "computedTestAtt")
+        val value0 = services.records.recordsService.getAtt(EntityRef.valueOf("test@test0record"), "computedTestAtt")
         assertEquals(DataValue.create("abc"), value0)
 
-        val value1 = services.records.recordsServiceV1.getAtt(EntityRef.valueOf("test@test0record"), "computedTestParentAtt?num")
+        val value1 = services.records.recordsService.getAtt(EntityRef.valueOf("test@test0record"), "computedTestParentAtt?num")
         assertEquals(DataValue.create(123.0), value1)
 
-        val value2 = services.records.recordsServiceV1.getAtt(EntityRef.valueOf("test@test1record"), "computedTestAtt")
+        val value2 = services.records.recordsService.getAtt(EntityRef.valueOf("test@test1record"), "computedTestAtt")
         assertEquals(DataValue.NULL, value2)
     }
 

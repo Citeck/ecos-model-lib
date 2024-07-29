@@ -2,6 +2,7 @@ package ru.citeck.ecos.model.lib.attributes.dto.computed
 
 enum class ComputedAttStoringType {
     NONE,
+
     /**
      * Evaluate and store attribute
      */

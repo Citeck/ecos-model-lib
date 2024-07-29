@@ -45,7 +45,7 @@ abstract class PermsEvaluatorTestBase {
             override fun getAtt(path: String, value: AttValueCtx) = currentStatus
             override fun getProvidedAtts() = listOf("_status")
         })
-        services.records.recordsServiceV1.register(dao)
+        services.records.recordsService.register(dao)
 
         evaluator = services.permsEvaluator
     }

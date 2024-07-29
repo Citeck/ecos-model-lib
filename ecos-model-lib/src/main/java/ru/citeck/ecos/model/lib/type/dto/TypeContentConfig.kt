@@ -1,14 +1,12 @@
 package ru.citeck.ecos.model.lib.type.dto
 
-import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import ru.citeck.ecos.webapp.api.entity.EntityRef
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @IncludeNonDefault
 @JsonDeserialize(builder = TypeContentConfig.Builder::class)
-@JackJsonDeserialize(builder = TypeContentConfig.Builder::class)
 data class TypeContentConfig(
     val path: String,
     val previewPath: String,

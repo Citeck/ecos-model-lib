@@ -1,14 +1,12 @@
 package ru.citeck.ecos.model.lib.type.dto
 
-import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 import ru.citeck.ecos.webapp.api.entity.EntityRef
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @IncludeNonDefault
 @JsonDeserialize(builder = DocLibDef.Builder::class)
-@JackJsonDeserialize(builder = DocLibDef.Builder::class)
 data class DocLibDef(
     val enabled: Boolean,
     val dirTypeRef: EntityRef,

@@ -51,7 +51,7 @@ class TypesMixinTest {
         }
         services.setRecordsServices(recordsServices)
 
-        val records = recordsServices.recordsServiceV1
+        val records = recordsServices.recordsService
         val recordsDao = RecordsDaoBuilder.create("test")
             .addRecord("case-rec0", RecordValue("contract"))
             .addRecord("data-list-rec0", RecordValue("currency"))

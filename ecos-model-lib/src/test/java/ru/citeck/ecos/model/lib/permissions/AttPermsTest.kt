@@ -127,7 +127,7 @@ class AttPermsTest {
         }
         modelServiceFactory.setRecordsServices(RecordsServiceFactory())
 
-        modelServiceFactory.records.recordsServiceV1.register(
+        modelServiceFactory.records.recordsService.register(
             RecordsDaoBuilder.create("test")
                 .addRecord("test-draft", TestDto("value0", "value1", "draft"))
                 .addRecord("test-approve", TestDto("value0", "value1", "approve"))

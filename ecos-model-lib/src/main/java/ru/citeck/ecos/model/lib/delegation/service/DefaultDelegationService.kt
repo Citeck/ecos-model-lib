@@ -1,6 +1,6 @@
 package ru.citeck.ecos.model.lib.delegation.service
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.delegation.dto.AuthDelegation
@@ -17,7 +17,7 @@ private const val PERMISSION_DELEGATE_TO_ATT = "to"
 
 open class DefaultDelegationService(services: ModelServiceFactory) : DelegationService {
 
-    private val recordsService = services.records.recordsServiceV1
+    private val recordsService = services.records.recordsService
     private val delegationApi = services.delegationApi
 
     companion object {

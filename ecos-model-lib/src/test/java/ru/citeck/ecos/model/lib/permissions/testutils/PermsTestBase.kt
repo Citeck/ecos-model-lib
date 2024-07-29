@@ -68,7 +68,7 @@ open class PermsTestBase {
         val recordsServices = RecordsServiceFactory()
         services.setRecordsServices(recordsServices)
 
-        recordsServices.recordsServiceV1.register(
+        recordsServices.recordsService.register(
             RecordsDaoBuilder.create("test")
                 .addRecord("test", TestRecord())
                 .build()

@@ -1,12 +1,10 @@
 package ru.citeck.ecos.model.lib.attributes.dto
 
-import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @IncludeNonDefault
 @JsonDeserialize(builder = AttIndexDef.Builder::class)
-@JackJsonDeserialize(builder = AttIndexDef.Builder::class)
 data class AttIndexDef(
     val enabled: Boolean
 ) {

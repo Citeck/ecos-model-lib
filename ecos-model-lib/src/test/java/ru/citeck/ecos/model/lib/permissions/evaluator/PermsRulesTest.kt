@@ -19,7 +19,10 @@ class PermsRulesTest : PermsEvaluatorTestBase() {
         addRecord(
             recordId,
             RecData(
-                "str-val", 123, 456.1, true,
+                "str-val",
+                123,
+                456.1,
+                true,
                 RecData("str-inner", 789, 1011.0, true)
             )
         )

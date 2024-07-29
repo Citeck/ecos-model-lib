@@ -9,7 +9,7 @@ class EcosNumService(services: ModelServiceFactory) {
 
     private val ecosModelAppApi = services.ecosModelAppApi
     private val numTemplatesRepo = services.numTemplatesRepo
-    private val recordsService = services.records.recordsServiceV1
+    private val recordsService = services.records.recordsService
 
     fun getNumberTemplate(templateRef: EntityRef): NumTemplateDef? {
         return numTemplatesRepo.getNumTemplate(templateRef)

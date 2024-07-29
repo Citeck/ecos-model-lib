@@ -1,11 +1,9 @@
 package ru.citeck.ecos.model.lib.attributes.dto.computed
 
-import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.ObjectData
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @JsonDeserialize(builder = ComputedAttDef.Builder::class)
-@JackJsonDeserialize(builder = ComputedAttDef.Builder::class)
 data class ComputedAttDef constructor(
     val type: ComputedAttType,
     val config: ObjectData,

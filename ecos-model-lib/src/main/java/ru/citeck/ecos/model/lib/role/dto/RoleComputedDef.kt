@@ -1,7 +1,7 @@
 package ru.citeck.ecos.model.lib.role.dto
 
-import ecos.com.fasterxml.jackson210.annotation.JsonEnumDefaultValue
-import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
 
@@ -72,5 +72,5 @@ enum class ComputedRoleType {
     DMN,
 
     @JsonEnumDefaultValue
-    NONE;
+    NONE
 }

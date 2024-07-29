@@ -31,7 +31,7 @@ class RoleService : ModelServiceFactoryAware {
     private lateinit var computedRoleProcessor: ComputedRoleProcessor
 
     override fun setModelServiceFactory(services: ModelServiceFactory) {
-        recordsService = services.records.recordsServiceV1
+        recordsService = services.records.recordsService
         computedRoleProcessor = ComputedRoleProcessor(services)
 
         typeRefService = services.typeRefService

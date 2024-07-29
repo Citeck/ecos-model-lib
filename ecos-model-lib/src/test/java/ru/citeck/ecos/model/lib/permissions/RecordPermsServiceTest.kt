@@ -30,7 +30,7 @@ class RecordPermsServiceTest {
 
         val services = ModelServiceFactory()
         services.setRecordsServices(RecordsServiceFactory())
-        services.records.recordsServiceV1.register(daoBuilder.build())
+        services.records.recordsService.register(daoBuilder.build())
     }
 
     data class TestDto(val id: String, @AttName("?type") val type: EntityRef, val _status: String)

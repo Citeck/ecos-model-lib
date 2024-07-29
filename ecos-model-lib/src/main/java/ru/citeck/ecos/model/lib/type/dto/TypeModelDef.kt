@@ -1,7 +1,7 @@
 package ru.citeck.ecos.model.lib.type.dto
 
-import ecos.com.fasterxml.jackson210.annotation.JsonIgnore
-import ecos.com.fasterxml.jackson210.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.json.serialization.annotation.IncludeNonDefault
@@ -10,11 +10,8 @@ import ru.citeck.ecos.model.lib.procstages.dto.ProcStageDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
 import ru.citeck.ecos.model.lib.utils.ModelUtils
-import com.fasterxml.jackson.annotation.JsonIgnore as JackJsonIgnore
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize as JackJsonDeserialize
 
 @JsonDeserialize(builder = TypeModelDef.Builder::class)
-@JackJsonDeserialize(builder = TypeModelDef.Builder::class)
 @IncludeNonDefault
 data class TypeModelDef(
     val roles: List<RoleDef>,
@@ -53,7 +50,6 @@ data class TypeModelDef(
     }
 
     @JsonIgnore
-    @JackJsonIgnore
     fun getAllAttributes(): List<AttributeDef> {
         val result = ArrayList<AttributeDef>()
         result.addAll(attributes)
@@ -62,7 +58,6 @@ data class TypeModelDef(
     }
 
     @JsonIgnore
-    @JackJsonIgnore
     fun isEmpty(): Boolean {
         return roles.isEmpty() &&
             statuses.isEmpty() &&

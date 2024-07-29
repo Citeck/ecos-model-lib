@@ -199,7 +199,7 @@ class TypeDefTest {
             .build()
 
         val services = RecordsServiceFactory()
-        val records = services.recordsServiceV1
+        val records = services.recordsService
         val computedAttFromRecords = records.getAtts(computedAtt, ComputedAttDef::class.java)
 
         assertThat(computedAttFromRecords).isEqualTo(computedAtt)
@@ -383,7 +383,7 @@ class TypeDefTest {
 
         assertEquals(createVariants, newCreateVariants)
 
-        val records = RecordsServiceFactory().recordsServiceV1
+        val records = RecordsServiceFactory().recordsService
         val newTypeModelDef = records.getAtts(typeModelDef, TypeModelDef::class.java)
         assertThat(newTypeModelDef).isEqualTo(typeModelDef)
     }
