@@ -18,15 +18,15 @@
 
     <properties>
 
-        <revision>2.34.0</revision>
+        <revision>2.35.0</revision>
 
-        <ecos.commons.version>3.3.0</ecos.commons.version>
-        <ecos.records.version>3.71.0</ecos.records.version>
+        <ecos.commons.version>3.4.2</ecos.commons.version>
+        <ecos.records.version>3.73.0</ecos.records.version>
         <ecos.commands.version>2.12.0</ecos.commands.version>
 
         <ecos.txn-lib.version>1.4.0</ecos.txn-lib.version>
 
-        <ecos.test-commons.version>1.10.0</ecos.test-commons.version>
+        <ecos.test-commons.version>1.11.1</ecos.test-commons.version>
 
     </properties>
 
@@ -96,5 +96,12 @@
         <module>ecos-model-lib</module>
         <module>ecos-model-lib-commands</module>
     </modules>
+
+    <repositories>
+        <repository>
+            <id>citeck-public</id>
+            <url>https://nexus.citeck.ru/repository/maven-public</url>
+        </repository>
+    </repositories>
 
 </project>

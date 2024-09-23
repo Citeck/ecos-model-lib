@@ -25,6 +25,10 @@ import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.RecordTypeComponentImpl
 import ru.citeck.ecos.model.lib.type.service.TypeRefService
+import ru.citeck.ecos.model.lib.workspace.WorkspaceService
+import ru.citeck.ecos.model.lib.workspace.WorkspaceServiceImpl
+import ru.citeck.ecos.model.lib.workspace.api.WorkspaceApi
+import ru.citeck.ecos.model.lib.workspace.api.WorkspaceWebApi
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.webapp.api.EcosWebAppApi
 import ru.citeck.ecos.webapp.api.properties.EcosWebAppProps
@@ -48,8 +52,11 @@ open class ModelServiceFactory {
     val delegationService: DelegationService by lazySingleton { createDelegationService() }
     val commentsService: CommentsService by lazySingleton { createCommentsService() }
     val delegationApi: DelegationApi by lazySingleton { createDelegationApi() }
+    val workspaceService: WorkspaceService by lazySingleton { createWorkspaceService() }
+    val workspaceApi: WorkspaceApi by lazySingleton { createWorkspaceApi() }
 
     private var customDelegationApi: DelegationApi? = null
+    private var customWorkspaceApi: WorkspaceApi? = null
 
     lateinit var records: RecordsServiceFactory
         private set
@@ -99,6 +106,19 @@ open class ModelServiceFactory {
         }
     }
 
+    protected open fun createWorkspaceApi(): WorkspaceApi {
+        val workspaceWebApi = WorkspaceWebApi(getEcosWebAppApi()?.getWebClientApi())
+        return object : WorkspaceApi {
+            override fun getUserWorkspaces(user: String, authorities: List<String>): Set<String> {
+                return (customWorkspaceApi ?: workspaceWebApi).getUserWorkspaces(user, authorities)
+            }
+        }
+    }
+
+    protected open fun createWorkspaceService(): WorkspaceService {
+        return WorkspaceServiceImpl(this)
+    }
+
     protected open fun createDelegationService(): DelegationService {
         return DefaultDelegationService(this)
     }
@@ -130,6 +150,10 @@ open class ModelServiceFactory {
 
     open fun setDelegationApi(delegationApi: DelegationApi) {
         this.customDelegationApi = delegationApi
+    }
+
+    open fun setWorkspaceApi(workspaceApi: WorkspaceApi) {
+        this.customWorkspaceApi = workspaceApi
     }
 
     open fun getEcosWebAppApi(): EcosWebAppApi? {

@@ -18,7 +18,8 @@ data class TypeInfo(
     val model: TypeModelDef,
     val contentConfig: TypeContentConfig,
     val aspects: List<TypeAspectDef>,
-    val queryPermsPolicy: QueryPermsPolicy
+    val queryPermsPolicy: QueryPermsPolicy,
+    val workspaceScope: WorkspaceScope
 ) {
     companion object {
 
@@ -58,6 +59,7 @@ data class TypeInfo(
         var contentConfig: TypeContentConfig = TypeContentConfig.EMPTY
         var aspects: List<TypeAspectDef> = emptyList()
         var queryPermsPolicy: QueryPermsPolicy = QueryPermsPolicy.DEFAULT
+        var workspaceScope: WorkspaceScope = WorkspaceScope.DEFAULT
 
         constructor(base: TypeInfo) : this() {
             id = base.id
@@ -71,6 +73,7 @@ data class TypeInfo(
             contentConfig = base.contentConfig
             aspects = base.aspects
             queryPermsPolicy = base.queryPermsPolicy
+            workspaceScope = base.workspaceScope
         }
 
         fun withId(id: String): Builder {
@@ -128,6 +131,11 @@ data class TypeInfo(
             return this
         }
 
+        fun withWorkspaceScope(workspaceScope: WorkspaceScope?): Builder {
+            this.workspaceScope = workspaceScope ?: WorkspaceScope.DEFAULT
+            return this
+        }
+
         fun build(): TypeInfo {
 
             val aspects = if (aspects.isEmpty()) {
@@ -149,7 +157,8 @@ data class TypeInfo(
                 model,
                 contentConfig,
                 aspects,
-                queryPermsPolicy
+                queryPermsPolicy,
+                workspaceScope
             )
         }
     }
