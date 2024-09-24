@@ -11,7 +11,7 @@ class WorkspaceWebApi(
         const val GET_USER_WORKSPACES_PATH = "/workspace/user-workspaces/get"
     }
 
-    override fun getUserWorkspaces(user: String, authorities: List<String>): Set<String> {
+    override fun getUserWorkspaces(user: String): Set<String> {
 
         val webClient = webClient ?: return emptySet()
 
@@ -24,7 +24,7 @@ class WorkspaceWebApi(
             .targetApp(AppName.EMODEL)
             .path(GET_USER_WORKSPACES_PATH)
             .body {
-                it.writeDto(GetUserWorkspacesReq(user, authorities))
+                it.writeDto(GetUserWorkspacesReq(user))
             }
             .executeSync {
                 it.getBodyReader().readDto(GetUserWorkspacesResp::class.java)
@@ -32,8 +32,7 @@ class WorkspaceWebApi(
     }
 
     data class GetUserWorkspacesReq(
-        val user: String,
-        val authorities: List<String>
+        val user: String
     )
 
     data class GetUserWorkspacesResp(

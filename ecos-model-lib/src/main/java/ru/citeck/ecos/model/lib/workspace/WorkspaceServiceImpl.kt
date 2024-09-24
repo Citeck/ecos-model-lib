@@ -6,15 +6,18 @@ import ru.citeck.ecos.txn.lib.TxnContext
 
 class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
 
+    companion object {
+        private const val USER_WORKSPACES_CACHE_KEY = "user-workspaces-txn-cache-key"
+    }
+
     private val workspaceApi = services.workspaceApi
 
-    override fun getUserWorkspaces(user: String, authorities: Collection<String>): Set<String> {
+    override fun getUserWorkspaces(user: String): Set<String> {
 
-        val key = user to authorities
-
-        val userWorkspaces = TxnContext.getTxnOrNull()?.getData(key) {
-            getWorkspacesByApi(it)
-        } ?: getWorkspacesByApi(key)
+        val userWorkspaces = TxnContext.getTxnOrNull()
+            ?.getData(USER_WORKSPACES_CACHE_KEY) { HashMap<String, Set<String>>() }
+            ?.computeIfAbsent(user) { getWorkspacesByApi(it) }
+            ?: getWorkspacesByApi(user)
 
         val result = LinkedHashSet<String>(userWorkspaces)
         result.add("user$$user")
@@ -22,9 +25,9 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         return result
     }
 
-    private fun getWorkspacesByApi(userWithAuthorities: Pair<String, Collection<String>>): Set<String> {
+    private fun getWorkspacesByApi(user: String): Set<String> {
         return AuthContext.runAsSystem {
-            workspaceApi.getUserWorkspaces(userWithAuthorities.first, userWithAuthorities.second.toList())
+            workspaceApi.getUserWorkspaces(user)
         }
     }
 }
