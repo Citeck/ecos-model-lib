@@ -10,4 +10,6 @@ interface WorkspaceService {
      * @return a set of workspace identifiers where the user is a member
      */
     fun getUserWorkspaces(user: String): Set<String>
+
+    fun isUserManagerOf(user: String, workspace: String): Boolean
 }

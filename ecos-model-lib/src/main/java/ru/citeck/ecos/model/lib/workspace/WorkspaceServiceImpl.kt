@@ -25,6 +25,12 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         return result
     }
 
+    override fun isUserManagerOf(user: String, workspace: String): Boolean {
+        return AuthContext.runAsSystem {
+            workspaceApi.isUserManagerOf(user, workspace)
+        }
+    }
+
     private fun getWorkspacesByApi(user: String): Set<String> {
         return AuthContext.runAsSystem {
             workspaceApi.getUserWorkspaces(user)

@@ -112,6 +112,9 @@ open class ModelServiceFactory {
             override fun getUserWorkspaces(user: String): Set<String> {
                 return (customWorkspaceApi ?: workspaceWebApi).getUserWorkspaces(user)
             }
+            override fun isUserManagerOf(user: String, workspace: String): Boolean {
+                return (customWorkspaceApi ?: workspaceWebApi).isUserManagerOf(user, workspace)
+            }
         }
     }
 
