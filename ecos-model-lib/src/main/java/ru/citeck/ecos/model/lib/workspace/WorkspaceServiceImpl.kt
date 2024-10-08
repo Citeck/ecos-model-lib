@@ -13,6 +13,9 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
     private val workspaceApi = services.workspaceApi
 
     override fun getUserWorkspaces(user: String): Set<String> {
+        if (getUserWorkspaceNotAllowed(user)) {
+            return emptySet()
+        }
 
         val userWorkspaces = TxnContext.getTxnOrNull()
             ?.getData(USER_WORKSPACES_CACHE_KEY) { HashMap<String, Set<String>>() }
@@ -20,9 +23,18 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
             ?: getWorkspacesByApi(user)
 
         val result = LinkedHashSet<String>(userWorkspaces)
-        result.add("user$$user")
+        result.add("$USER_WORKSPACE_PREFIX$user")
 
         return result
+    }
+
+    private fun getUserWorkspaceNotAllowed(user: String): Boolean {
+        if (AuthContext.isRunAsSystemOrAdmin()) {
+            return false
+        }
+
+        val currentUser = AuthContext.getCurrentUser()
+        return currentUser.isBlank() || currentUser != user
     }
 
     override fun isUserManagerOf(user: String, workspace: String): Boolean {
