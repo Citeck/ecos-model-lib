@@ -1,5 +1,7 @@
 package ru.citeck.ecos.model.lib.attributes.dto
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+
 /**
  * Warning: Fixed values order! New values should be added after last element.
  */
@@ -11,6 +13,7 @@ enum class AttributeType {
     AUTHORITY_GROUP,
     AUTHORITY,
 
+    @JsonEnumDefaultValue
     TEXT,
     MLTEXT,
 
@@ -23,5 +26,7 @@ enum class AttributeType {
     CONTENT,
 
     JSON,
-    BINARY
+    BINARY,
+
+    OPTIONS
 }

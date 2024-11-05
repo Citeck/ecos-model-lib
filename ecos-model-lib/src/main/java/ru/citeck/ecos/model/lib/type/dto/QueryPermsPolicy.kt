@@ -1,9 +1,12 @@
 package ru.citeck.ecos.model.lib.type.dto
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+
 enum class QueryPermsPolicy {
     /**
      * Inherit policy from parent
      */
+    @JsonEnumDefaultValue
     DEFAULT,
 
     /**

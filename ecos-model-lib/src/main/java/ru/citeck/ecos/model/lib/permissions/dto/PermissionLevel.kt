@@ -1,7 +1,10 @@
 package ru.citeck.ecos.model.lib.permissions.dto
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+
 enum class PermissionLevel(val permissions: Set<PermissionType>) {
 
+    @JsonEnumDefaultValue
     NONE(emptySet()),
     READ(setOf(PermissionType.READ)),
     WRITE(setOf(PermissionType.READ, PermissionType.WRITE));

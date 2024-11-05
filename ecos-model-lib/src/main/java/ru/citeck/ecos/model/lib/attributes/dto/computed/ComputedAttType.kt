@@ -1,5 +1,6 @@
 package ru.citeck.ecos.model.lib.attributes.dto.computed
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
 import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAttType
 
 enum class ComputedAttType {
@@ -9,6 +10,7 @@ enum class ComputedAttType {
     VALUE,
     TEMPLATE,
     COUNTER,
+    @JsonEnumDefaultValue
     NONE;
 
     fun toRecordComputedType(): RecordComputedAttType {
