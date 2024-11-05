@@ -4,6 +4,7 @@ import ru.citeck.ecos.commons.data.DataValue
 import ru.citeck.ecos.commons.data.MLText
 import ru.citeck.ecos.commons.data.ObjectData
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.attributes.dto.AttOptionValue
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeType
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttDef
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttStoringType
@@ -29,6 +30,7 @@ class ComputedAttsService(services: ModelServiceFactory) {
                 AttributeType.PERSON,
                 AttributeType.AUTHORITY_GROUP,
                 AttributeType.AUTHORITY -> RecordComputedAttResType.AUTHORITY
+                AttributeType.OPTIONS,
                 AttributeType.TEXT -> RecordComputedAttResType.TEXT
                 AttributeType.MLTEXT -> RecordComputedAttResType.MLTEXT
                 AttributeType.NUMBER,
@@ -48,6 +50,53 @@ class ComputedAttsService(services: ModelServiceFactory) {
     private val recordsService = services.records.recordsServiceV1
     private val ecosNumService = services.ecosNumService
     private val attValuesConverter = services.records.attValuesConverter
+
+    private fun createAttOptionValue(valueData: DataValue): AttOptionValue? {
+        if (valueData.isTextual()) {
+            val value = valueData.asText()
+            if (value.isBlank()) {
+                return null
+            }
+            return AttOptionValue(MLText(value), value)
+        }
+        val value = valueData["value"].asText()
+        if (value.isBlank()) {
+            return null
+        }
+        var label = valueData["label"].getAs(MLText::class.java)
+        if (label == null || MLText.isEmpty(label)) {
+            label = MLText(value)
+        }
+        return AttOptionValue(label, value)
+    }
+
+    fun getAttOptions(record: Any, config: ObjectData): List<AttOptionValue> {
+        val source = config["source"].asText().ifBlank { "values" }
+        val result = ArrayList<AttOptionValue>()
+        when (source) {
+            "values" -> {
+                for (valueData in config["values"]) {
+                    createAttOptionValue(valueData)?.let { result.add(it) }
+                }
+            }
+            "attribute" -> {
+                var attribute = config["attribute"].asText()
+                if (attribute.isNotBlank()) {
+                    if (!attribute.contains("{") &&
+                        !attribute.contains("?") &&
+                        !attribute.contains("[")
+                    ) {
+                        attribute += "[]{value:value?str!?str,label:label?raw!_disp?raw}"
+                    }
+                    val optionsValue = recordsService.getAtt(record, attribute)
+                    for (valueData in optionsValue) {
+                        createAttOptionValue(valueData)?.let { result.add(it) }
+                    }
+                }
+            }
+        }
+        return result
+    }
 
     fun computeAttsToStore(value: Any, isNewRecord: Boolean): ObjectData {
         val typeStr = recordsService.getAtt(value, RecordConstants.ATT_TYPE + ScalarType.ID.schema).asText()
