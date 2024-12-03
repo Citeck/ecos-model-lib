@@ -1,7 +1,5 @@
 package ru.citeck.ecos.model.lib.workspace.api
 
-import ru.citeck.ecos.model.lib.workspace.USER_WORKSPACE_PREFIX
-import ru.citeck.ecos.txn.lib.TxnContext
 import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.web.client.EcosWebClientApi
 
@@ -23,14 +21,6 @@ class WorkspaceWebApi(
             return emptySet()
         }
 
-        return TxnContext.getTxnOrNull()?.getData(GetUserWorkspacesTxnCacheKey(user)) {
-            getUserWorkspacesFromRemote(it.user)
-        } ?: getUserWorkspacesFromRemote(user)
-    }
-
-    private fun getUserWorkspacesFromRemote(user: String): Set<String> {
-
-        val webClient = webClient ?: return emptySet()
         return webClient.newRequest()
             .targetApp(AppName.EMODEL)
             .path(GET_USER_WORKSPACES_PATH)
@@ -40,13 +30,6 @@ class WorkspaceWebApi(
             .executeSync {
                 it.getBodyReader().readDto(GetUserWorkspacesResp::class.java)
             }.workspaces
-    }
-
-    override fun isUserMemberOf(user: String, workspace: String): Boolean {
-        if (workspace.startsWith(USER_WORKSPACE_PREFIX)) {
-            return user == workspace.substring(USER_WORKSPACE_PREFIX.length)
-        }
-        return getUserWorkspaces(user).contains(workspace)
     }
 
     override fun isUserManagerOf(user: String, workspace: String): Boolean {
@@ -84,9 +67,5 @@ class WorkspaceWebApi(
 
     data class GetUserWorkspacesResp(
         val workspaces: Set<String>
-    )
-
-    private data class GetUserWorkspacesTxnCacheKey(
-        val user: String
     )
 }
