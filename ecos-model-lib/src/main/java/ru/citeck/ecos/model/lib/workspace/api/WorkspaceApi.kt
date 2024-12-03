@@ -11,4 +11,6 @@ interface WorkspaceApi {
     fun getUserWorkspaces(user: String): Set<String>
 
     fun isUserManagerOf(user: String, workspace: String): Boolean
+
+    fun isUserMemberOf(user: String, workspace: String): Boolean
 }
