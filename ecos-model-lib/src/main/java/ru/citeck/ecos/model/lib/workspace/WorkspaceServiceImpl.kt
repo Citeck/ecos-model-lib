@@ -24,7 +24,6 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
 
         val result = LinkedHashSet<String>(userWorkspaces)
         result.add("$USER_WORKSPACE_PREFIX$user")
-
         return result
     }
 
@@ -38,9 +37,23 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
     }
 
     override fun isUserManagerOf(user: String, workspace: String): Boolean {
+        if (isOwnPersonalWorkspace(user, workspace)) {
+            return true
+        }
         return AuthContext.runAsSystem {
             workspaceApi.isUserManagerOf(user, workspace)
         }
+    }
+
+    override fun isUserMemberOf(user: String, workspace: String): Boolean {
+        if (isOwnPersonalWorkspace(user, workspace)) {
+            return true
+        }
+        return getUserWorkspaces(user).contains(workspace)
+    }
+
+    private fun isOwnPersonalWorkspace(user: String, workspace: String): Boolean {
+        return workspace.startsWith(USER_WORKSPACE_PREFIX) && workspace.substring(USER_WORKSPACE_PREFIX.length) == user
     }
 
     private fun getWorkspacesByApi(user: String): Set<String> {
