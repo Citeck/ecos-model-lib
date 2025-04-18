@@ -63,7 +63,7 @@ class WorkspaceWebApi(
 
     data class GetUserWorkspacesReq(
         val user: String,
-        val membershipType: WsMembershipType
+        val membershipType: WsMembershipType = WsMembershipType.ALL
     )
 
     data class GetUserWorkspacesResp(
