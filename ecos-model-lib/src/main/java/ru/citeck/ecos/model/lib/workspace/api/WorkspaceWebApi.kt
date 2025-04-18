@@ -12,7 +12,7 @@ class WorkspaceWebApi(
         const val IS_USER_MANAGER_OF_PATH = "/workspace/is-user-manager-of"
     }
 
-    override fun getUserWorkspaces(user: String): Set<String> {
+    override fun getUserWorkspaces(user: String, membershipType: WsMembershipType): Set<String> {
 
         val webClient = webClient ?: return emptySet()
 
@@ -25,7 +25,7 @@ class WorkspaceWebApi(
             .targetApp(AppName.EMODEL)
             .path(GET_USER_WORKSPACES_PATH)
             .body {
-                it.writeDto(GetUserWorkspacesReq(user))
+                it.writeDto(GetUserWorkspacesReq(user, membershipType))
             }
             .executeSync {
                 it.getBodyReader().readDto(GetUserWorkspacesResp::class.java)
@@ -62,7 +62,8 @@ class WorkspaceWebApi(
     )
 
     data class GetUserWorkspacesReq(
-        val user: String
+        val user: String,
+        val membershipType: WsMembershipType
     )
 
     data class GetUserWorkspacesResp(

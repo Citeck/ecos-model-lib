@@ -29,6 +29,7 @@ import ru.citeck.ecos.model.lib.workspace.WorkspaceService
 import ru.citeck.ecos.model.lib.workspace.WorkspaceServiceImpl
 import ru.citeck.ecos.model.lib.workspace.api.WorkspaceApi
 import ru.citeck.ecos.model.lib.workspace.api.WorkspaceWebApi
+import ru.citeck.ecos.model.lib.workspace.api.WsMembershipType
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.webapp.api.EcosWebAppApi
 import ru.citeck.ecos.webapp.api.properties.EcosWebAppProps
@@ -109,8 +110,8 @@ open class ModelServiceFactory {
     protected open fun createWorkspaceApi(): WorkspaceApi {
         val workspaceWebApi = WorkspaceWebApi(getEcosWebAppApi()?.getWebClientApi())
         return object : WorkspaceApi {
-            override fun getUserWorkspaces(user: String): Set<String> {
-                return (customWorkspaceApi ?: workspaceWebApi).getUserWorkspaces(user)
+            override fun getUserWorkspaces(user: String, membershipType: WsMembershipType): Set<String> {
+                return (customWorkspaceApi ?: workspaceWebApi).getUserWorkspaces(user, membershipType)
             }
             override fun isUserManagerOf(user: String, workspace: String): Boolean {
                 return (customWorkspaceApi ?: workspaceWebApi).isUserManagerOf(user, workspace)
