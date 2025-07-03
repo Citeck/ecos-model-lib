@@ -10,6 +10,7 @@ import ru.citeck.ecos.model.lib.procstages.dto.ProcStageDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
 import ru.citeck.ecos.model.lib.utils.ModelUtils
+import kotlin.random.Random
 
 @JsonDeserialize(builder = TypeModelDef.Builder::class)
 @IncludeNonDefault
@@ -36,6 +37,10 @@ data class TypeModelDef(
             val builderObj = Builder()
             builder.invoke(builderObj)
             return builderObj.build()
+        }
+
+        private fun generateId(): String {
+            return Random.nextInt(100000, Integer.MAX_VALUE).toString(36).padStart(6, '0')
         }
     }
 
@@ -140,6 +145,25 @@ data class TypeModelDef(
                 }
                 if (errorMessages.isNotEmpty()) {
                     error("Invalid stages config: \n${errorMessages.joinToString("\n")}")
+                }
+                val registeredIds = HashSet<String>(stages.size)
+                stages.forEach {
+                    if (it.id.isNotBlank()) {
+                        registeredIds.add(it.id)
+                    }
+                }
+                if (registeredIds.size != stages.size) {
+                    stages = stages.map { stage ->
+                        if (stage.id.isBlank()) {
+                            var newId = generateId()
+                            while (!registeredIds.add(newId)) {
+                                newId = generateId()
+                            }
+                            stage.copy().withId(newId).build()
+                        } else {
+                            stage
+                        }
+                    }
                 }
             }
             return TypeModelDef(roles, statuses, stages, attributes, systemAttributes)

@@ -75,11 +75,24 @@ class TypeDefTest {
         assertThat(modelDef2.attributes[0]).isEqualTo(AttributeDef.create().withId("att-0").build())
 
         assertThat(modelDef2.stages).hasSize(3)
+
+        val stageWithGeneratedId = modelDef2.stages.find { it.id != "stage-0" && it.id != "stage-1" }!!
+        assertThat(stageWithGeneratedId.id).isNotBlank
+        assertThat(stageWithGeneratedId.name.getClosestValue()).isEqualTo("stage-2")
+
         assertThat(modelDef2.stages).containsExactly(
             ProcStageDef.create().withId("stage-0").build(),
             ProcStageDef.create().withId("stage-1").withName(MLText("stage-1")).build(),
-            ProcStageDef.create().withName(MLText("stage-2")).build()
+            stageWithGeneratedId
         )
+
+        val modelDef3 = Json.mapper.readNotNull(Json.mapper.toStringNotNull(modelDef2), TypeModelDef::class.java)
+        assertThat(modelDef3.stages).containsExactly(
+            ProcStageDef.create().withId("stage-0").build(),
+            ProcStageDef.create().withId("stage-1").withName(MLText("stage-1")).build(),
+            stageWithGeneratedId
+        )
+        assertThat(modelDef3).isEqualTo(modelDef2)
     }
 
     @Test
