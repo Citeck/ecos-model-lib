@@ -110,6 +110,9 @@ open class ModelServiceFactory {
     protected open fun createWorkspaceApi(): WorkspaceApi {
         val workspaceWebApi = WorkspaceWebApi(getEcosWebAppApi()?.getWebClientApi())
         return object : WorkspaceApi {
+            override fun getNestedWorkspaces(workspaces: Collection<String>): List<Set<String>> {
+                return (customWorkspaceApi ?: workspaceWebApi).getNestedWorkspaces(workspaces)
+            }
             override fun getUserWorkspaces(user: String, membershipType: WsMembershipType): Set<String> {
                 return (customWorkspaceApi ?: workspaceWebApi).getUserWorkspaces(user, membershipType)
             }

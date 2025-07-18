@@ -3,6 +3,18 @@ package ru.citeck.ecos.model.lib.workspace.api
 interface WorkspaceApi {
 
     /**
+     * Returns nested workspaces for the given list of workspaces.
+     *
+     * The returned list has the same size as the input.
+     * Each element at index `i` contains the nested workspaces
+     * for the workspace at index `i` in the input.
+     *
+     * @param workspaces the list of workspace identifiers to get nested workspaces for
+     * @return a list where each element contains the nested workspaces for the corresponding input workspace
+     */
+    fun getNestedWorkspaces(workspaces: Collection<String>): List<Set<String>>
+
+    /**
      * Retrieves a set of workspace identifiers where the specified user is a member,
      * filtered by the specified membership type.
      *

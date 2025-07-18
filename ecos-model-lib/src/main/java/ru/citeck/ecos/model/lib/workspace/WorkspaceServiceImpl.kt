@@ -1,9 +1,11 @@
 package ru.citeck.ecos.model.lib.workspace
 
+import com.github.benmanes.caffeine.cache.Caffeine
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.workspace.api.WsMembershipType
 import ru.citeck.ecos.txn.lib.TxnContext
+import java.time.Duration
 
 class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
 
@@ -12,6 +14,40 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
     }
 
     private val workspaceApi = services.workspaceApi
+
+    private val nestedWorkspacesCache = Caffeine.newBuilder()
+        .expireAfterWrite(Duration.ofSeconds(30))
+        .maximumSize(1000)
+        .build<String, Set<String>> {
+            workspaceApi.getNestedWorkspaces(listOf(it))[0]
+        }
+
+    override fun expandWorkspaces(workspaces: Collection<String>): Set<String> {
+        if (workspaces.isEmpty()) {
+            return emptySet()
+        }
+        val resultWorkspaces = LinkedHashSet<String>(workspaces)
+        for (workspace in workspaces) {
+            if (workspace.startsWith(USER_WORKSPACE_PREFIX)) {
+                continue
+            }
+            resultWorkspaces.addAll(nestedWorkspacesCache.get(workspace))
+        }
+        return resultWorkspaces
+    }
+
+    override fun getNestedWorkspaces(workspaces: List<String>): List<Set<String>> {
+        if (workspaces.isEmpty()) {
+            return emptyList()
+        }
+        return workspaces.map {
+            if (it.startsWith(USER_WORKSPACE_PREFIX)) {
+                emptySet()
+            } else {
+                nestedWorkspacesCache.get(it)
+            }
+        }
+    }
 
     override fun getUserWorkspaces(user: String): Set<String> {
         return getUserWorkspaces(user, WsMembershipType.ALL)
@@ -60,6 +96,16 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
             return true
         }
         return getUserWorkspaces(user).contains(workspace)
+    }
+
+    override fun resetNestedWorkspacesCache() {
+        nestedWorkspacesCache.invalidateAll()
+    }
+
+    override fun resetNestedWorkspacesCache(workspaces: Collection<String>) {
+        for (workspace in workspaces) {
+            nestedWorkspacesCache.invalidate(workspace)
+        }
     }
 
     private fun isOwnPersonalWorkspace(user: String, workspace: String): Boolean {
