@@ -32,4 +32,6 @@ interface WorkspaceApi {
      * @return true if the user is a manager of the workspace, false otherwise
      */
     fun isUserManagerOf(user: String, workspace: String): Boolean
+
+    fun getWorkspaceSysId(workspaces: List<String>): List<String>
 }

@@ -3,6 +3,7 @@ package ru.citeck.ecos.model.lib.workspace
 import com.github.benmanes.caffeine.cache.Caffeine
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.model.lib.workspace.api.WsMembershipType
 import ru.citeck.ecos.txn.lib.TxnContext
 import java.time.Duration
@@ -11,6 +12,9 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
 
     companion object {
         private const val USER_WORKSPACES_CACHE_KEY = "user-workspaces-txn-cache-key"
+
+        const val SCOPED_ID_PREFIX_PREFIX = "ws_"
+        const val SCOPED_ID_PREFIX_DELIM = "/"
     }
 
     private val workspaceApi = services.workspaceApi
@@ -20,6 +24,14 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         .maximumSize(1000)
         .build<String, Set<String>> {
             workspaceApi.getNestedWorkspaces(listOf(it))[0]
+        }
+
+    private val workspaceSysIdCache = Caffeine.newBuilder()
+        .expireAfterAccess(Duration.ofSeconds(30))
+        .expireAfterWrite(Duration.ofMinutes(5))
+        .maximumSize(1000)
+        .build<String, String> {
+            workspaceApi.getWorkspaceSysId(listOf(it))[0]
         }
 
     override fun expandWorkspaces(workspaces: Collection<String>): Set<String> {
@@ -105,6 +117,43 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
     override fun resetNestedWorkspacesCache(workspaces: Collection<String>) {
         for (workspace in workspaces) {
             nestedWorkspacesCache.invalidate(workspace)
+        }
+    }
+
+    override fun getWorkspaceSystemId(workspace: String): String {
+        return workspaceSysIdCache.get(workspace)
+    }
+
+    override fun getWorkspaceSystemId(workspaces: List<String>): List<String> {
+        return workspaces.map { getWorkspaceSystemId(it) }
+    }
+
+    override fun removeWsPrefixFromId(id: String): String {
+        if (!id.startsWith(SCOPED_ID_PREFIX_PREFIX)) {
+            return id
+        }
+        return id.substringAfter(SCOPED_ID_PREFIX_DELIM)
+    }
+
+    override fun addWsPrefixToId(localId: String, workspace: String): String {
+
+        if (workspace.isBlank() ||
+            workspace == ModelUtils.DEFAULT_WORKSPACE_ID ||
+            workspace.startsWith("admin$")
+        ) {
+
+            return localId
+        }
+
+        val wsSysId = getWorkspaceSystemId(workspace)
+        if (wsSysId.isBlank()) {
+            return localId
+        }
+        val prefix = SCOPED_ID_PREFIX_PREFIX + wsSysId + SCOPED_ID_PREFIX_DELIM
+        return if (localId.startsWith(prefix)) {
+            localId
+        } else {
+            prefix + localId
         }
     }
 

@@ -64,6 +64,14 @@ interface WorkspaceService {
      */
     fun isUserMemberOf(user: String, workspace: String): Boolean
 
+    fun getWorkspaceSystemId(workspace: String): String
+
+    fun getWorkspaceSystemId(workspaces: List<String>): List<String>
+
+    fun removeWsPrefixFromId(id: String): String
+
+    fun addWsPrefixToId(localId: String, workspace: String): String
+
     fun resetNestedWorkspacesCache()
 
     fun resetNestedWorkspacesCache(workspaces: Collection<String>)

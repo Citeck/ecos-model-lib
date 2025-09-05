@@ -7,6 +7,7 @@ import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 object ModelUtils {
 
+    const val DEFAULT_WORKSPACE_ID = "default"
     val DOCLIB_DEFAULT_DIR_TYPE = getTypeRef("directory")
 
     @JvmStatic
