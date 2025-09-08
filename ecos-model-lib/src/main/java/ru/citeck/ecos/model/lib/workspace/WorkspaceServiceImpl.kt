@@ -128,33 +128,35 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         return workspaces.map { getWorkspaceSystemId(it) }
     }
 
-    override fun removeWsPrefixFromId(id: String): String {
-        if (!id.startsWith(SCOPED_ID_PREFIX_PREFIX)) {
+    override fun removeWsPrefixFromId(id: String, workspace: String): String {
+        val prefix = getPrefixForIdInWorkspace(workspace)
+        if (prefix.isEmpty() || !id.startsWith(prefix)) {
             return id
         }
-        return id.substringAfter(SCOPED_ID_PREFIX_DELIM)
+        return id.replaceFirst(prefix, "")
     }
 
     override fun addWsPrefixToId(localId: String, workspace: String): String {
-
-        if (workspace.isBlank() ||
-            workspace == ModelUtils.DEFAULT_WORKSPACE_ID ||
-            workspace.startsWith("admin$")
-        ) {
-
-            return localId
-        }
-
-        val wsSysId = getWorkspaceSystemId(workspace)
-        if (wsSysId.isBlank()) {
-            return localId
-        }
-        val prefix = SCOPED_ID_PREFIX_PREFIX + wsSysId + SCOPED_ID_PREFIX_DELIM
+        val prefix = getPrefixForIdInWorkspace(workspace)
         return if (localId.startsWith(prefix)) {
             localId
         } else {
             prefix + localId
         }
+    }
+
+    private fun getPrefixForIdInWorkspace(workspace: String): String {
+        if (workspace.isBlank() ||
+            workspace == ModelUtils.DEFAULT_WORKSPACE_ID ||
+            workspace.startsWith("admin$")
+        ) {
+            return ""
+        }
+        val wsSysId = getWorkspaceSystemId(workspace)
+        if (wsSysId.isBlank()) {
+            return ""
+        }
+        return wsSysId + SCOPED_ID_PREFIX_DELIM
     }
 
     private fun isOwnPersonalWorkspace(user: String, workspace: String): Boolean {
