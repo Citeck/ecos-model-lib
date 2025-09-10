@@ -33,5 +33,18 @@ interface WorkspaceApi {
      */
     fun isUserManagerOf(user: String, workspace: String): Boolean
 
-    fun getWorkspaceSysId(workspaces: List<String>): List<String>
+    fun mapIdentifiers(identifiers: List<String>, mappingType: IdMappingType): List<String>
+
+    enum class IdMappingType(val id: Int) {
+
+        WS_SYS_ID_TO_ID(0),
+        WS_ID_TO_SYS_ID(1),
+        NO_MAPPING(-1);
+
+        companion object {
+            fun fromId(id: Int): IdMappingType {
+                return entries.find { it.id == id } ?: NO_MAPPING
+            }
+        }
+    }
 }

@@ -119,8 +119,11 @@ open class ModelServiceFactory {
             override fun isUserManagerOf(user: String, workspace: String): Boolean {
                 return (customWorkspaceApi ?: workspaceWebApi).isUserManagerOf(user, workspace)
             }
-            override fun getWorkspaceSysId(workspaces: List<String>): List<String> {
-                return (customWorkspaceApi ?: workspaceWebApi).getWorkspaceSysId(workspaces)
+            override fun mapIdentifiers(
+                identifiers: List<String>,
+                mappingType: WorkspaceApi.IdMappingType
+            ): List<String> {
+                return (customWorkspaceApi ?: workspaceWebApi).mapIdentifiers(identifiers, mappingType)
             }
         }
     }

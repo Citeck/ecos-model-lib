@@ -11,7 +11,7 @@ class WorkspaceWebApi(
         const val GET_NESTED_WORKSPACES_PATH = "/workspace/nested-workspaces/get"
         const val GET_USER_WORKSPACES_PATH = "/workspace/user-workspaces/get"
         const val IS_USER_MANAGER_OF_PATH = "/workspace/is-user-manager-of"
-        const val GET_WORKSPACE_SYSTEM_ID_PATH = "/workspace/system-id/get"
+        const val GET_IDS_MAPPING_PATH = "/workspace/ids-mapping/get"
     }
 
     override fun getNestedWorkspaces(workspaces: Collection<String>): List<Set<String>> {
@@ -74,35 +74,43 @@ class WorkspaceWebApi(
             }.result
     }
 
-    override fun getWorkspaceSysId(workspaces: List<String>): List<String> {
+    override fun mapIdentifiers(identifiers: List<String>, mappingType: WorkspaceApi.IdMappingType): List<String> {
+
+        if (mappingType == WorkspaceApi.IdMappingType.NO_MAPPING) {
+            return identifiers
+        }
 
         val webClient = webClient ?: error("WebClient is null")
 
-        val apiVersion = webClient.getApiVersion(AppName.EMODEL, GET_WORKSPACE_SYSTEM_ID_PATH, 0)
+        val apiVersion = webClient.getApiVersion(AppName.EMODEL, GET_IDS_MAPPING_PATH, 0)
         if (apiVersion < 0) {
             error(
-                "Remote API \"/${AppName.EMODEL}/${GET_WORKSPACE_SYSTEM_ID_PATH}/\" is not implemented. " +
+                "Remote API \"/${AppName.EMODEL}/${GET_IDS_MAPPING_PATH}/\" is not implemented. " +
                     "Please, check that version of ${AppName.EMODEL} is greater or equal 2.33.0"
             )
         }
 
         return webClient.newRequest()
             .targetApp(AppName.EMODEL)
-            .path(GET_WORKSPACE_SYSTEM_ID_PATH)
+            .path(GET_IDS_MAPPING_PATH)
             .body {
-                it.writeDto(GetWorkspaceSystemIdReq(workspaces.toList()))
+                it.writeDto(GetIdsMappingReq(identifiers.toList(), mappingType.id))
             }
             .executeSync {
-                it.getBodyReader().readDto(GetWorkspaceSystemIdResp::class.java)
-            }.systemIds
+                it.getBodyReader().readDto(GetIdsMappingResp::class.java)
+            }.ids
     }
 
-    data class GetWorkspaceSystemIdReq(
-        val workspaces: List<String>
+    data class GetIdsMappingReq(
+        val ids: List<String>,
+        /**
+         * @see WorkspaceApi.IdMappingType.id
+         */
+        val mappingType: Int
     )
 
-    data class GetWorkspaceSystemIdResp(
-        val systemIds: List<String>
+    data class GetIdsMappingResp(
+        val ids: List<String>
     )
 
     data class GetNestedWorkspacesReq(

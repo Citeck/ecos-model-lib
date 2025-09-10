@@ -68,6 +68,10 @@ interface WorkspaceService {
 
     fun getWorkspaceSystemId(workspaces: List<String>): List<String>
 
+    fun getWorkspaceIdBySystemId(workspaceSysId: String): String
+
+    fun getWorkspaceIdBySystemId(workspaceSysId: List<String>): List<String>
+
     fun removeWsPrefixFromId(id: String, workspace: String): String
 
     fun addWsPrefixToId(localId: String, workspace: String): String

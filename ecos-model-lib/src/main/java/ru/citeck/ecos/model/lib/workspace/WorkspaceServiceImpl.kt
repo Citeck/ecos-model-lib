@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.utils.ModelUtils
+import ru.citeck.ecos.model.lib.workspace.api.WorkspaceApi
 import ru.citeck.ecos.model.lib.workspace.api.WsMembershipType
 import ru.citeck.ecos.txn.lib.TxnContext
 import java.time.Duration
@@ -12,9 +13,6 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
 
     companion object {
         private const val USER_WORKSPACES_CACHE_KEY = "user-workspaces-txn-cache-key"
-
-        const val SCOPED_ID_PREFIX_PREFIX = "ws_"
-        const val SCOPED_ID_PREFIX_DELIM = "/"
     }
 
     private val workspaceApi = services.workspaceApi
@@ -31,7 +29,15 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         .expireAfterWrite(Duration.ofMinutes(5))
         .maximumSize(1000)
         .build<String, String> {
-            workspaceApi.getWorkspaceSysId(listOf(it))[0]
+            workspaceApi.mapIdentifiers(listOf(it), WorkspaceApi.IdMappingType.WS_ID_TO_SYS_ID)[0]
+        }
+
+    private val workspaceIdBySysIdCache = Caffeine.newBuilder()
+        .expireAfterAccess(Duration.ofSeconds(30))
+        .expireAfterWrite(Duration.ofMinutes(5))
+        .maximumSize(1000)
+        .build<String, String> {
+            workspaceApi.mapIdentifiers(listOf(it), WorkspaceApi.IdMappingType.WS_SYS_ID_TO_ID)[0]
         }
 
     override fun expandWorkspaces(workspaces: Collection<String>): Set<String> {
@@ -128,6 +134,14 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         return workspaces.map { getWorkspaceSystemId(it) }
     }
 
+    override fun getWorkspaceIdBySystemId(workspaceSysId: List<String>): List<String> {
+        return workspaceSysId.map { getWorkspaceIdBySystemId(it) }
+    }
+
+    override fun getWorkspaceIdBySystemId(workspaceSysId: String): String {
+        return workspaceIdBySysIdCache.get(workspaceSysId)
+    }
+
     override fun removeWsPrefixFromId(id: String, workspace: String): String {
         val prefix = getPrefixForIdInWorkspace(workspace)
         if (prefix.isEmpty() || !id.startsWith(prefix)) {
@@ -156,7 +170,7 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         if (wsSysId.isBlank()) {
             return ""
         }
-        return wsSysId + SCOPED_ID_PREFIX_DELIM
+        return wsSysId + ModelUtils.WS_SCOPED_ARTIFACT_ID_DELIM
     }
 
     private fun isOwnPersonalWorkspace(user: String, workspace: String): Boolean {

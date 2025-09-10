@@ -3,11 +3,14 @@ package ru.citeck.ecos.model.lib.utils
 import ru.citeck.ecos.model.lib.aspect.constants.AspectConstants
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.model.lib.type.constants.TypeConstants
+import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 
 object ModelUtils {
 
     const val DEFAULT_WORKSPACE_ID = "default"
+    const val WS_SCOPED_ARTIFACT_ID_DELIM = ":"
+
     val DOCLIB_DEFAULT_DIR_TYPE = getTypeRef("directory")
 
     @JvmStatic
@@ -24,6 +27,14 @@ object ModelUtils {
             return EntityRef.EMPTY
         }
         return EntityRef.create(AspectConstants.ASPECT_APP, AspectConstants.ASPECT_SOURCE, aspectId)
+    }
+
+    @JvmStatic
+    fun getWorkspaceRef(workspaceId: String?): EntityRef {
+        if (workspaceId.isNullOrBlank()) {
+            return EntityRef.EMPTY
+        }
+        return EntityRef.create(AppName.EMODEL, "workspace", workspaceId)
     }
 
     fun getMergedModelAtts(
