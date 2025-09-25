@@ -64,6 +64,8 @@ interface WorkspaceService {
      */
     fun isUserMemberOf(user: String, workspace: String): Boolean
 
+    fun isWorkspaceWithGlobalArtifacts(workspace: String?): Boolean
+
     fun getWorkspaceSystemId(workspace: String): String
 
     fun getWorkspaceSystemId(workspaces: List<String>): List<String>
@@ -79,4 +81,8 @@ interface WorkspaceService {
     fun resetNestedWorkspacesCache()
 
     fun resetNestedWorkspacesCache(workspaces: Collection<String>)
+
+    fun convertToIdInWs(strId: String): IdInWs
+
+    fun convertToStrId(idInWs: IdInWs): String
 }

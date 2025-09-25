@@ -10,6 +10,7 @@ data class NumTemplateDef(
     val id: String,
     val name: String,
     val counterKey: String,
+    val workspace: String,
     val modelAttributes: List<String>
 ) {
 
@@ -43,12 +44,14 @@ data class NumTemplateDef(
         var id: String = ""
         var name: String = ""
         var counterKey: String = ""
+        var workspace: String = ""
         var modelAttributes: List<String> = emptyList()
 
         constructor(base: NumTemplateDef) : this() {
             id = base.id
             name = base.name
             counterKey = base.counterKey
+            workspace = base.workspace
             modelAttributes = DataValue.create(base.modelAttributes).asStrList()
         }
 
@@ -67,13 +70,18 @@ data class NumTemplateDef(
             return this
         }
 
+        fun withWorkspace(workspace: String): Builder {
+            this.workspace = workspace
+            return this
+        }
+
         fun withModelAttributes(modelAttributes: List<String>): Builder {
             this.modelAttributes = ArrayList(modelAttributes)
             return this
         }
 
         fun build(): NumTemplateDef {
-            return NumTemplateDef(id, name, counterKey, modelAttributes)
+            return NumTemplateDef(id, name, counterKey, workspace, modelAttributes)
         }
     }
 }

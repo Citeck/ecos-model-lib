@@ -9,7 +9,6 @@ import ru.citeck.ecos.webapp.api.entity.EntityRef
 object ModelUtils {
 
     const val DEFAULT_WORKSPACE_ID = "default"
-    const val WS_SCOPED_ARTIFACT_ID_DELIM = ":"
 
     val DOCLIB_DEFAULT_DIR_TYPE = getTypeRef("directory")
 

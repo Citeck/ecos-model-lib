@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.utils.ModelUtils
+import ru.citeck.ecos.model.lib.workspace.IdInWs.Companion.create
 import ru.citeck.ecos.model.lib.workspace.api.WorkspaceApi
 import ru.citeck.ecos.model.lib.workspace.api.WsMembershipType
 import ru.citeck.ecos.txn.lib.TxnContext
@@ -116,6 +117,12 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         return getUserWorkspaces(user).contains(workspace)
     }
 
+    override fun isWorkspaceWithGlobalArtifacts(workspace: String?): Boolean {
+        return workspace.isNullOrBlank() ||
+            workspace == ModelUtils.DEFAULT_WORKSPACE_ID ||
+            workspace.startsWith("admin$")
+    }
+
     override fun resetNestedWorkspacesCache() {
         nestedWorkspacesCache.invalidateAll()
     }
@@ -159,18 +166,37 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         }
     }
 
+    override fun convertToIdInWs(strId: String): IdInWs {
+        return if (strId.contains(IdInWs.WS_DELIM)) {
+            val wsSysId = strId.substringBefore(IdInWs.WS_DELIM)
+            val idInWs = strId.substringAfter(IdInWs.WS_DELIM)
+            val workspaceId = getWorkspaceIdBySystemId(wsSysId)
+            if (workspaceId.isBlank()) {
+                create("", strId)
+            } else {
+                create(workspaceId, idInWs)
+            }
+        } else {
+            create("", strId)
+        }
+    }
+
+    override fun convertToStrId(idInWs: IdInWs): String {
+        if (idInWs.workspace.isEmpty() || idInWs.id.isEmpty()) {
+            return idInWs.id
+        }
+        return addWsPrefixToId(idInWs.id, idInWs.workspace)
+    }
+
     private fun getPrefixForIdInWorkspace(workspace: String): String {
-        if (workspace.isBlank() ||
-            workspace == ModelUtils.DEFAULT_WORKSPACE_ID ||
-            workspace.startsWith("admin$")
-        ) {
+        if (isWorkspaceWithGlobalArtifacts(workspace)) {
             return ""
         }
         val wsSysId = getWorkspaceSystemId(workspace)
         if (wsSysId.isBlank()) {
             return ""
         }
-        return wsSysId + ModelUtils.WS_SCOPED_ARTIFACT_ID_DELIM
+        return wsSysId + IdInWs.WS_DELIM
     }
 
     private fun isOwnPersonalWorkspace(user: String, workspace: String): Boolean {
