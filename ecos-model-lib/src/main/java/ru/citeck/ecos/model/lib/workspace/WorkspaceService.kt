@@ -85,4 +85,8 @@ interface WorkspaceService {
     fun convertToIdInWs(strId: String): IdInWs
 
     fun convertToStrId(idInWs: IdInWs): String
+
+    fun getArtifactsWritePermission(user: String, workspace: String?, typeId: String): Boolean
+
+    fun getUpdatedWsInMutation(currentWs: String, ctxWorkspace: String?): String
 }

@@ -14,6 +14,7 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
 
     companion object {
         private const val USER_WORKSPACES_CACHE_KEY = "user-workspaces-txn-cache-key"
+        private const val WS_REF_PREFIX = "emodel/workspace@"
     }
 
     private val workspaceApi = services.workspaceApi
@@ -190,6 +191,26 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
             return idInWs.id
         }
         return addWsPrefixToId(idInWs.id, idInWs.workspace)
+    }
+
+    override fun getArtifactsWritePermission(user: String, workspace: String?, typeId: String): Boolean {
+        if (AuthContext.isRunAsSystemOrAdmin()) {
+            return true
+        }
+        if (workspace == null || isWorkspaceWithGlobalArtifacts(workspace)) {
+            return false
+        }
+        return isUserManagerOf(user, workspace)
+    }
+
+    override fun getUpdatedWsInMutation(currentWs: String, ctxWorkspace: String?): String {
+        if (currentWs.isNotBlank() ||
+            ctxWorkspace.isNullOrBlank() ||
+            isWorkspaceWithGlobalArtifacts(ctxWorkspace)
+        ) {
+            return currentWs
+        }
+        return ctxWorkspace.replace(WS_REF_PREFIX, "")
     }
 
     private fun getPrefixForIdInWorkspace(workspace: String): String {
