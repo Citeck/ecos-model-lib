@@ -1,5 +1,6 @@
 package ru.citeck.ecos.model.lib.workspace.api
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.web.client.EcosWebClientApi
 
@@ -12,6 +13,8 @@ class WorkspaceWebApi(
         const val GET_USER_WORKSPACES_PATH = "/workspace/user-workspaces/get"
         const val IS_USER_MANAGER_OF_PATH = "/workspace/is-user-manager-of"
         const val GET_IDS_MAPPING_PATH = "/workspace/ids-mapping/get"
+
+        private val log = KotlinLogging.logger {}
     }
 
     override fun getNestedWorkspaces(workspaces: Collection<String>): List<Set<String>> {
@@ -82,7 +85,11 @@ class WorkspaceWebApi(
 
         val webClient = webClient ?: error("WebClient is null")
 
-        val apiVersion = webClient.getApiVersion(AppName.EMODEL, GET_IDS_MAPPING_PATH, 0)
+        var apiVersion = webClient.getApiVersion(AppName.EMODEL, GET_IDS_MAPPING_PATH, 0)
+        if (apiVersion == EcosWebClientApi.AV_APP_NOT_AVAILABLE) {
+            apiVersion = waitUntilEmodelApiIsAvailable(webClient, GET_IDS_MAPPING_PATH)
+        }
+
         if (apiVersion < 0) {
             error(
                 "Remote API \"/${AppName.EMODEL}/${GET_IDS_MAPPING_PATH}/\" is not implemented. " +
@@ -99,6 +106,34 @@ class WorkspaceWebApi(
             .executeSync {
                 it.getBodyReader().readDto(GetIdsMappingResp::class.java)
             }.ids
+    }
+
+    @Suppress("SameParameterValue")
+    private fun waitUntilEmodelApiIsAvailable(webClient: EcosWebClientApi, apiPath: String): Int {
+        val sleepTime = 5_000L
+        var logIteration = -1L
+        val logPeriod = 30_000L
+        val waitingStartedAt = System.currentTimeMillis()
+        var apiVersion: Int
+        do {
+            val elapsedTime = System.currentTimeMillis() - waitingStartedAt
+            val nextLogIteration = elapsedTime / logPeriod
+            if (nextLogIteration != logIteration) {
+                logIteration = nextLogIteration
+                val logMsg = "Model service is not available. Waiting... Elapsed time: ${elapsedTime}ms"
+                if (elapsedTime < 30_000) {
+                    log.debug { logMsg }
+                } else if (elapsedTime < 120_000) {
+                    log.warn { logMsg }
+                } else {
+                    log.error { logMsg }
+                }
+            }
+            Thread.sleep(sleepTime)
+            apiVersion = webClient.getApiVersion(AppName.EMODEL, apiPath, 0)
+        } while (apiVersion == EcosWebClientApi.AV_APP_NOT_AVAILABLE)
+
+        return apiVersion
     }
 
     data class GetIdsMappingReq(
