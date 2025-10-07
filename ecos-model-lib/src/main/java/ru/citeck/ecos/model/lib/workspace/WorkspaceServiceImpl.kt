@@ -169,6 +169,10 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
     override fun convertToIdInWs(strId: String): IdInWs {
         return if (strId.contains(IdInWs.WS_DELIM)) {
             val wsSysId = strId.substringBefore(IdInWs.WS_DELIM)
+            if (wsSysId.contains('$')) {
+                // workspace system id should not contain '$' char
+                return create("", strId)
+            }
             val idInWs = strId.substringAfter(IdInWs.WS_DELIM)
             val workspaceId = getWorkspaceIdBySystemId(wsSysId)
             if (workspaceId.isBlank()) {
