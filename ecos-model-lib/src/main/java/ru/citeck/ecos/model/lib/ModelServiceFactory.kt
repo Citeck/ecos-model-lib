@@ -31,6 +31,7 @@ import ru.citeck.ecos.model.lib.workspace.api.WorkspaceApi
 import ru.citeck.ecos.model.lib.workspace.api.WorkspaceWebApi
 import ru.citeck.ecos.model.lib.workspace.api.WsMembershipType
 import ru.citeck.ecos.records3.RecordsServiceFactory
+import ru.citeck.ecos.records3.workspace.RecordsWorkspaceService
 import ru.citeck.ecos.webapp.api.EcosWebAppApi
 import ru.citeck.ecos.webapp.api.properties.EcosWebAppProps
 import java.util.concurrent.atomic.AtomicBoolean
@@ -159,6 +160,14 @@ open class ModelServiceFactory {
     open fun setRecordsServices(services: RecordsServiceFactory) {
         this.records = services
         services.setRecordTypeComponent(RecordTypeComponentImpl(this))
+        services.setCustomRecordsWorkspaceService(object : RecordsWorkspaceService {
+            override fun isWorkspaceWithGlobalEntities(workspace: String?): Boolean {
+                return workspaceService.isWorkspaceWithGlobalArtifacts(workspace)
+            }
+            override fun getUserWorkspaces(user: String): Set<String> {
+                return workspaceService.getUserWorkspaces(user)
+            }
+        })
     }
 
     open fun setDelegationApi(delegationApi: DelegationApi) {
