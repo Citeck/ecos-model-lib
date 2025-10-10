@@ -2,11 +2,14 @@ package ru.citeck.ecos.model.lib.workspace
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import ru.citeck.ecos.context.lib.auth.AuthContext
+import ru.citeck.ecos.context.lib.auth.AuthUser
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.model.lib.workspace.IdInWs.Companion.create
 import ru.citeck.ecos.model.lib.workspace.api.WorkspaceApi
 import ru.citeck.ecos.model.lib.workspace.api.WsMembershipType
+import ru.citeck.ecos.records2.predicate.model.Predicate
+import ru.citeck.ecos.records2.predicate.model.Predicates
 import ru.citeck.ecos.txn.lib.TxnContext
 import java.time.Duration
 
@@ -118,7 +121,7 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         return getUserWorkspaces(user).contains(workspace)
     }
 
-    override fun isWorkspaceWithGlobalArtifacts(workspace: String?): Boolean {
+    override fun isWorkspaceWithGlobalEntities(workspace: String?): Boolean {
         return workspace.isNullOrBlank() ||
             workspace == ModelUtils.DEFAULT_WORKSPACE_ID ||
             workspace.startsWith("admin$")
@@ -197,16 +200,43 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         if (AuthContext.isRunAsSystemOrAdmin()) {
             return true
         }
-        if (workspace == null || isWorkspaceWithGlobalArtifacts(workspace)) {
+        if (workspace == null || isWorkspaceWithGlobalEntities(workspace)) {
             return false
         }
         return isUserManagerOf(user, workspace)
     }
 
+    override fun buildAvailableWorkspacesPredicate(user: String, queriedWorkspaces: List<String>): Predicate {
+        val fixedWorkspaces = if (queriedWorkspaces.isEmpty()) {
+            if (user == AuthUser.SYSTEM) {
+                return Predicates.alwaysTrue()
+            } else {
+                val userWorkspaces = HashSet(getUserWorkspaces(user))
+                userWorkspaces.add("")
+                userWorkspaces
+            }
+        } else {
+            var queryWorkspaces = queriedWorkspaces.mapTo(HashSet()) {
+                if (isWorkspaceWithGlobalEntities(it)) "" else it
+            }
+            if (user != AuthUser.SYSTEM) {
+                val currentUserWorkspaces = getUserWorkspaces(user)
+                queryWorkspaces = queryWorkspaces.filterTo(HashSet()) {
+                    it == "" || currentUserWorkspaces.contains(it)
+                }
+                if (queryWorkspaces.isEmpty()) {
+                    return Predicates.alwaysFalse()
+                }
+            }
+            queryWorkspaces
+        }
+        return Predicates.inVals("workspace", fixedWorkspaces)
+    }
+
     override fun getUpdatedWsInMutation(currentWs: String, ctxWorkspace: String?): String {
         if (currentWs.isNotBlank() ||
             ctxWorkspace.isNullOrBlank() ||
-            isWorkspaceWithGlobalArtifacts(ctxWorkspace)
+            isWorkspaceWithGlobalEntities(ctxWorkspace)
         ) {
             return currentWs
         }
@@ -214,7 +244,7 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
     }
 
     private fun getPrefixForIdInWorkspace(workspace: String): String {
-        if (isWorkspaceWithGlobalArtifacts(workspace)) {
+        if (isWorkspaceWithGlobalEntities(workspace)) {
             return ""
         }
         val wsSysId = getWorkspaceSystemId(workspace)

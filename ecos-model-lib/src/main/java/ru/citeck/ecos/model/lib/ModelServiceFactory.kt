@@ -162,7 +162,7 @@ open class ModelServiceFactory {
         services.setRecordTypeComponent(RecordTypeComponentImpl(this))
         services.setCustomRecordsWorkspaceService(object : RecordsWorkspaceService {
             override fun isWorkspaceWithGlobalEntities(workspace: String?): Boolean {
-                return workspaceService.isWorkspaceWithGlobalArtifacts(workspace)
+                return workspaceService.isWorkspaceWithGlobalEntities(workspace)
             }
             override fun getUserWorkspaces(user: String): Set<String> {
                 return workspaceService.getUserWorkspaces(user)

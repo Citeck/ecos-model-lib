@@ -1,6 +1,7 @@
 package ru.citeck.ecos.model.lib.workspace
 
 import ru.citeck.ecos.model.lib.workspace.api.WsMembershipType
+import ru.citeck.ecos.records2.predicate.model.Predicate
 
 const val USER_WORKSPACE_PREFIX = "user$"
 
@@ -64,7 +65,7 @@ interface WorkspaceService {
      */
     fun isUserMemberOf(user: String, workspace: String): Boolean
 
-    fun isWorkspaceWithGlobalArtifacts(workspace: String?): Boolean
+    fun isWorkspaceWithGlobalEntities(workspace: String?): Boolean
 
     fun getWorkspaceSystemId(workspace: String): String
 
@@ -89,4 +90,24 @@ interface WorkspaceService {
     fun getArtifactsWritePermission(user: String, workspace: String?, typeId: String): Boolean
 
     fun getUpdatedWsInMutation(currentWs: String, ctxWorkspace: String?): String
+
+    /**
+     * Builds a [Predicate] that filters entities based on the workspaces available
+     * to the specified [user].
+     *
+     * The resulting predicate ensures that only entities belonging to workspaces
+     * accessible by the given user are included. If [queriedWorkspaces] is not empty,
+     * the filter will also restrict results to those workspaces that both:
+     *  - are listed in [queriedWorkspaces], and
+     *  - are accessible to the [user].
+     *
+     * @param user username of the user whose access rights
+     *             should be considered when constructing the predicate
+     * @param queriedWorkspaces a list of workspace identifiers that should be included
+     *                          in the filtering scope; may be empty to include all
+     *                          accessible workspaces
+     * @return a [Predicate] suitable for use in query construction that enforces
+     *         workspace-level access control. May return Predicates.alwaysFalse() and Predicates.alwaysTrue()
+     */
+    fun buildAvailableWorkspacesPredicate(user: String, queriedWorkspaces: List<String>): Predicate
 }
