@@ -19,8 +19,6 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
     companion object {
         private const val USER_WORKSPACES_CACHE_KEY = "user-workspaces-txn-cache-key"
         private const val WS_REF_PREFIX = "emodel/workspace@"
-
-        private const val WS_SYSTEM_ROLE = AuthRole.PREFIX + "WS_SYSTEM"
         private const val WS_SYSTEM_USERNAME_PREFIX = "ws_system_"
     }
 
@@ -246,7 +244,7 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
     }
 
     override fun getUserOrWsSystemUserWorkspaces(auth: AuthData): Set<String>? {
-        return if (auth.getAuthorities().contains(WS_SYSTEM_ROLE)) {
+        return if (auth.getAuthorities().contains(ModelUtils.WORKSPACE_SYSTEM_ROLE)) {
             val user = auth.getUser()
             if (user.startsWith(WS_SYSTEM_USERNAME_PREFIX)) {
                 val wsSysId = user.substring(WS_SYSTEM_USERNAME_PREFIX.length)
@@ -279,7 +277,7 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
             throw IllegalArgumentException("Workspace system id is empty")
         }
         val userName = WS_SYSTEM_USERNAME_PREFIX + wsSysId
-        return AuthContext.runAs(userName, listOf(WS_SYSTEM_ROLE, AuthRole.USER), action)
+        return AuthContext.runAs(userName, listOf(ModelUtils.WORKSPACE_SYSTEM_ROLE, AuthRole.USER), action)
     }
 
     override fun isRunAsSystemOrWsSystem(workspace: String?): Boolean {
@@ -292,7 +290,7 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         }
         val user = auth.getUser()
         val authorities = auth.getAuthorities()
-        if (!authorities.contains(WS_SYSTEM_ROLE) || !user.startsWith(WS_SYSTEM_USERNAME_PREFIX)) {
+        if (!authorities.contains(ModelUtils.WORKSPACE_SYSTEM_ROLE) || !user.startsWith(WS_SYSTEM_USERNAME_PREFIX)) {
             return false
         }
         val wsSysId = getWorkspaceSystemId(workspace)

@@ -1,5 +1,6 @@
 package ru.citeck.ecos.model.lib.utils
 
+import ru.citeck.ecos.context.lib.auth.AuthRole
 import ru.citeck.ecos.model.lib.aspect.constants.AspectConstants
 import ru.citeck.ecos.model.lib.attributes.dto.AttributeDef
 import ru.citeck.ecos.model.lib.type.constants.TypeConstants
@@ -9,6 +10,7 @@ import ru.citeck.ecos.webapp.api.entity.EntityRef
 object ModelUtils {
 
     const val DEFAULT_WORKSPACE_ID = "default"
+    const val WORKSPACE_SYSTEM_ROLE = AuthRole.PREFIX + "WS_SYSTEM"
 
     val DOCLIB_DEFAULT_DIR_TYPE = getTypeRef("directory")
 
