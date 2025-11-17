@@ -1,5 +1,6 @@
 package ru.citeck.ecos.model.lib
 
+import ru.citeck.ecos.context.lib.auth.data.AuthData
 import ru.citeck.ecos.model.lib.api.DefaultModelAppApi
 import ru.citeck.ecos.model.lib.api.EcosModelAppApi
 import ru.citeck.ecos.model.lib.aspect.repo.AspectsRepo
@@ -30,12 +31,14 @@ import ru.citeck.ecos.model.lib.workspace.WorkspaceServiceImpl
 import ru.citeck.ecos.model.lib.workspace.api.WorkspaceApi
 import ru.citeck.ecos.model.lib.workspace.api.WorkspaceWebApi
 import ru.citeck.ecos.model.lib.workspace.api.WsMembershipType
+import ru.citeck.ecos.records2.predicate.model.Predicate
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.records3.workspace.RecordsWorkspaceService
 import ru.citeck.ecos.webapp.api.EcosWebAppApi
 import ru.citeck.ecos.webapp.api.properties.EcosWebAppProps
 import java.util.concurrent.atomic.AtomicBoolean
 
+@Suppress("unused")
 open class ModelServiceFactory {
 
     val permsEvaluator: PermsEvaluator by lazySingleton { createPermsEvaluator() }
@@ -166,6 +169,15 @@ open class ModelServiceFactory {
             }
             override fun getUserWorkspaces(user: String): Set<String> {
                 return workspaceService.getUserWorkspaces(user)
+            }
+            override fun getUserOrWsSystemUserWorkspaces(auth: AuthData): Set<String>? {
+                return workspaceService.getUserOrWsSystemUserWorkspaces(auth)
+            }
+            override fun buildAvailableWorkspacesPredicate(auth: AuthData, queriedWorkspaces: List<String>): Predicate {
+                return workspaceService.buildAvailableWorkspacesPredicate(auth, queriedWorkspaces)
+            }
+            override fun getAvailableWorkspacesToQuery(auth: AuthData, queriedWorkspaces: List<String>): Set<String>? {
+                return workspaceService.getAvailableWorkspacesToQuery(auth, queriedWorkspaces)
             }
         })
     }

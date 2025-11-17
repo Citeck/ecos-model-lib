@@ -18,10 +18,10 @@
 
     <properties>
 
-        <revision>2.38.11</revision>
+        <revision>2.38.12</revision>
 
         <ecos.commons.version>3.6.0</ecos.commons.version>
-        <ecos.records.version>3.76.4</ecos.records.version>
+        <ecos.records.version>3.76.11</ecos.records.version>
         <ecos.commands.version>2.12.0</ecos.commands.version>
 
         <ecos.txn-lib.version>1.4.0</ecos.txn-lib.version>
