@@ -103,7 +103,6 @@ interface WorkspaceService {
      */
     fun getWorkspaceSystemId(workspaces: List<String>): List<String>
 
-
     /**
      * Resolves the workspace identifier by its system identifier.
      *
@@ -171,7 +170,6 @@ interface WorkspaceService {
      * @return string representation with workspace prefix if applicable
      */
     fun convertToStrId(idInWs: IdInWs): String
-
 
     /**
      * Checks whether the user has permission to write artifacts
