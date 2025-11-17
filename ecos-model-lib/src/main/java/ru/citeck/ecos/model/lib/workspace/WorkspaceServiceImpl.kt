@@ -2,7 +2,8 @@ package ru.citeck.ecos.model.lib.workspace
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import ru.citeck.ecos.context.lib.auth.AuthContext
-import ru.citeck.ecos.context.lib.auth.AuthUser
+import ru.citeck.ecos.context.lib.auth.AuthRole
+import ru.citeck.ecos.context.lib.auth.data.AuthData
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.model.lib.workspace.IdInWs.Companion.create
@@ -18,6 +19,9 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
     companion object {
         private const val USER_WORKSPACES_CACHE_KEY = "user-workspaces-txn-cache-key"
         private const val WS_REF_PREFIX = "emodel/workspace@"
+
+        private const val WS_SYSTEM_ROLE = AuthRole.PREFIX + "WS_SYSTEM"
+        private const val WS_SYSTEM_USERNAME_PREFIX = "ws_system_"
     }
 
     private val workspaceApi = services.workspaceApi
@@ -51,7 +55,7 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         }
         val resultWorkspaces = LinkedHashSet<String>(workspaces)
         for (workspace in workspaces) {
-            if (workspace.startsWith(USER_WORKSPACE_PREFIX)) {
+            if (workspace.startsWith(USER_WORKSPACE_PREFIX) || isWorkspaceWithGlobalEntities(workspace)) {
                 continue
             }
             resultWorkspaces.addAll(nestedWorkspacesCache.get(workspace))
@@ -137,7 +141,8 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         }
     }
 
-    override fun getWorkspaceSystemId(workspace: String): String {
+    override fun getWorkspaceSystemId(workspace: String?): String {
+        workspace ?: return ""
         return workspaceSysIdCache.get(workspace)
     }
 
@@ -206,31 +211,96 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         return isUserManagerOf(user, workspace)
     }
 
-    override fun buildAvailableWorkspacesPredicate(user: String, queriedWorkspaces: List<String>): Predicate {
-        val fixedWorkspaces = if (queriedWorkspaces.isEmpty()) {
-            if (user == AuthUser.SYSTEM) {
-                return Predicates.alwaysTrue()
-            } else {
-                val userWorkspaces = HashSet(getUserWorkspaces(user))
-                userWorkspaces.add("")
-                userWorkspaces
-            }
-        } else {
-            var queryWorkspaces = queriedWorkspaces.mapTo(HashSet()) {
-                if (isWorkspaceWithGlobalEntities(it)) "" else it
-            }
-            if (user != AuthUser.SYSTEM) {
-                val currentUserWorkspaces = getUserWorkspaces(user)
-                queryWorkspaces = queryWorkspaces.filterTo(HashSet()) {
-                    it == "" || currentUserWorkspaces.contains(it)
-                }
-                if (queryWorkspaces.isEmpty()) {
-                    return Predicates.alwaysFalse()
-                }
-            }
-            queryWorkspaces
+    override fun buildAvailableWorkspacesPredicate(auth: AuthData, queriedWorkspaces: List<String>): Predicate {
+        val fixedWorkspaces = getAvailableWorkspacesToQuery(auth, queriedWorkspaces) ?: return Predicates.alwaysFalse()
+        if (fixedWorkspaces.isEmpty()) {
+            return Predicates.alwaysTrue()
         }
         return Predicates.inVals("workspace", fixedWorkspaces)
+    }
+
+    override fun getAvailableWorkspacesToQuery(auth: AuthData, queriedWorkspaces: List<String>): Set<String>? {
+        val isSystem = AuthContext.isSystemAuth(auth)
+        return if (queriedWorkspaces.isEmpty()) {
+            if (isSystem) {
+                return emptySet()
+            } else {
+                getUserOrWsSystemUserWorkspaces(auth) ?: return null
+            }
+        } else {
+            var workspacesToQuery: Set<String> = queriedWorkspaces.mapTo(LinkedHashSet()) {
+                if (isWorkspaceWithGlobalEntities(it)) "" else it
+            }
+            workspacesToQuery = expandWorkspaces(workspacesToQuery)
+            if (!isSystem) {
+                val currentUserWorkspaces = getUserOrWsSystemUserWorkspaces(auth) ?: return null
+                workspacesToQuery = workspacesToQuery.filterTo(LinkedHashSet()) {
+                    it == "" || currentUserWorkspaces.contains(it)
+                }
+                if (workspacesToQuery.isEmpty()) {
+                    return null
+                }
+            }
+            workspacesToQuery
+        }
+    }
+
+    override fun getUserOrWsSystemUserWorkspaces(auth: AuthData): Set<String>? {
+        return if (auth.getAuthorities().contains(WS_SYSTEM_ROLE)) {
+            val user = auth.getUser()
+            if (user.startsWith(WS_SYSTEM_USERNAME_PREFIX)) {
+                val wsSysId = user.substring(WS_SYSTEM_USERNAME_PREFIX.length)
+                val workspaceId = getWorkspaceIdBySystemId(wsSysId)
+                val result = LinkedHashSet<String>(4)
+                result.add(workspaceId)
+                result.addAll(nestedWorkspacesCache[workspaceId])
+                result.add("")
+                return result
+            } else {
+                null
+            }
+        } else {
+            val userWorkspaces = HashSet(getUserWorkspaces(auth.getUser()))
+            userWorkspaces.add("")
+            userWorkspaces
+        }
+    }
+
+    override fun <T> runAsWsSystem(workspace: String, action: () -> T): T {
+        val wsSysId = getWorkspaceSystemId(workspace)
+        if (wsSysId.isBlank()) {
+            error("Workspace doesn't have system identifier: '$workspace'")
+        }
+        return runAsWsSystemBySystemId(wsSysId, action)
+    }
+
+    override fun <T> runAsWsSystemBySystemId(wsSysId: String, action: () -> T): T {
+        if (wsSysId.isBlank()) {
+            throw IllegalArgumentException("Workspace system id is empty")
+        }
+        val userName = WS_SYSTEM_USERNAME_PREFIX + wsSysId
+        return AuthContext.runAs(userName, listOf(WS_SYSTEM_ROLE, AuthRole.USER), action)
+    }
+
+    override fun isRunAsSystemOrWsSystem(workspace: String?): Boolean {
+        return isSystemOrWsSystemAuth(AuthContext.getCurrentRunAsAuth(), workspace)
+    }
+
+    override fun isSystemOrWsSystemAuth(auth: AuthData, workspace: String?): Boolean {
+        if (AuthContext.isSystemAuth(auth)) {
+            return true
+        }
+        val user = auth.getUser()
+        val authorities = auth.getAuthorities()
+        if (!authorities.contains(WS_SYSTEM_ROLE) || !user.startsWith(WS_SYSTEM_USERNAME_PREFIX)) {
+            return false
+        }
+        val wsSysId = getWorkspaceSystemId(workspace)
+        return user.endsWith(wsSysId) && (WS_SYSTEM_USERNAME_PREFIX.length + wsSysId.length == user.length)
+    }
+
+    override fun isSystemOrWsSystemOrAdminAuth(auth: AuthData, workspace: String?): Boolean {
+        return isSystemOrWsSystemAuth(auth, workspace) || AuthContext.isAdminAuth(auth)
     }
 
     override fun getUpdatedWsInMutation(currentWs: String, ctxWorkspace: String?): String {
