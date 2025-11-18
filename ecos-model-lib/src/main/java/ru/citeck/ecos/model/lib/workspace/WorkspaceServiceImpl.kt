@@ -20,7 +20,10 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         private const val USER_WORKSPACES_CACHE_KEY = "user-workspaces-txn-cache-key"
         private const val WS_REF_PREFIX = "emodel/workspace@"
         private const val WS_SYSTEM_USERNAME_PREFIX = "ws_system_"
+        private const val WS_PREFIX_MASK = "CURRENT_WS_ID${IdInWs.WS_DELIM}"
     }
+
+    private val wsPrefixRegex = Regex("^.+?${IdInWs.WS_DELIM}")
 
     private val workspaceApi = services.workspaceApi
 
@@ -170,6 +173,27 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
             localId
         } else {
             prefix + localId
+        }
+    }
+
+    override fun replaceWsPrefixFromIdToMask(id: String): String {
+        return if (wsPrefixRegex.containsMatchIn(id)) {
+            wsPrefixRegex.replaceFirst(id, WS_PREFIX_MASK)
+        } else {
+            id
+        }
+    }
+
+    override fun replaceMaskFromIdToWsPrefix(id: String, workspace: String): String {
+        if (!id.startsWith(WS_PREFIX_MASK)) {
+            return id
+        }
+
+        val prefix = getPrefixForIdInWorkspace(workspace)
+        return if (prefix.isEmpty()) {
+            id
+        } else {
+            id.replaceFirst(WS_PREFIX_MASK, prefix)
         }
     }
 
