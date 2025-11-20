@@ -144,23 +144,23 @@ interface WorkspaceService {
     /**
      * Replaces the workspace prefix in the given identifier with a placeholder mask.
      *
-     * Example: `"ws-sys-id:abc"` → `"CURRENT_WS_ID:abc"`
+     * Example: `"ws-sys-id:abc"` → `"CURRENT_WS:abc"`
      *
      * @param id the identifier that may contain a workspace prefix
      * @return the identifier with workspace prefix replaced by a mask, or the original identifier if no prefix was found
      */
-    fun replaceWsPrefixFromIdToMask(id: String): String
+    fun replaceWsPrefixToCurrentWsPlaceholder(id: String): String
 
     /**
      * Replaces the placeholder mask in the given identifier with the actual workspace prefix.
      *
-     * Example: `"CURRENT_WS_ID:abc"` → `"ws-sys-id:abc"`
+     * Example: `"CURRENT_WS:abc"` → `"ws-sys-id:abc"`
      *
      * @param id the identifier that may contain a workspace mask
      * @param workspace the workspace whose prefix should replace the mask
      * @return the identifier with mask replaced by actual workspace prefix, or the original identifier if no mask was found
      */
-    fun replaceMaskFromIdToWsPrefix(id: String, workspace: String): String
+    fun replaceCurrentWsPlaceholderToWsPrefix(id: String, workspace: String): String
 
     /**
      * Clears the entire nested-workspaces cache.

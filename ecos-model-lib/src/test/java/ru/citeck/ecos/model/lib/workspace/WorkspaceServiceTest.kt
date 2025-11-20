@@ -3,6 +3,8 @@ package ru.citeck.ecos.model.lib.workspace
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.workspace.api.WorkspaceApi
@@ -16,6 +18,28 @@ class WorkspaceServiceTest {
 
     private lateinit var workspaceService: WorkspaceService
     private val nestedWorkspaces = HashMap<String, Set<String>>()
+
+    @ParameterizedTest
+    @CsvSource(
+        "simple, simple",
+        "custom:simple, CURRENT_WS:simple",
+        "cus\$tom:simple, cus\$tom:simple",
+    )
+    fun wsPlaceholderTest(input: String, expected: String) {
+        val idInWs = workspaceService.convertToIdInWs(input)
+
+        val idWithPlaceholder = workspaceService.replaceWsPrefixToCurrentWsPlaceholder(input)
+        assertThat(idWithPlaceholder).isEqualTo(expected)
+        val idWithWsPrefix = workspaceService.replaceCurrentWsPlaceholderToWsPrefix(idWithPlaceholder, "custom")
+
+        if (idInWs.workspace.isNotEmpty()) {
+            assertThat(idWithPlaceholder).startsWith("CURRENT_WS:")
+            assertThat(idWithWsPrefix).startsWith("custom-sys-id:" + idInWs.id)
+        } else {
+            assertThat(idWithPlaceholder).doesNotStartWith("CURRENT_WS:")
+            assertThat(idWithWsPrefix).startsWith(idInWs.id)
+        }
+    }
 
     @Test
     fun idInWsTest() {
