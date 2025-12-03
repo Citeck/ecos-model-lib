@@ -235,6 +235,15 @@ interface WorkspaceService {
     fun buildAvailableWorkspacesPredicate(auth: AuthData, queriedWorkspaces: List<String>): Predicate
 
     /**
+     * Determines whether system artifacts should be filtered out for the given [auth] and [queriedWorkspaces].
+     *
+     * @param auth current runAs authentication
+     * @param queriedWorkspaces list of workspace identifiers involved in the query
+     * @return `true` if system artifacts should be filtered out, `false` otherwise
+     */
+    fun isSystemArtifactsShouldBeFiltered(auth: AuthData, queriedWorkspaces: List<String>): Boolean
+
+    /**
      * Returns a set of workspaces available for querying for the given [auth].
      *
      * If [queriedWorkspaces] is empty, all accessible workspaces are returned.

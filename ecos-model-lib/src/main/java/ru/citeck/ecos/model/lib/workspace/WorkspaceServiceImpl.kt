@@ -21,6 +21,7 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         private const val WS_REF_PREFIX = "emodel/workspace@"
         private const val WS_SYSTEM_USERNAME_PREFIX = "ws_system_"
         private const val CURRENT_WS_PH_PREFIX = "CURRENT_WS" + IdInWs.WS_DELIM
+        private const val WORKSPACE_PROP = "workspace"
     }
 
     private val workspaceApi = services.workspaceApi
@@ -231,7 +232,17 @@ class WorkspaceServiceImpl(services: ModelServiceFactory) : WorkspaceService {
         if (fixedWorkspaces.isEmpty()) {
             return Predicates.alwaysTrue()
         }
-        return Predicates.inVals("workspace", fixedWorkspaces)
+        return Predicates.inVals(WORKSPACE_PROP, fixedWorkspaces)
+    }
+
+    override fun isSystemArtifactsShouldBeFiltered(auth: AuthData, queriedWorkspaces: List<String>): Boolean {
+        return if (AuthContext.isSystemAuth(auth)) {
+            false
+        } else if (AuthContext.isAdminAuth(auth)) {
+            queriedWorkspaces.any { !isWorkspaceWithGlobalEntities(it) }
+        } else {
+            true
+        }
     }
 
     override fun getAvailableWorkspacesToQuery(auth: AuthData, queriedWorkspaces: List<String>): Set<String>? {
