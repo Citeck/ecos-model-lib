@@ -79,6 +79,7 @@ class ComputedAttsService(services: ModelServiceFactory) {
                     createAttOptionValue(valueData)?.let { result.add(it) }
                 }
             }
+
             "attribute" -> {
                 var attribute = config["attribute"].asText()
                 if (attribute.isNotBlank()) {
@@ -98,18 +99,29 @@ class ComputedAttsService(services: ModelServiceFactory) {
         return result
     }
 
-    fun computeAttsToStore(value: Any, isNewRecord: Boolean): ObjectData {
+    @JvmOverloads
+    fun computeAttsToStore(
+        value: Any,
+        isNewRecord: Boolean,
+        preCalculatedAtts: Map<String, Any?> = emptyMap()
+    ): ObjectData {
         val typeStr = recordsService.getAtt(value, RecordConstants.ATT_TYPE + ScalarType.ID.schema).asText()
-        return computeAttsToStore(value, isNewRecord, EntityRef.valueOf(typeStr))
+        return computeAttsToStore(value, isNewRecord, EntityRef.valueOf(typeStr), preCalculatedAtts)
     }
 
-    fun computeAttsToStore(value: Any, isNewRecord: Boolean, typeRef: EntityRef): ObjectData {
+    @JvmOverloads
+    fun computeAttsToStore(
+        value: Any,
+        isNewRecord: Boolean,
+        typeRef: EntityRef,
+        preCalculatedAtts: Map<String, Any?> = emptyMap()
+    ): ObjectData {
 
         if (typeRef.getLocalId().isEmpty()) {
-            return ObjectData.create()
+            return ObjectData.create(preCalculatedAtts)
         }
 
-        val typeInfo = typesRepo.getTypeInfo(typeRef) ?: return ObjectData.create()
+        val typeInfo = typesRepo.getTypeInfo(typeRef) ?: return ObjectData.create(preCalculatedAtts)
 
         val attsToEval = LinkedHashMap<String, ComputedAttDef>()
         val attsTypeById = HashMap<String, AttributeType>()
@@ -138,13 +150,35 @@ class ComputedAttsService(services: ModelServiceFactory) {
         if (isNewRecord) {
             for ((attId, computed) in attsToEval) {
                 if (computed.type == ComputedAttType.COUNTER) {
-                    computeAttToStore(resultAtts, valueToEval, attId, attsTypeById[attId], computed, isNewRecord)
+                    if (preCalculatedAtts.containsKey(attId)) {
+                        resultAtts[attId] = preCalculatedAtts[attId]
+                    } else {
+                        computeAttToStore(
+                            resultAtts,
+                            valueToEval,
+                            attId,
+                            attsTypeById[attId],
+                            computed,
+                            true
+                        )
+                    }
                 }
             }
         }
         for ((attId, computed) in attsToEval) {
             if (computed.type != ComputedAttType.COUNTER) {
-                computeAttToStore(resultAtts, valueToEval, attId, attsTypeById[attId], computed, isNewRecord)
+                if (preCalculatedAtts.containsKey(attId)) {
+                    resultAtts[attId] = preCalculatedAtts[attId]
+                } else {
+                    computeAttToStore(
+                        resultAtts,
+                        valueToEval,
+                        attId,
+                        attsTypeById[attId],
+                        computed,
+                        isNewRecord
+                    )
+                }
             }
         }
 
@@ -192,6 +226,36 @@ class ComputedAttsService(services: ModelServiceFactory) {
             }
         }
         return result
+    }
+
+    fun computeAtt(value: Any, attId: String, attType: AttributeType, computed: ComputedAttDef): ComputeRes {
+        if (computed.type == ComputedAttType.NONE) {
+            return ComputeRes.EMPTY
+        }
+        if (computed.storingType == ComputedAttStoringType.ON_EMPTY) {
+            val currentValue = recordsService.getAtt(value, "$attId[]?raw")
+            if (!isEmptyRawValue(currentValue)) {
+                return ComputeRes(currentValue, false)
+            }
+        }
+        if (computed.type == ComputedAttType.COUNTER) {
+            val templateRef = EntityRef.valueOf(computed.config[COUNTER_CONFIG_TEMPLATE_KEY].asText())
+            if (EntityRef.isNotEmpty(templateRef)) {
+                val nextNum = ecosNumService.getNextNumberForRecord(value, templateRef)
+                return ComputeRes(DataValue.of(nextNum), true)
+            } else {
+                error("templateRef is not defined")
+            }
+        } else {
+            val recordComputedAtt = RecordComputedAtt.create()
+                .withId(attId)
+                .withType(computed.type.toRecordComputedType())
+                .withConfig(computed.config)
+                .withResultType(mapAttributeTypeToRecordComputedResType(attType))
+                .build()
+            val res = recordComputedAttsService.compute(value, recordComputedAtt) { null }
+            return ComputeRes(DataValue.of(res), false)
+        }
     }
 
     private fun computeAttToStore(

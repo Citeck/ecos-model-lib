@@ -9,6 +9,7 @@ import ru.citeck.ecos.webapp.api.entity.EntityRef
 @JsonDeserialize(builder = TypeInfo.Builder::class)
 data class TypeInfo(
     val id: String,
+    val extIdTemplate: String,
     val name: MLText,
     val sourceId: String,
     val parentRef: EntityRef,
@@ -51,6 +52,7 @@ data class TypeInfo(
     class Builder() {
 
         var id: String = ""
+        var extIdTemplate: String = ""
         var name: MLText = MLText.EMPTY
         var sourceId: String = ""
         var parentRef: EntityRef = EntityRef.EMPTY
@@ -67,6 +69,7 @@ data class TypeInfo(
 
         constructor(base: TypeInfo) : this() {
             id = base.id
+            extIdTemplate = base.extIdTemplate
             name = base.name
             sourceId = base.sourceId
             parentRef = base.parentRef
@@ -84,6 +87,11 @@ data class TypeInfo(
 
         fun withId(id: String): Builder {
             this.id = id
+            return this
+        }
+
+        fun withExtIdTemplate(extIdTemplate: String?): Builder {
+            this.extIdTemplate = extIdTemplate?.trim() ?: ""
             return this
         }
 
@@ -164,6 +172,7 @@ data class TypeInfo(
 
             return TypeInfo(
                 id,
+                extIdTemplate,
                 name,
                 sourceId,
                 parentRef,
