@@ -9,7 +9,7 @@ import ru.citeck.ecos.webapp.api.entity.EntityRef
 @JsonDeserialize(builder = TypeInfo.Builder::class)
 data class TypeInfo(
     val id: String,
-    val extIdTemplate: String,
+    val localIdTemplate: String,
     val name: MLText,
     val sourceId: String,
     val parentRef: EntityRef,
@@ -52,7 +52,7 @@ data class TypeInfo(
     class Builder() {
 
         var id: String = ""
-        var extIdTemplate: String = ""
+        var localIdTemplate: String = ""
         var name: MLText = MLText.EMPTY
         var sourceId: String = ""
         var parentRef: EntityRef = EntityRef.EMPTY
@@ -69,7 +69,7 @@ data class TypeInfo(
 
         constructor(base: TypeInfo) : this() {
             id = base.id
-            extIdTemplate = base.extIdTemplate
+            localIdTemplate = base.localIdTemplate
             name = base.name
             sourceId = base.sourceId
             parentRef = base.parentRef
@@ -90,8 +90,8 @@ data class TypeInfo(
             return this
         }
 
-        fun withExtIdTemplate(extIdTemplate: String?): Builder {
-            this.extIdTemplate = extIdTemplate?.trim() ?: ""
+        fun withLocalIdTemplate(localIdTemplate: String?): Builder {
+            this.localIdTemplate = localIdTemplate?.trim() ?: ""
             return this
         }
 
@@ -171,21 +171,21 @@ data class TypeInfo(
             }
 
             return TypeInfo(
-                id,
-                extIdTemplate,
-                name,
-                sourceId,
-                parentRef,
-                dispNameTemplate,
-                numTemplateRef,
-                defaultStatus,
-                model,
-                contentConfig,
-                aspects,
-                queryPermsPolicy,
-                workspaceScope,
-                defaultWorkspace,
-                system
+                id = id,
+                localIdTemplate = localIdTemplate,
+                name = name,
+                sourceId = sourceId,
+                parentRef = parentRef,
+                dispNameTemplate = dispNameTemplate,
+                numTemplateRef = numTemplateRef,
+                defaultStatus = defaultStatus,
+                model = model,
+                contentConfig = contentConfig,
+                aspects = aspects,
+                queryPermsPolicy = queryPermsPolicy,
+                workspaceScope = workspaceScope,
+                defaultWorkspace = defaultWorkspace,
+                system = system
             )
         }
     }
