@@ -200,9 +200,10 @@ class RoleService : ModelServiceFactoryAware {
             }
             if (names === uniqueAssignees) {
                 result[roleDef.id] = names
+            } else {
+                assigneesSet.clear()
+                result[roleDef.id] = names.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
             }
-            assigneesSet.clear()
-            result[roleDef.id] = names.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
         }
         return result
     }

@@ -28,5 +28,26 @@ enum class AttributeType {
     JSON,
     BINARY,
 
-    OPTIONS
+    OPTIONS,
+
+    ENTITY_REF;
+
+    companion object {
+
+        /**
+         * Check if the attribute type represents a reference to another entity.
+         * Returns true for ASSOC, PERSON, AUTHORITY_GROUP, AUTHORITY and ENTITY_REF.
+         */
+        @JvmStatic
+        fun isAssocLike(type: AttributeType?): Boolean {
+            return when (type) {
+                ASSOC,
+                PERSON,
+                AUTHORITY_GROUP,
+                AUTHORITY,
+                ENTITY_REF -> true
+                else -> false
+            }
+        }
+    }
 }

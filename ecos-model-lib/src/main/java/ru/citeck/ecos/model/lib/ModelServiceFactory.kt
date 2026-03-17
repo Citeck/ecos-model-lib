@@ -37,6 +37,7 @@ import ru.citeck.ecos.records3.workspace.RecordsWorkspaceService
 import ru.citeck.ecos.webapp.api.EcosWebAppApi
 import ru.citeck.ecos.webapp.api.properties.EcosWebAppProps
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 
 @Suppress("unused")
 open class ModelServiceFactory {
@@ -196,17 +197,17 @@ open class ModelServiceFactory {
 
     private fun <T> lazySingleton(initializer: () -> T): Lazy<T> {
         val initializationInProgress = AtomicBoolean()
-        var createdValue: T? = null
+        val createdValue = AtomicReference<T>()
         return lazy {
             if (initializationInProgress.compareAndSet(false, true)) {
                 val value = initializer()
-                createdValue = value
+                createdValue.set(value)
                 if (value is ModelServiceFactoryAware) {
                     value.setModelServiceFactory(this)
                 }
                 value
             } else {
-                createdValue ?: error("Cyclic reference")
+                createdValue.get() ?: error("Cyclic reference")
             }
         }
     }

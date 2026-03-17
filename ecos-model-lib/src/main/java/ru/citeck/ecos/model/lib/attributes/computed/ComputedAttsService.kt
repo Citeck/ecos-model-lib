@@ -26,7 +26,8 @@ class ComputedAttsService(services: ModelServiceFactory) {
         fun mapAttributeTypeToRecordComputedResType(type: AttributeType?): RecordComputedAttResType {
             type ?: return RecordComputedAttResType.ANY
             return when (type) {
-                AttributeType.ASSOC -> RecordComputedAttResType.REF
+                AttributeType.ASSOC,
+                AttributeType.ENTITY_REF -> RecordComputedAttResType.REF
                 AttributeType.PERSON,
                 AttributeType.AUTHORITY_GROUP,
                 AttributeType.AUTHORITY -> RecordComputedAttResType.AUTHORITY

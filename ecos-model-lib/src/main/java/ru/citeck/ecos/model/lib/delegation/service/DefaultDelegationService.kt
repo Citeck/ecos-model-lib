@@ -32,7 +32,7 @@ open class DefaultDelegationService(services: ModelServiceFactory) : DelegationS
         return AuthContext.runAsSystem {
             val currentDelegates = recordsService.getAtts(record, PermissionDelegates::class.java)
             currentDelegates.delegates
-                .filter { it.isNotEmpty() || it.permissionType == permission }
+                .filter { it.isNotEmpty() && it.permissionType == permission }
         }
     }
 
