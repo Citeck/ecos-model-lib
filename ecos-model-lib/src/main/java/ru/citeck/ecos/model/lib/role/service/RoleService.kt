@@ -14,6 +14,8 @@ import ru.citeck.ecos.model.lib.type.service.TypeRefService
 import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAttType
 import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAttValue
+import ru.citeck.ecos.records3.record.atts.value.AttValue
+import ru.citeck.ecos.records3.record.atts.value.AttValueCtx
 import ru.citeck.ecos.records3.record.request.RequestContext
 import ru.citeck.ecos.txn.lib.TxnContext
 import ru.citeck.ecos.webapp.api.authority.EcosAuthoritiesApi
@@ -302,12 +304,38 @@ class RoleService : ModelServiceFactoryAware {
 
     private fun getAssigneesCache(record: Any?): MutableMap<String, List<String>>? {
         val txn = TxnContext.getTxnOrNull() ?: return null
-        if (!txn.isReadOnly() || record !is EntityRef) {
+        if (!txn.isReadOnly()) {
+            return null
+        }
+        val recordRef = getEntityRefForRecord(record)
+        if (recordRef.isEmpty()) {
             return null
         }
         return txn.getData(rolesCacheTxnKey) {
             HashMap<EntityRef, MutableMap<String, List<String>>>()
-        }.computeIfAbsent(record) { HashMap() }
+        }.computeIfAbsent(recordRef) { HashMap() }
+    }
+
+    private fun getEntityRefForRecord(record: Any?): EntityRef {
+        record ?: return EntityRef.EMPTY
+        if (record is EntityRef) {
+            return record
+        }
+        return if (record is AttValue) {
+            record.id as? EntityRef ?: EntityRef.EMPTY
+        } else if (record is AttValueCtx) {
+            record.getRef()
+        } else if (record is String) {
+            val slashIdx = record.indexOf('/')
+            val srcIdDelimIdx = record.indexOf('@')
+            if (slashIdx in 1 ..< srcIdDelimIdx) {
+                EntityRef.valueOf(record)
+            } else {
+                EntityRef.EMPTY
+            }
+        } else {
+            EntityRef.EMPTY
+        }
     }
 
     fun getRoleDef(typeRef: EntityRef?, roleId: String?): RoleDef {
