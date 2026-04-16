@@ -8,7 +8,6 @@ import ru.citeck.ecos.model.lib.ModelServiceFactoryAware
 import ru.citeck.ecos.model.lib.role.api.records.RolesMixin
 import ru.citeck.ecos.model.lib.role.constants.RoleConstants
 import ru.citeck.ecos.model.lib.role.dto.ComputedRoleType
-import ru.citeck.ecos.model.lib.role.dto.RoleComputedDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.type.service.TypeRefService
@@ -22,6 +21,14 @@ import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.api.entity.toEntityRef
 
 class RoleService : ModelServiceFactoryAware {
+
+    companion object {
+        private val COMPUTED_ATT_TYPES_TO_CALC_USING_RECORDS_SERVICE = setOf(
+            ComputedRoleType.SCRIPT,
+            ComputedRoleType.VALUE,
+            ComputedRoleType.ATTRIBUTE
+        )
+    }
 
     private lateinit var typeRefService: TypeRefService
     private lateinit var typesRepo: TypesRepo
@@ -182,49 +189,114 @@ class RoleService : ModelServiceFactoryAware {
         }
 
         AuthContext.runAsSystem {
-
-            // todo: join record attributes calculation
+            val computedAssigneesByRole = computeAssigneesForRoles(record, rolesDef)
             rolesDef.forEach { roleDef ->
-
-                val roleAtts = roleDef.attributes
-                val assignees: MutableList<String> = ArrayList()
-
-                if (roleAtts.isNotEmpty()) {
-
-                    val atts = roleAtts.associateWith { "$it[]?str" }
-                    val attsValues = recordsService.getAtts(record, atts)
-
-                    roleAtts.forEach {
-                        val value = attsValues.getAtt(it)
-                        if (value.isArray()) {
-                            assignees.addAll(value.asStrList())
-                        }
-                    }
+                computedAssigneesByRole[roleDef.id]?.let {
+                    result[roleDef.id] = it
+                    assigneesCache?.set(roleDef.id, it)
                 }
-                assignees.addAll(roleDef.assignees)
-                assignees.addAll(roleDef.computed.compute(record))
-
-                val assigneesSet = HashSet<String>()
-                val uniqueAssignees = assignees.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
-
-                val names = authoritiesApi?.getAuthorityNames(uniqueAssignees) ?: uniqueAssignees
-
-                if (names.size != uniqueAssignees.size) {
-                    error(
-                        "Authority component should return list with same length from method getAuthorityNames. " +
-                            "Actual names: $names Argument names: $uniqueAssignees"
-                    )
-                }
-                val roleAssigneesRes = if (names === uniqueAssignees) {
-                    names
-                } else {
-                    assigneesSet.clear()
-                    names.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
-                }
-                result[roleDef.id] = roleAssigneesRes
-                assigneesCache?.set(roleDef.id, roleAssigneesRes)
             }
         }
+        return result
+    }
+
+    private fun computeAssigneesForRoles(record: Any?, roles: List<RoleDef>): Map<String, List<String>> {
+
+        val attsToLoad = HashSet<String>()
+        val attsForRoles = HashMap<String, MutableSet<String>>()
+        val contextAtts = HashMap<String, RecordComputedAttValue>()
+        val preCalculatedAssignees = HashMap<String, MutableSet<String>>()
+
+        val uniqueAuthorities = LinkedHashSet<String>()
+
+        var computedAttIdx = 0
+        for (role in roles) {
+            val attsForRole = attsForRoles.computeIfAbsent(role.id) { HashSet() }
+            role.attributes.forEach {
+                val att = "$it[]?str"
+                attsToLoad.add(att)
+                attsForRole.add(att)
+            }
+
+            for (authority in role.assignees) {
+                if (authority.isNotBlank()) {
+                    val trimmedAuth = authority.trim()
+                    preCalculatedAssignees.computeIfAbsent(role.id) { LinkedHashSet() }.add(trimmedAuth)
+                    uniqueAuthorities.add(trimmedAuth)
+                }
+            }
+
+            // TODO: Compute [ComputedRoleType.VALUE] and [ComputedRoleType.ATTRIBUTE] explicit,
+            //  dont use [RecordComputedAttValue]. Remove toRecordComputedType() extension function
+            if (role.computed.type in COMPUTED_ATT_TYPES_TO_CALC_USING_RECORDS_SERVICE) {
+
+                val computedAttValue = RecordComputedAttValue.create()
+                    .withType(role.computed.type.toRecordComputedType())
+                    .withConfig(role.computed.config)
+                    .build()
+                val attKey = "__compAttValue_${computedAttIdx++}"
+                contextAtts[attKey] = computedAttValue
+                val attToLoad = "$$attKey[]?str"
+                attsToLoad.add(attToLoad)
+                attsForRole.add(attToLoad)
+            } else if (role.computed.type == ComputedRoleType.DMN) {
+
+                val decisionRef = role.computed.config["decisionRef"].asText().toEntityRef()
+                val rolePreCalc = preCalculatedAssignees.computeIfAbsent(role.id) { LinkedHashSet() }
+                computedRoleProcessor.computeRoleAssigneesFromDmn(decisionRef, record).forEach {
+                    if (it.isNotBlank()) {
+                        val trimmed = it.trim()
+                        rolePreCalc.add(trimmed)
+                        uniqueAuthorities.add(trimmed)
+                    }
+                }
+            }
+        }
+
+        val attributeValues = HashMap<String, List<String>>()
+        if (attsToLoad.isNotEmpty()) {
+            RequestContext.doWithAtts(contextAtts) { _ ->
+                recordsService.getAtts(record, attsToLoad).getAttributes().forEach { att, value ->
+                    val authorities = value.asStrList().filter { it.isNotBlank() }.map { it.trim() }
+                    uniqueAuthorities.addAll(authorities)
+                    attributeValues[att] = authorities
+                }
+            }
+        }
+
+        val authorityNamesMapping = HashMap<String, String>()
+        val uniqueAuthoritiesList = uniqueAuthorities.toList()
+
+        val names = authoritiesApi?.getAuthorityNames(uniqueAuthoritiesList)
+        if (names != null) {
+            if (names.size != uniqueAuthoritiesList.size) {
+                error(
+                    "Authority component should return list with same length from method getAuthorityNames. " +
+                        "Actual names: $names Argument names: $uniqueAuthoritiesList"
+                )
+            }
+            names.forEachIndexed { index, name ->
+                val srcVal = uniqueAuthoritiesList[index]
+                if (name != srcVal) {
+                    authorityNamesMapping[srcVal] = name
+                }
+            }
+        }
+
+        val result = LinkedHashMap<String, List<String>>()
+        for (role in roles) {
+            val roleAuthorities = LinkedHashSet<String>()
+            attsForRoles.getValue(role.id).forEach { attId ->
+                attributeValues[attId]?.forEach { authority ->
+                    roleAuthorities.add(authorityNamesMapping.getOrDefault(authority, authority))
+                }
+            }
+            preCalculatedAssignees[role.id]?.forEach { assignee ->
+                roleAuthorities.add(authorityNamesMapping.getOrDefault(assignee, assignee))
+            }
+            result[role.id] = roleAuthorities.toList()
+        }
+
         return result
     }
 
@@ -254,39 +326,6 @@ class RoleService : ModelServiceFactoryAware {
         }
 
         return getRoles(typeRef).firstOrNull { it.id == roleId } ?: RoleDef.EMPTY
-    }
-
-    private fun RoleComputedDef.compute(record: Any?): List<String> {
-        val assignees: MutableList<String> = mutableListOf()
-
-        when (type) {
-            // TODO: Compute [ComputedRoleType.VALUE] and [ComputedRoleType.ATTRIBUTE] explicit,
-            //  dont use [RecordComputedAttValue]. Remove toRecordComputedType() extension function
-            ComputedRoleType.SCRIPT, ComputedRoleType.VALUE, ComputedRoleType.ATTRIBUTE -> {
-                val computedAttValue = RecordComputedAttValue.create()
-                    .withType(type.toRecordComputedType())
-                    .withConfig(config)
-                    .build()
-
-                val authorities = RequestContext.doWithAtts(mapOf("roleAtt" to computedAttValue)) { _ ->
-                    recordsService.getAtt(record, "\$roleAtt[]?str").asStrList()
-                }
-
-                assignees.addAll(authorities)
-            }
-
-            ComputedRoleType.DMN -> {
-                val decisionRef = config["decisionRef"].asText().toEntityRef()
-                val assigneesFromDmn = computedRoleProcessor.computeRoleAssigneesFromDmn(decisionRef, record)
-                assignees.addAll(assigneesFromDmn)
-            }
-
-            else -> {
-                // do nothing
-            }
-        }
-
-        return assignees
     }
 
     private fun ComputedRoleType.toRecordComputedType(): RecordComputedAttType {
