@@ -16,6 +16,7 @@ import ru.citeck.ecos.records3.RecordsService
 import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAttType
 import ru.citeck.ecos.records3.record.atts.computed.RecordComputedAttValue
 import ru.citeck.ecos.records3.record.request.RequestContext
+import ru.citeck.ecos.txn.lib.TxnContext
 import ru.citeck.ecos.webapp.api.authority.EcosAuthoritiesApi
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 import ru.citeck.ecos.webapp.api.entity.toEntityRef
@@ -29,6 +30,8 @@ class RoleService : ModelServiceFactoryAware {
 
     private lateinit var recordsService: RecordsService
     private lateinit var computedRoleProcessor: ComputedRoleProcessor
+
+    private val rolesCacheTxnKey = Any()
 
     override fun setModelServiceFactory(services: ModelServiceFactory) {
         recordsService = services.records.recordsService
@@ -130,6 +133,8 @@ class RoleService : ModelServiceFactoryAware {
         val rolesToEval = roles.toMutableSet()
         val result = LinkedHashMap<String, List<String>>()
 
+        val assigneesCache = getAssigneesCache(record)
+
         val it = rolesToEval.iterator()
         while (it.hasNext()) {
             val roleId = it.next()
@@ -140,6 +145,11 @@ class RoleService : ModelServiceFactoryAware {
             } else if (roleId.isBlank() || roleId.startsWith(AuthRole.PREFIX)) {
                 result[roleId] = emptyList()
                 it.remove()
+            } else if (assigneesCache != null) {
+                assigneesCache[roleId]?.let { cachedVal ->
+                    result[roleId] = cachedVal
+                    it.remove()
+                }
             }
         }
         if (rolesToEval.isEmpty()) {
@@ -150,8 +160,12 @@ class RoleService : ModelServiceFactoryAware {
             val assigneesAtts = rolesToEval.associateWith {
                 RoleConstants.ATT_ROLES + "." + RoleConstants.ATT_ASSIGNEES_OF + ".$it[]?str"
             }
-            recordsService.getAtts(record, assigneesAtts).forEach { roleId, assignees ->
-                result[roleId] = assignees.asStrList()
+            AuthContext.runAsSystem {
+                recordsService.getAtts(record, assigneesAtts).forEach { roleId, assignees ->
+                    val assigneesStrList = assignees.asStrList()
+                    result[roleId] = assigneesStrList
+                    assigneesCache?.set(roleId, assigneesStrList)
+                }
             }
             return result
         }
@@ -162,50 +176,66 @@ class RoleService : ModelServiceFactoryAware {
             val def = roleDefById[it]
             if (def == null) {
                 result[it] = emptyList()
+                assigneesCache?.set(it, emptyList())
             }
             def
         }
 
-        // todo: join record attributes calculation
-        rolesDef.forEach { roleDef ->
+        AuthContext.runAsSystem {
 
-            val roleAtts = roleDef.attributes
-            val assignees: MutableList<String> = ArrayList()
+            // todo: join record attributes calculation
+            rolesDef.forEach { roleDef ->
 
-            if (roleAtts.isNotEmpty()) {
+                val roleAtts = roleDef.attributes
+                val assignees: MutableList<String> = ArrayList()
 
-                val atts = roleAtts.associateWith { "$it[]?str" }
-                val attsValues = recordsService.getAtts(record, atts)
+                if (roleAtts.isNotEmpty()) {
 
-                roleAtts.forEach {
-                    val value = attsValues.getAtt(it)
-                    if (value.isArray()) {
-                        assignees.addAll(value.asStrList())
+                    val atts = roleAtts.associateWith { "$it[]?str" }
+                    val attsValues = recordsService.getAtts(record, atts)
+
+                    roleAtts.forEach {
+                        val value = attsValues.getAtt(it)
+                        if (value.isArray()) {
+                            assignees.addAll(value.asStrList())
+                        }
                     }
                 }
-            }
-            assignees.addAll(roleDef.assignees)
-            assignees.addAll(roleDef.computed.compute(record))
+                assignees.addAll(roleDef.assignees)
+                assignees.addAll(roleDef.computed.compute(record))
 
-            val assigneesSet = HashSet<String>()
-            val uniqueAssignees = assignees.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
+                val assigneesSet = HashSet<String>()
+                val uniqueAssignees = assignees.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
 
-            val names = authoritiesApi?.getAuthorityNames(uniqueAssignees) ?: uniqueAssignees
+                val names = authoritiesApi?.getAuthorityNames(uniqueAssignees) ?: uniqueAssignees
 
-            if (names.size != uniqueAssignees.size) {
-                error(
-                    "Authority component should return list with same length from method getAuthorityNames. " +
-                        "Actual names: $names Argument names: $uniqueAssignees"
-                )
-            }
-            if (names === uniqueAssignees) {
-                result[roleDef.id] = names
-            } else {
-                assigneesSet.clear()
-                result[roleDef.id] = names.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
+                if (names.size != uniqueAssignees.size) {
+                    error(
+                        "Authority component should return list with same length from method getAuthorityNames. " +
+                            "Actual names: $names Argument names: $uniqueAssignees"
+                    )
+                }
+                val roleAssigneesRes = if (names === uniqueAssignees) {
+                    names
+                } else {
+                    assigneesSet.clear()
+                    names.map { it.trim() }.filter { it.isNotBlank() && assigneesSet.add(it) }
+                }
+                result[roleDef.id] = roleAssigneesRes
+                assigneesCache?.set(roleDef.id, roleAssigneesRes)
             }
         }
         return result
+    }
+
+    private fun getAssigneesCache(record: Any?): MutableMap<String, List<String>>? {
+        val txn = TxnContext.getTxnOrNull() ?: return null
+        if (!txn.isReadOnly() || record !is EntityRef) {
+            return null
+        }
+        return txn.getData(rolesCacheTxnKey) {
+            HashMap<EntityRef, MutableMap<String, List<String>>>()
+        }.computeIfAbsent(record) { HashMap() }
     }
 
     fun getRoleDef(typeRef: EntityRef?, roleId: String?): RoleDef {
