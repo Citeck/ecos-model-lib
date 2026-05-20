@@ -328,7 +328,7 @@ class RoleService : ModelServiceFactoryAware {
         } else if (record is String) {
             val slashIdx = record.indexOf('/')
             val srcIdDelimIdx = record.indexOf('@')
-            if (slashIdx in 1 ..< srcIdDelimIdx) {
+            if (slashIdx in 1..<srcIdDelimIdx) {
                 EntityRef.valueOf(record)
             } else {
                 EntityRef.EMPTY
