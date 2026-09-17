@@ -7,6 +7,7 @@ import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.status.dto.StatusDef
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
+import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records3.RecordsServiceFactory
@@ -26,7 +27,7 @@ class StatusServiceTest {
 
             override fun createTypesRepo(): TypesRepo {
 
-                return object : TypesRepo {
+                return object : DefaultTypesRepo() {
 
                     override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
                         if (typeRef == RecordDto.RECORD_TYPE_REF || typeRef == RecordDto.RECORD_TYPE_REF_CHILD) {

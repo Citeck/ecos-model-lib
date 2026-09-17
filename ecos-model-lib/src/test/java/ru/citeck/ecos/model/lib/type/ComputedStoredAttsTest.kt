@@ -11,6 +11,7 @@ import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttStoringType
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
+import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
@@ -94,7 +95,7 @@ class ComputedStoredAttsTest {
 
         services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
-                return object : TypesRepo {
+                return object : DefaultTypesRepo() {
                     override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
                         return if (typeRef.getLocalId() != type.id) {
                             null

@@ -9,6 +9,7 @@ import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttDef
 import ru.citeck.ecos.model.lib.attributes.dto.computed.ComputedAttType
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
+import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
@@ -60,7 +61,7 @@ class ComputedAttTest {
 
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
-                return object : TypesRepo {
+                return object : DefaultTypesRepo() {
                     override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
                         return modelByRef[typeRef.getLocalId()]?.let { model ->
                             TypeInfo.create {

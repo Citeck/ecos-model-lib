@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.type.api.records.TypesMixin
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
+import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
@@ -27,7 +28,7 @@ class TypesMixinTest {
         val recordsServices = RecordsServiceFactory()
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
-                return object : TypesRepo {
+                return object : DefaultTypesRepo() {
                     override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
                         val parentRef = types.firstOrNull {
                             it.id == typeRef.getLocalId()

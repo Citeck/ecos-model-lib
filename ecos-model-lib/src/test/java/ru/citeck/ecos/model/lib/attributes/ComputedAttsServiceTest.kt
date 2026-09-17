@@ -14,6 +14,7 @@ import ru.citeck.ecos.model.lib.num.dto.NumTemplateDef
 import ru.citeck.ecos.model.lib.num.repo.NumTemplatesRepo
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
+import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.records3.RecordsServiceFactory
 import ru.citeck.ecos.webapp.api.entity.EntityRef
@@ -37,7 +38,7 @@ class ComputedAttsServiceTest {
                 }
             }
             override fun createTypesRepo(): TypesRepo {
-                return object : TypesRepo {
+                return object : DefaultTypesRepo() {
                     override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
                         return typeInfoByRef[typeRef]
                     }

@@ -12,6 +12,7 @@ import ru.citeck.ecos.model.lib.role.dto.RoleComputedDef
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
+import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
@@ -41,7 +42,7 @@ class RolesMixinTest {
 
         val services = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
-                return object : TypesRepo {
+                return object : DefaultTypesRepo() {
 
                     override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
                         if (typeRef == testTypeRef) {

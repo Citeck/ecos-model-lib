@@ -8,6 +8,7 @@ import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.role.dto.RoleDef
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
+import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records3.RecordsService
@@ -55,7 +56,7 @@ class RoleServiceTest2 {
     fun beforeEach() {
 
         val types = mutableMapOf<String, TypeInfo>()
-        val typesRepo = object : TypesRepo {
+        val typesRepo = object : DefaultTypesRepo() {
             override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
                 return types[typeRef.getLocalId()]
             }

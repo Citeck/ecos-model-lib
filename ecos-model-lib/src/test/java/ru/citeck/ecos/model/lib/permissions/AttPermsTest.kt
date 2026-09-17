@@ -11,6 +11,7 @@ import ru.citeck.ecos.model.lib.status.dto.StatusDef
 import ru.citeck.ecos.model.lib.type.dto.TypeInfo
 import ru.citeck.ecos.model.lib.type.dto.TypeModelDef
 import ru.citeck.ecos.model.lib.type.dto.TypePermsDef
+import ru.citeck.ecos.model.lib.type.repo.DefaultTypesRepo
 import ru.citeck.ecos.model.lib.type.repo.TypesRepo
 import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.records2.source.dao.local.RecordsDaoBuilder
@@ -67,7 +68,7 @@ class AttPermsTest {
         val modelServiceFactory = object : ModelServiceFactory() {
             override fun createTypesRepo(): TypesRepo {
 
-                return object : TypesRepo {
+                return object : DefaultTypesRepo() {
 
                     override fun getTypeInfo(typeRef: EntityRef): TypeInfo? {
 
