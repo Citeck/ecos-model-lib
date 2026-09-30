@@ -66,6 +66,32 @@ class WorkspaceServiceExtensionsTest {
     }
 
     @Test
+    fun `currentWs placeholder of a type auto artifact is rebound to target ws prefix`() {
+        val ref = EntityRef.valueOf("uiserv/journal@type\$CURRENT_WS:my-type")
+        assertThat(workspaceService.bindRefToWorkspace(ref, WS).toString())
+            .isEqualTo("uiserv/journal@type\$${WS_PREFIX}my-type")
+        assertThat(workspaceService.bindRefToWorkspace(ref, "").toString())
+            .isEqualTo("uiserv/journal@type\$my-type")
+    }
+
+    @Test
+    fun `type auto artifact is promoted when its type is co-deployed`() {
+        val ref = EntityRef.valueOf("uiserv/journal@type\$my-type")
+        val coDeployed = setOf(EntityRef.valueOf("emodel/type@my-type"))
+        assertThat(workspaceService.bindRefToWorkspace(ref, WS, coDeployed).toString())
+            .isEqualTo("uiserv/journal@type\$${WS_PREFIX}my-type")
+        assertThat(workspaceService.bindRefToWorkspace(ref, WS).toString())
+            .isEqualTo("uiserv/journal@type\$my-type")
+    }
+
+    @Test
+    fun `ws-prefixed type auto artifact is unchanged`() {
+        val ref = EntityRef.valueOf("uiserv/form@type\$${WS_PREFIX}my-type")
+        val coDeployed = setOf(EntityRef.valueOf("emodel/type@my-type"))
+        assertThat(workspaceService.bindRefToWorkspace(ref, WS, coDeployed)).isEqualTo(ref)
+    }
+
+    @Test
     fun `empty ref is returned as-is`() {
         val result = workspaceService.bindRefToWorkspace(EntityRef.EMPTY, WS, setOf(EntityRef.EMPTY))
         assertThat(result).isEqualTo(EntityRef.EMPTY)

@@ -1,6 +1,7 @@
 package ru.citeck.ecos.model.lib.workspace
 
 import ru.citeck.ecos.context.lib.auth.data.AuthData
+import ru.citeck.ecos.model.lib.type.constants.TypeConstants
 import ru.citeck.ecos.model.lib.workspace.api.WsMembershipType
 import ru.citeck.ecos.records2.predicate.model.Predicate
 
@@ -146,6 +147,9 @@ interface WorkspaceService {
      *
      * Example: `"ws-sys-id:abc"` → `"CURRENT_WS:abc"`
      *
+     * An auto artifact of a workspace type keeps its [TypeConstants.AUTO_ARTIFACT_ID_PREFIX]:
+     * `"type$ws-sys-id:abc"` → `"type$CURRENT_WS:abc"`
+     *
      * @param id the identifier that may contain a workspace prefix
      * @return the identifier with workspace prefix replaced by a mask, or the original identifier if no prefix was found
      */
@@ -154,7 +158,7 @@ interface WorkspaceService {
     /**
      * Replaces the placeholder mask in the given identifier with the actual workspace prefix.
      *
-     * Example: `"CURRENT_WS:abc"` → `"ws-sys-id:abc"`
+     * Example: `"CURRENT_WS:abc"` → `"ws-sys-id:abc"`, `"type$CURRENT_WS:abc"` → `"type$ws-sys-id:abc"`
      *
      * @param id the identifier that may contain a workspace mask
      * @param workspace the workspace whose prefix should replace the mask

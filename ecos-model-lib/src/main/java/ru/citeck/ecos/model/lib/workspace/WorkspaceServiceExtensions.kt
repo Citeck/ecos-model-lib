@@ -2,6 +2,7 @@
 
 package ru.citeck.ecos.model.lib.workspace
 
+import ru.citeck.ecos.model.lib.type.constants.TypeConstants
 import ru.citeck.ecos.model.lib.workspace.IdInWs.Companion.create
 import ru.citeck.ecos.webapp.api.entity.EntityRef
 
@@ -10,7 +11,8 @@ import ru.citeck.ecos.webapp.api.entity.EntityRef
  * - `CURRENT_WS:` placeholder → target ws prefix (stripped to bare for a global deploy);
  * - already ws-prefixed → unchanged;
  * - unprefixed but present in [coDeployedRefs] (artifacts landing in the same workspace
- *   alongside this one) → promoted with the target ws prefix;
+ *   alongside this one) → promoted with the target ws prefix; an auto artifact of a type
+ *   (`uiserv/journal@type$my-type`) is promoted when its type (`emodel/type@my-type`) is co-deployed;
  * - otherwise unchanged (stays global / unprefixed).
  *
  * [coDeployedRefs] are app-qualified primary refs (e.g. `emodel/type@order-pass`). The membership
@@ -31,6 +33,10 @@ fun WorkspaceService.bindRefToWorkspace(
         rebound != localId -> rebound
         localId.contains(IdInWs.WS_DELIM) -> localId
         ref in coDeployedRefs -> addWsPrefixToId(localId, workspace)
+        isAutoArtifactOfCoDeployedType(localId, coDeployedRefs) -> {
+            val typeLocalId = localId.substring(TypeConstants.AUTO_ARTIFACT_ID_PREFIX.length)
+            TypeConstants.AUTO_ARTIFACT_ID_PREFIX + addWsPrefixToId(typeLocalId, workspace)
+        }
         else -> localId
     }
     return if (newLocalId == localId) {
@@ -38,6 +44,14 @@ fun WorkspaceService.bindRefToWorkspace(
     } else {
         ref.withLocalId(newLocalId)
     }
+}
+
+private fun isAutoArtifactOfCoDeployedType(localId: String, coDeployedRefs: Set<EntityRef>): Boolean {
+    if (!localId.startsWith(TypeConstants.AUTO_ARTIFACT_ID_PREFIX)) {
+        return false
+    }
+    val typeLocalId = localId.substring(TypeConstants.AUTO_ARTIFACT_ID_PREFIX.length)
+    return EntityRef.create(TypeConstants.TYPE_APP, TypeConstants.TYPE_SOURCE, typeLocalId) in coDeployedRefs
 }
 
 fun WorkspaceService?.convertToIdInWsSafe(strId: String): IdInWs {

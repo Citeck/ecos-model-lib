@@ -6,6 +6,7 @@ import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.context.lib.auth.AuthRole
 import ru.citeck.ecos.context.lib.auth.data.AuthData
 import ru.citeck.ecos.model.lib.ModelServiceFactory
+import ru.citeck.ecos.model.lib.type.constants.TypeConstants
 import ru.citeck.ecos.model.lib.utils.ModelUtils
 import ru.citeck.ecos.model.lib.workspace.IdInWs.Companion.create
 import ru.citeck.ecos.model.lib.workspace.api.WorkspaceApi
@@ -205,19 +206,32 @@ class WorkspaceServiceImpl @JvmOverloads constructor(
     }
 
     override fun replaceWsPrefixToCurrentWsPlaceholder(id: String): String {
-        val idInWs = convertToIdInWs(id)
+        // convertToIdInWs doesn't treat 'type$ws-sys-id:x' as an id in workspace (lookups of auto
+        // artifacts rely on it), so the auto artifact prefix is handled here
+        val autoArtifactPrefix = getTypeAutoArtifactPrefix(id)
+        val idInWs = convertToIdInWs(id.substring(autoArtifactPrefix.length))
         return if (idInWs.workspace.isNotEmpty()) {
-            CURRENT_WS_PH_PREFIX + idInWs.id
+            autoArtifactPrefix + CURRENT_WS_PH_PREFIX + idInWs.id
         } else {
-            idInWs.id
+            autoArtifactPrefix + idInWs.id
         }
     }
 
     override fun replaceCurrentWsPlaceholderToWsPrefix(id: String, workspace: String): String {
-        if (!id.startsWith(CURRENT_WS_PH_PREFIX)) {
+        val autoArtifactPrefix = getTypeAutoArtifactPrefix(id)
+        if (!id.startsWith(CURRENT_WS_PH_PREFIX, autoArtifactPrefix.length)) {
             return id
         }
-        return getPrefixForIdInWorkspace(workspace) + id.substring(CURRENT_WS_PH_PREFIX.length)
+        return autoArtifactPrefix + getPrefixForIdInWorkspace(workspace) +
+            id.substring(autoArtifactPrefix.length + CURRENT_WS_PH_PREFIX.length)
+    }
+
+    private fun getTypeAutoArtifactPrefix(id: String): String {
+        return if (id.startsWith(TypeConstants.AUTO_ARTIFACT_ID_PREFIX)) {
+            TypeConstants.AUTO_ARTIFACT_ID_PREFIX
+        } else {
+            ""
+        }
     }
 
     override fun convertToIdInWs(strId: String): IdInWs {

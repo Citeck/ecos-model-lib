@@ -41,6 +41,27 @@ class WorkspaceServiceTest {
         }
     }
 
+    @ParameterizedTest
+    @CsvSource(
+        // auto artifact of a workspace type: the ws prefix follows 'type$'
+        "type\$custom$SYS_ID_POSTFIX:simple, type\$CURRENT_WS:simple, type\$custom$SYS_ID_POSTFIX:simple",
+        // auto artifact of a global type
+        "type\$simple, type\$simple, type\$simple",
+    )
+    fun typeAutoArtifactPlaceholderTest(input: String, expected: String, expectedInWs: String) {
+
+        val idWithPlaceholder = workspaceService.replaceWsPrefixToCurrentWsPlaceholder(input)
+        assertThat(idWithPlaceholder).isEqualTo(expected)
+
+        assertThat(workspaceService.replaceCurrentWsPlaceholderToWsPrefix(idWithPlaceholder, "custom"))
+            .isEqualTo(expectedInWs)
+        assertThat(workspaceService.replaceCurrentWsPlaceholderToWsPrefix(idWithPlaceholder, ""))
+            .isEqualTo("type\$simple")
+
+        // lookups of auto artifacts rely on it: 'type$...' is never an id in workspace
+        assertThat(workspaceService.convertToIdInWs(input).workspace).isEmpty()
+    }
+
     @Test
     fun idInWsTest() {
 
