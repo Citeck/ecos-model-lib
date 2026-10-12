@@ -116,10 +116,9 @@ class WorkspaceServiceImpl @JvmOverloads constructor(
             return emptySet()
         }
 
-        val userWorkspaces = TxnContext.getTxnOrNull()
-            ?.getData(USER_WORKSPACES_CACHE_KEY) { HashMap<Pair<String, WsMembershipType>, Set<String>>() }
-            ?.computeIfAbsent(user to membershipType) { getWorkspacesByApi(it.first, it.second) }
-            ?: getWorkspacesByApi(user, membershipType)
+        val userWorkspaces = TxnContext
+            .getReadOnlyCache<Pair<String, WsMembershipType>, Set<String>>(USER_WORKSPACES_CACHE_KEY)
+            .computeIfAbsent(user to membershipType) { getWorkspacesByApi(it.first, it.second) }
 
         return if (membershipType == WsMembershipType.ALL) {
             val result = LinkedHashSet<String>(userWorkspaces)
