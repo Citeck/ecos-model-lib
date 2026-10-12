@@ -20,7 +20,7 @@
 
         <revision>2.40.2</revision>
 
-        <ecos.commons.version>3.6.0</ecos.commons.version>
+        <ecos.commons.version>3.8.7</ecos.commons.version>
         <ecos.records.version>3.76.11</ecos.records.version>
         <ecos.commands.version>2.12.0</ecos.commands.version>
 

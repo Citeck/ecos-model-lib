@@ -311,9 +311,8 @@ class RoleService : ModelServiceFactoryAware {
         if (recordRef.isEmpty()) {
             return null
         }
-        return txn.getData(rolesCacheTxnKey) {
-            HashMap<EntityRef, MutableMap<String, List<String>>>()
-        }.computeIfAbsent(recordRef) { HashMap() }
+        return txn.getReadOnlyCache<EntityRef, MutableMap<String, List<String>>>(rolesCacheTxnKey)
+            .computeIfAbsent(recordRef) { HashMap() }
     }
 
     private fun getEntityRefForRecord(record: Any?): EntityRef {
