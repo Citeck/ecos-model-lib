@@ -1,7 +1,6 @@
 package ru.citeck.ecos.model.lib.role.service
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import ru.citeck.ecos.commons.json.Json
 import ru.citeck.ecos.context.lib.auth.AuthContext
 import ru.citeck.ecos.model.lib.ModelServiceFactory
 import ru.citeck.ecos.model.lib.computed.ComputeDmnDecisionWebApi
@@ -20,10 +19,23 @@ class ComputedRoleProcessor(
     }
 
     private val dmnComputeTxnCacheKey = Any()
+    private val txnCache: MutableMap<String, List<String>>
+        get() = TxnContext.getTxnOrNull()?.getData(dmnComputeTxnCacheKey) { HashMap() } ?: HashMap()
 
     fun computeRoleAssigneesFromDmn(decisionRef: EntityRef, record: Any?): List<String> {
         if (decisionRef.isEmpty()) {
             return emptyList()
+        }
+
+        val key = "$decisionRef:$record"
+        if (txnCache.containsKey(key)) {
+            val assignees = txnCache[key] ?: emptyList()
+
+            log.trace {
+                "Assignees from DMN decision cache: \n$key, \nassignees: $assignees"
+            }
+
+            return assignees
         }
 
         val model = recordsService.getAtt(decisionRef, "definition.model")
@@ -35,16 +47,6 @@ class ComputedRoleProcessor(
             recordsService.getAtts(record, model).forEach { key, attr ->
                 filledModel[key] = attr
             }
-        }
-
-        val cache = TxnContext.getReadOnlyCache<DmnCacheKey, List<String>>(dmnComputeTxnCacheKey)
-        // Snapshot inputs so mutable record values cannot change an existing cache key.
-        val key = DmnCacheKey(decisionRef, record.toString(), Json.mapper.toStringNotNull(filledModel))
-        cache[key]?.let { assignees ->
-            log.trace {
-                "Assignees from DMN decision cache: \n$key, \nassignees: $assignees"
-            }
-            return assignees
         }
 
         val assigneesFromDmn = computeDmnDecisionWebApi.compute(EntityRef.valueOf(decisionRef), filledModel)
@@ -61,14 +63,8 @@ class ComputedRoleProcessor(
                 "\nfilledModel: $filledModel \nassignees: $assigneesFromDmn"
         }
 
-        cache[key] = assigneesFromDmn
+        txnCache[key] = assigneesFromDmn
 
         return assigneesFromDmn
     }
-
-    private data class DmnCacheKey(
-        val decisionRef: EntityRef,
-        val record: String,
-        val inputs: String
-    )
 }

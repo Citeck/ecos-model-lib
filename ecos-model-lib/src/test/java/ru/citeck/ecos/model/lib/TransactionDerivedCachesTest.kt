@@ -25,14 +25,16 @@ import ru.citeck.ecos.txn.lib.manager.TransactionManagerImpl
 import ru.citeck.ecos.webapp.api.EcosWebAppApi
 import ru.citeck.ecos.webapp.api.constants.AppName
 import ru.citeck.ecos.webapp.api.entity.EntityRef
+import java.lang.reflect.Proxy
 import java.util.concurrent.atomic.AtomicInteger
 
-class ReadOnlyDerivedCachesTest {
+class TransactionDerivedCachesTest {
 
     private lateinit var api: EcosWebAppApiMock
     private lateinit var manager: TransactionManagerImpl
     private lateinit var records: RecordsService
     private lateinit var processor: ComputedRoleProcessor
+    private lateinit var modelServices: ModelServiceFactory
     private lateinit var workspaces: WorkspaceService
     private lateinit var decision: EntityRef
     private lateinit var record: EntityRef
@@ -59,6 +61,7 @@ class ReadOnlyDerivedCachesTest {
         val services = object : ModelServiceFactory() {
             override fun getEcosWebAppApi(): EcosWebAppApi = api
         }
+        modelServices = services
         services.setRecordsServices(recordServices)
         services.setWorkspaceApi(object : WorkspaceApi {
             override fun getNestedWorkspaces(workspaces: Collection<String>): List<Set<String>> =
@@ -96,41 +99,41 @@ class ReadOnlyDerivedCachesTest {
     }
 
     @Test
-    fun testDmnRefreshesAfterRecordMutationBetweenReadOnlyScopes() {
+    fun testDmnSnapshotSurvivesWritableScopes() {
         TxnContext.doInTxn {
             TxnContext.doInTxn(readOnly = true) {
                 assertThat(processor.computeRoleAssigneesFromDmn(decision, record)).containsExactly("before")
             }
             records.mutateAtt(record, "performer", "after")
             TxnContext.doInTxn(readOnly = true) {
-                assertThat(processor.computeRoleAssigneesFromDmn(decision, record)).containsExactly("after")
+                assertThat(processor.computeRoleAssigneesFromDmn(decision, record)).containsExactly("before")
             }
         }
-        assertThat(dmnCalls.get()).isEqualTo(2)
-    }
-
-    @Test
-    fun testDmnDoesNotRetainResultsInWritableTransaction() {
-        TxnContext.doInTxn {
-            assertThat(processor.computeRoleAssigneesFromDmn(decision, record)).containsExactly("before")
-            records.mutateAtt(record, "performer", "after")
+        TxnContext.doInTxn(readOnly = true) {
             assertThat(processor.computeRoleAssigneesFromDmn(decision, record)).containsExactly("after")
         }
         assertThat(dmnCalls.get()).isEqualTo(2)
     }
 
     @Test
-    fun testDmnCacheKeyIncludesInputsOfSameRecordObject() {
+    fun testDmnReusesResultsInWritableTransaction() {
+        TxnContext.doInTxn {
+            assertThat(processor.computeRoleAssigneesFromDmn(decision, record)).containsExactly("before")
+            records.mutateAtt(record, "performer", "after")
+            assertThat(processor.computeRoleAssigneesFromDmn(decision, record)).containsExactly("before")
+        }
+        assertThat(dmnCalls.get()).isEqualTo(1)
+    }
+
+    @Test
+    fun testDmnKeepsFirstResultForSameRecordObject() {
         val input = MutableInputRecord("before")
         TxnContext.doInTxn(readOnly = true) {
             assertThat(processor.computeRoleAssigneesFromDmn(decision, input)).containsExactly("before")
             input.performer = "after"
-            assertThat(processor.computeRoleAssigneesFromDmn(decision, input)).containsExactly("after")
-            assertThat(processor.computeRoleAssigneesFromDmn(decision, input)).containsExactly("after")
-            input.performer = "before"
             assertThat(processor.computeRoleAssigneesFromDmn(decision, input)).containsExactly("before")
         }
-        assertThat(dmnCalls.get()).isEqualTo(2)
+        assertThat(dmnCalls.get()).isEqualTo(1)
     }
 
     @Test
@@ -142,7 +145,7 @@ class ReadOnlyDerivedCachesTest {
 
     @ParameterizedTest
     @EnumSource(WsMembershipType::class)
-    fun testMembershipAdditionsAndRemovalsBetweenReadOnlyScopes(type: WsMembershipType) {
+    fun testMembershipSnapshotSurvivesWritableScopes(type: WsMembershipType) {
         AuthContext.runAsSystem {
             TxnContext.doInTxn {
                 memberships["alice" to type] = setOf("old")
@@ -151,24 +154,27 @@ class ReadOnlyDerivedCachesTest {
                 }
                 memberships["alice" to type] = setOf("new")
                 TxnContext.doInTxn(readOnly = true) {
-                    assertThat(workspaces.getUserWorkspaces("alice", type)).isEqualTo(expectedMembership(type, "new"))
+                    assertThat(workspaces.getUserWorkspaces("alice", type)).isEqualTo(expectedMembership(type, "old"))
                 }
+            }
+            TxnContext.doInTxn(readOnly = true) {
+                assertThat(workspaces.getUserWorkspaces("alice", type)).isEqualTo(expectedMembership(type, "new"))
             }
         }
         assertThat(workspaceCalls.get()).isEqualTo(2)
     }
 
     @Test
-    fun testMembershipDoesNotRetainResultsInWritableTransaction() {
+    fun testMembershipReusesResultsInWritableTransaction() {
         AuthContext.runAsSystem {
             TxnContext.doInTxn {
                 memberships["alice" to WsMembershipType.ALL] = setOf("old")
                 assertThat(workspaces.getUserWorkspaces("alice")).contains("old")
                 memberships["alice" to WsMembershipType.ALL] = setOf("new")
-                assertThat(workspaces.getUserWorkspaces("alice")).contains("new").doesNotContain("old")
+                assertThat(workspaces.getUserWorkspaces("alice")).contains("old").doesNotContain("new")
             }
         }
-        assertThat(workspaceCalls.get()).isEqualTo(2)
+        assertThat(workspaceCalls.get()).isEqualTo(1)
     }
 
     @Test
@@ -211,6 +217,29 @@ class ReadOnlyDerivedCachesTest {
             assertThat(workspaces.getUserWorkspaces("alice")).contains("new").doesNotContain("old")
         }
         assertThat(workspaceCalls.get()).isEqualTo(2)
+    }
+
+    @Test
+    fun testDmnCacheHitDoesNotLoadDecisionModelOrRecordInputs() {
+        val inputReads = AtomicInteger()
+        val countedRecords = Proxy.newProxyInstance(
+            javaClass.classLoader,
+            arrayOf(RecordsService::class.java)
+        ) { _, method, args ->
+            if (method.name == "getAtt" || method.name == "getAtts") {
+                inputReads.incrementAndGet()
+            }
+            method.invoke(records, *(args ?: emptyArray()))
+        } as RecordsService
+        val countedProcessor = ComputedRoleProcessor(modelServices, recordsService = countedRecords)
+        TxnContext.doInTxn {
+            assertThat(countedProcessor.computeRoleAssigneesFromDmn(decision, record)).containsExactly("before")
+            val readsAfterFirstCall = inputReads.get()
+            assertThat(readsAfterFirstCall).isGreaterThan(0)
+            assertThat(countedProcessor.computeRoleAssigneesFromDmn(decision, record)).containsExactly("before")
+            assertThat(inputReads.get()).isEqualTo(readsAfterFirstCall)
+        }
+        assertThat(dmnCalls.get()).isEqualTo(1)
     }
 
     private fun expectedMembership(type: WsMembershipType, workspace: String): Set<String> =
